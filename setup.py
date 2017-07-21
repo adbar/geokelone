@@ -1,8 +1,13 @@
-from setuptools import setup
+#!/usr/bin/python3
+
+
+from distutils.core import setup
+# from setuptools import setup
+
 
 def readme():
-    with open('README.md') as f:
-        return f.read()
+    with open('README.md') as readmefile:
+        return readmefile.read()
 
 setup(name='unnamed',
       version='0.1',
@@ -21,9 +26,9 @@ setup(name='unnamed',
       license='license',
       packages=['testmodule'],
       install_requires=[
-          'exrex',
+          'exrex', 'requests'
       ],
      test_suite='nose.collector',
      tests_require=['nose'],
-      include_package_data=True,
-      zip_safe=False)
+     include_package_data=True,
+     zip_safe=False)

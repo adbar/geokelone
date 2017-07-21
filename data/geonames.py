@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function, unicode_literals
@@ -9,7 +9,6 @@ import sys
 from zipfile import ZipFile
 
 import locale
-from os import listdir
 import re
 
 
@@ -18,11 +17,6 @@ if sys.version_info[0] == 3:
     string_type = str
 else:
     string_type = basestring
-
-
-## TODO:
-# sort and uniq output (meta)
-# filter metadata with same values
 
 
 locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8')
@@ -91,8 +85,6 @@ def fetchdata(countrycodes, codesdict, metainfo):
                     i += 1
         print (i, 'lines seen')
 
-
-# for filename in listdir(directory):
 def filterfile(filename, codesdict, metainfo):
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:

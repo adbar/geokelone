@@ -14,7 +14,7 @@ def readplain(filename):
         #    tokens[elem] += 1
         return splitted
 
-def readtok(filename):
+def readtok(filename, datesbool, datestok):
     with open(filename, 'r', encoding='utf-8') as inputfh:
         i = 0
         splitted = list()
@@ -23,7 +23,7 @@ def readtok(filename):
             if i % 10000000 == 0:
                 print (i)
             # consider dates
-            if args.dates is True:
+            if datesbool is True:
                 columns = re.split('\t', line)
                 if columns[0] not in datestok:
                     datestok[columns[0]] = set()

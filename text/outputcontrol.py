@@ -1,16 +1,20 @@
 
-from ..geo import results, lines # datestok
+## outdated #  from ..geo import results, lines # datestok
 
-datebool = False
+from .. import settings
 
-def writefile(outputfile): # , datebool
+
+COLUMN_NAMES = ('id', 'latitude', 'longitude', 'type', 'country', 'population', 'place', 'frequency', 'occurrences')
+
+
+def writefile(outputfile, results, datestok):
     with open(outputfile, 'w', encoding='utf-8') as outputfh:
-        outputfh.write('id' + '\t' + 'latitude' + '\t' + 'longitude' + '\t' + 'type' + '\t' + 'country' + '\t' + 'population' + '\t' + 'place' + '\t' + 'frequency' + '\t' + 'occurrences')
-        if datebool is True:
+        outputfh.write('\t'.join(COLUMN_NAMES))
+        if settings.DATEBOOL is True:
             outputfh.write('\t' + 'dates' + '\n')
         else:
             outputfh.write('\n')
-    
+
         for key in sorted(results):
             outputfh.write(key)
             for item in results[key]:
@@ -18,7 +22,7 @@ def writefile(outputfile): # , datebool
                     for subelement in item:
                         outputfh.write('\t' + str(subelement))
                     # dates
-                    if datebool is True:
+                    if settings.DATEBOOL is True:
                         if item[6] in datestok:
                         # filter century
                             dates = datestok[item[6]]
@@ -32,7 +36,7 @@ def writefile(outputfile): # , datebool
                     outputfh.write('\t' + str(item))
             outputfh.write('\n')
 
-def writelines(linesfile, datebool, results, datestok):
+def writelines(linesfile, lines):
     with open(linesfile, 'w') as outputfh:
         outputfh.write('{"type": "FeatureCollection","features": [')
         i = 1
@@ -41,16 +45,16 @@ def writelines(linesfile, datebool, results, datestok):
         #r = 0
         #g = 255
         #b = 255
-        for l in lines:
-            (lat1, lon1) = l[0]
-            (lat2, lon2) = l[1]
+        for line in lines:
+            (lat1, lon1) = line[0]
+            (lat2, lon2) = line[1]
             # htmlcolor = "#%02x%02x%02x" % (r,g,b)
             if i > 1:
                 outputfh.write(',')
             outputfh.write('{"geometry": {"type": "LineString", "coordinates":[[')
             outputfh.write(lon1 + ',' + lat1 + '],[' + lon2 + ',' + lat2 + ']]')
             outputfh.write('},"type": "Feature", "properties": { "arc":' + str(i) + ',')
-            outputfh.write(' "start": "' + lon1 + ',' + lat1 + '", "end": "' + lon2 + ',' + lat2 + '", ' )
+            outputfh.write(' ' + '"start": "' + lon1 + ',' + lat1 + '", "end": "' + lon2 + ',' + lat2 + '", ')
             outputfh.write('"htmlcolor": "' + str(color) + '"}}')
 
             i += 1
@@ -60,6 +64,3 @@ def writelines(linesfile, datebool, results, datestok):
                 # g -= 1
 
         outputfh.write(']}')
-
-
-

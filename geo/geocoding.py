@@ -1,29 +1,29 @@
-## TODO: activate geonames function
+#!/usr/bin/python3
 
-import re
 
 from heapq import nlargest
 from math import radians, cos, sin, asin, sqrt
+import re
 
-# from ..data import load # to be replaced
+from .. import settings
 
-verbosebool = True
-linesbool = False
-minlength = 4
-#if filter_level == 1:
-#    maxcandidates = 5 # was 10
-#elif filter_level == 2 or filter_level == 3:
-#    maxcandidates = 10 # was 10
-maxcandidates = 10
 
-vicinity = set(['AT', 'BE', 'CH', 'CZ', 'DK', 'FR', 'LU', 'NL', 'PL'])
-reference = (float(51.86666667), float(12.64333333)) # Wittenberg
+
+if settings.FILTER_LEVEL == 1:
+    maxcandidates = 5 # was 10
+elif settings.FILTER_LEVEL == 2 or settings.FILTER_LEVEL == 3:
+    maxcandidates = 10 # was 10
+
+vicinity = settings.DISAMBIGUATION_SETTING[settings.STANDARD_SETTING]['vicinity']
+reference = settings.DISAMBIGUATION_SETTING[settings.STANDARD_SETTING]['reference']
 
 i = 0
 results = dict()
 dictionary = set()
 stoplist = set()
 lines = list()
+
+# print ('settings:', settings.MINLENGTH)
 
 
 
@@ -200,7 +200,7 @@ def filter_store(name, multiflag, codesdict, metainfo):
         lastcountry = metainfo[winning_id][3]
 
         # lines flag
-        if linesbool is True:
+        if settings.LINESBOOL is True:
             draw_line(results[winning_id][0], results[winning_id][1])
 
         # result
@@ -255,7 +255,7 @@ def selected_lists(name, multiflag):
             # increment last element
             results[canonname][-1] += 1
         # lines flag
-        if linesbool is True:
+        if settings.LINESBOOL is True:
             draw_line(templist[0], templist[1])
         # store flag
         return False
@@ -299,8 +299,8 @@ def search(searchlist, codesdict, metainfo):
            slide3 = slide3 + ' ' + token
 
         # control
-        if verbosebool is True:
-            print (token, slide2, slide3, sep=';')
+        if settings.VERBOSITY == 'V':
+            print (token, slide2, slide3, sep=";")
 
         # flag test
         #if args.prepositions is True:
@@ -326,7 +326,7 @@ def search(searchlist, codesdict, metainfo):
                 flag = filter_store(slide2, True, codesdict, metainfo)
         # just one token, if nothing has been found
         if flag is True:
-            if len(token) >= minlength and not re.match(r'[a-zäöü]', token) and token not in stoplist:
+            if len(token) >= settings.MINLENGTH and not re.match(r'[a-zäöü]', token) and token not in stoplist:
             # and (tokens[token]/numtokens) < threshold
                 flag = selected_lists(token, False)
                 # dict check before
@@ -349,7 +349,7 @@ def search(searchlist, codesdict, metainfo):
 # draw lines
 def draw_line(lat, lon):
     global pair, lines, pair_counter
-    if pair_counter <= context_threshold:
+    if pair_counter <= settings.CONTEXT_THRESHOLD:
         if len(pair) == 1:
             pair.append((lat, lon))
             lines.append((pair[0], pair[1]))

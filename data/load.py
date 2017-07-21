@@ -4,14 +4,9 @@ from __future__ import print_function, unicode_literals
 
 import exrex
 import re
+import sys
 
-# from ..geo import settings
-
-
-## init
-verbosebool = False
-filter_level = 0
-minlength = 4
+from .. import settings
 
 
 
@@ -22,7 +17,7 @@ def expand(expression):
         results = list()
         results.append(expression)
         # German genitive form: if no s at the end of one component
-        if not re.search(r's$', expression) and not re.search(r'\s', expression): 
+        if not re.search(r's$', expression) and not re.search(r'\s', expression):
             temp = expression + 's'
             results.append(temp)
         return results
@@ -32,7 +27,7 @@ def expand(expression):
 
 
 def load_tsv(filename):
-    d = dict()
+    dic = dict()
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
             line = line.strip()
@@ -53,15 +48,15 @@ def load_tsv(filename):
                 # append
                 canonical = expansions[0]
                 for variant in expansions:
-                    d[variant] = [columns[1], columns[2], canonical]
-                    if verbosebool is True:
-                        print (variant, d[variant])
-    print (len(d), 'entries found in registry', filename)
-    return d
+                    dic[variant] = [columns[1], columns[2], canonical]
+                    if settings.VERBOSITY == 'VVV':
+                        print (variant, dic[variant])
+    print (len(dic), 'entries found in registry', filename)
+    return dic
 
 
 def load_csv(filename):
-    d = dict()
+    dic = dict()
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
             line = line.strip()
@@ -91,11 +86,11 @@ def load_csv(filename):
                 for variant in expansions:
                     # correction
                     if len(variant) > 1:
-                        d[variant] = [columns[2], columns[3], canonical]
-                        if verbosebool is True:
-                            print (variant, d[variant])
-    print (len(d), 'entries found in registry', filename)
-    return d
+                        dic[variant] = [columns[2], columns[3], canonical]
+                        if settings.VERBOSITY == 'VVV':
+                            print (variant, dic[variant])
+    print (len(dic), 'entries found in registry', filename)
+    return dic
 
 
 #if __name__ == "__main__":
@@ -120,14 +115,14 @@ def loadmeta(filename): # './geonames-meta.dict'
                 columns = re.split('\t', line)
 
                 # no empty places at filter levels 1 & 2
-                if filter_level == 1 or filter_level == 2:
+                if settings.FILTER_LEVEL == 1 or settings.FILTER_LEVEL == 2:
                     if columns[5] == '0':
                         continue
                 # filter: skip elements
-                if filter_level == 1:
+                if settings.FILTER_LEVEL == 1:
                     if columns[3] != 'A':
                         continue
-                elif filter_level == 2:
+                elif settings.FILTER_LEVEL == 2:
                     if columns[3] != 'A' and columns[3] != 'P':
                         continue
                 # process
@@ -137,9 +132,8 @@ def loadmeta(filename): # './geonames-meta.dict'
     except IOError:
         print ('geonames data required at this stage')
         sys.exit(1)
-    finally:
-        print ('different names:', len(metainfo))
-        return metainfo
+    print ('different names:', len(metainfo))
+    return metainfo
 
 
 # load codes (while implementing filter)
@@ -152,7 +146,7 @@ def loadcodes(filename, metainfo): # './geonames-codes.dict'
                 line = line.strip()
                 columns = re.split('\t', line)
                 # length filter
-                if len(columns[0]) < minlength:
+                if len(columns[0]) < settings.MINLENGTH:
                     continue
                 # add codes
                 for item in columns[1:]:
@@ -164,8 +158,5 @@ def loadcodes(filename, metainfo): # './geonames-codes.dict'
     except IOError:
         print ('geonames data required at this stage')
         sys.exit(1)
-    finally:
-        print ('different codes:', len(codesdict))
-        return codesdict
-
-
+    print ('different codes:', len(codesdict))
+    return codesdict
