@@ -1,5 +1,7 @@
 
 
+from __future__ import print_function, unicode_literals
+
 import exrex
 import re
 
@@ -8,8 +10,6 @@ import re
 
 ## init
 verbosebool = False
-codesdict = dict()
-metainfo = dict()
 filter_level = 0
 minlength = 4
 
@@ -21,7 +21,7 @@ def expand(expression):
     if len(expresults) == 1:
         results = list()
         results.append(expression)
-        # genitive form if no s at the end of one component
+        # German genitive form: if no s at the end of one component
         if not re.search(r's$', expression) and not re.search(r'\s', expression): 
             temp = expression + 's'
             results.append(temp)
@@ -29,6 +29,7 @@ def expand(expression):
     # serialize
     else:
         return expresults
+
 
 def load_tsv(filename):
     d = dict()
@@ -57,6 +58,7 @@ def load_tsv(filename):
                         print (variant, d[variant])
     print (len(d), 'entries found in registry', filename)
     return d
+
 
 def load_csv(filename):
     d = dict()
@@ -98,62 +100,72 @@ def load_csv(filename):
 
 #if __name__ == "__main__":
 # load infos level 0
-level0 = load_tsv('./rang0-makro.tsv')
+#level0 = load_tsv('./rang0-makro.tsv')
 # load infos level 1
-level1 = load_tsv('./rang1-staaten.tsv')
+#level1 = load_tsv('./rang1-staaten.tsv')
 # load infos level 2
-level2 = load_csv('./rang2-regionen.csv')
+#level2 = load_csv('./rang2-regionen.csv')
 # load infos level 3
-level3 = load_csv('./rang3-staedte.csv')
+#level3 = load_csv('./rang3-staedte.csv')
 
 
 # geonames
 ### FILE MUST EXIST, use the preprocessing script provided
-try:
-    with open('./geonames-meta.dict', 'r', encoding='utf-8') as inputfh:
-        for line in inputfh:
-            line = line.strip()
-            columns = re.split('\t', line)
-            # no empty places at filter levels 1 & 2
-            if filter_level == 1 or filter_level == 2:
-                if columns[5] == '0':
-                    continue
-            # filter: skip elements
-            if filter_level == 1:
-                if columns[3] != 'A':
-                    continue
-            elif filter_level == 2:
-                if columns[3] != 'A' and columns[3] != 'P':
-                    continue
-            # process
-            metainfo[columns[0]] = list()
-            for item in columns[1:]:
-                metainfo[columns[0]].append(item)
-except IOError:
-    print ('geonames data required at this stage')
-    sys.exit(1)
-print ('different codes:', len(metainfo))
+def loadmeta(filename): # './geonames-meta.dict'
+    metainfo = dict()
+    try:
+        with open(filename, 'r', encoding='utf-8') as inputfh:
+            for line in inputfh:
+                line = line.strip()
+                columns = re.split('\t', line)
+
+                # no empty places at filter levels 1 & 2
+                if filter_level == 1 or filter_level == 2:
+                    if columns[5] == '0':
+                        continue
+                # filter: skip elements
+                if filter_level == 1:
+                    if columns[3] != 'A':
+                        continue
+                elif filter_level == 2:
+                    if columns[3] != 'A' and columns[3] != 'P':
+                        continue
+                # process
+                metainfo[columns[0]] = list()
+                for item in columns[1:]:
+                    metainfo[columns[0]].append(item)
+    except IOError:
+        print ('geonames data required at this stage')
+        sys.exit(1)
+    finally:
+        print ('different names:', len(metainfo))
+        return metainfo
+
 
 # load codes (while implementing filter)
 ### FILE MUST EXIST, use the preprocessing script provided
-try:
-    with open('./geonames-codes.dict', 'r', encoding='utf-8') as inputfh:
-        for line in inputfh:
-            line = line.strip()
-            columns = re.split('\t', line)
-            # length filter
-            if len(columns[0]) < minlength:
-                continue
-            # add codes
-            for item in columns[1:]:
-                # depends from filter level
-                if item in metainfo:
-                    if columns[0] not in codesdict:
-                        codesdict[columns[0]] = list()
-                    codesdict[columns[0]].append(item)
-except IOError:
-    print ('geonames data required at this stage')
-    sys.exit(1)
-print ('different names:', len(codesdict))
+def loadcodes(filename, metainfo): # './geonames-codes.dict'
+    codesdict = dict()
+    try:
+        with open(filename, 'r', encoding='utf-8') as inputfh:
+            for line in inputfh:
+                line = line.strip()
+                columns = re.split('\t', line)
+                # length filter
+                if len(columns[0]) < minlength:
+                    continue
+                # add codes
+                for item in columns[1:]:
+                    # depends from filter level
+                    if item in metainfo:
+                        if columns[0] not in codesdict:
+                            codesdict[columns[0]] = list()
+                        codesdict[columns[0]].append(item)
+    except IOError:
+        print ('geonames data required at this stage')
+        sys.exit(1)
+    finally:
+        print ('different codes:', len(codesdict))
+        return codesdict
 
 

@@ -5,7 +5,7 @@ import re
 from heapq import nlargest
 from math import radians, cos, sin, asin, sqrt
 
-from ..data import load
+# from ..data import load # to be replaced
 
 verbosebool = True
 linesbool = False
@@ -20,10 +20,9 @@ vicinity = set(['AT', 'BE', 'CH', 'CZ', 'DK', 'FR', 'LU', 'NL', 'PL'])
 reference = (float(51.86666667), float(12.64333333)) # Wittenberg
 
 i = 0
-
+results = dict()
 dictionary = set()
 stoplist = set()
-results = dict()
 lines = list()
 
 
@@ -45,7 +44,7 @@ def haversine(lat1, lon1, lat2, lon2):
     km = 6367 * c
     return "{0:.1f}".format(km)
 
-def find_winner(candidates, step):
+def find_winner(candidates, step, metainfo):
     # test if list
     if not isinstance(candidates, list):
         print ('ERROR: not a list', candidates)
@@ -58,8 +57,8 @@ def find_winner(candidates, step):
     headcounts = list()
     popdict = dict()
     for candidate in candidates:
-        headcounts.append(load.metainfo[candidate][4])
-        popdict[load.metainfo[candidate][4]] = candidate
+        headcounts.append(metainfo[candidate][4])
+        popdict[metainfo[candidate][4]] = candidate
     largest = nlargest(2, headcounts)
     # all null but one
     if largest[0] != 0 and largest[1] == 0:
@@ -74,17 +73,17 @@ def find_winner(candidates, step):
     # step 2: filter places with no population
     if step == 2:
         for candidate in candidates:
-            if int(load.metainfo[candidate][4]) == 0:
+            if int(metainfo[candidate][4]) == 0:
                 candidates.remove(candidate)
     # double entries: place + administrative region
     if len(candidates) == 2:
-        if load.metainfo[candidates[0]][2] == 'A' and load.metainfo[candidates[1]][2] == 'P':
+        if metainfo[candidates[0]][2] == 'A' and metainfo[candidates[1]][2] == 'P':
             return candidates[1]
-        elif load.metainfo[candidates[0]][2] == 'P' and load.metainfo[candidates[1]][2] == 'A':
+        elif metainfo[candidates[0]][2] == 'P' and metainfo[candidates[1]][2] == 'A':
             return candidates[0]
     # last country code seen
     #if lastcountry is not None:
-    #    if load.metainfo[item][3] == lastcountry:
+    #    if metainfo[item][3] == lastcountry:
     #        scores[item] += 1
 
     # tests
@@ -92,12 +91,12 @@ def find_winner(candidates, step):
         # init
         scores[candidate] = 0
         # distance: lat1, lon1, lat2, lon2
-        distances[candidate] = haversine(reference[0], reference[1], float(load.metainfo[candidate][0]), float(load.metainfo[candidate][1]))
+        distances[candidate] = haversine(reference[0], reference[1], float(metainfo[candidate][0]), float(metainfo[candidate][1]))
         # population
-        if int(load.metainfo[candidate][4]) > 1000:
+        if int(metainfo[candidate][4]) > 1000:
             scores[candidate] += 1
         # vicinity
-        if load.metainfo[candidate][3] in vicinity:
+        if metainfo[candidate][3] in vicinity:
             scores[candidate] += 1
     # best distance
     smallest_distance = min(distances.values())
@@ -111,48 +110,49 @@ def find_winner(candidates, step):
         #if isinstance(best_ones, list):
         return best_ones[0]
         #else:
-        #    lastcountry = load.metainfo[best_ones][3]
+        #    lastcountry = metainfo[best_ones][3]
     if len(best_ones) == 2:
         # double entries: place + administrative region
-        if load.metainfo[best_ones[0]][2] == 'A' and load.metainfo[best_ones[1]][2] == 'P':
+        if metainfo[best_ones[0]][2] == 'A' and metainfo[best_ones[1]][2] == 'P':
             return best_ones[1]
-        elif load.metainfo[best_ones[0]][2] == 'P' and load.metainfo[best_ones[1]][2] == 'A':
+        elif metainfo[best_ones[0]][2] == 'P' and metainfo[best_ones[1]][2] == 'A':
             return best_ones[0]
 
 # dict search
-def filter_store(name, multiflag):
+def filter_store(name, multiflag, codesdict, metainfo):
+
     # double check for stoplist
     if name in stoplist:
         return True
     # else
     global i, lastcountry, results
     winning_id = ''
-    if name in load.codesdict:
+    if name in codesdict:
         # single winner
-        if not isinstance(load.codesdict[name], list) or len(load.codesdict[name]) == 1:
-            winning_id = load.codesdict[name][0]
+        if not isinstance(codesdict[name], list) or len(codesdict[name]) == 1:
+            winning_id = codesdict[name][0]
         else:
             # discard if too many
-            if len(load.codesdict[name]) >= maxcandidates:
+            if len(codesdict[name]) >= maxcandidates:
                 try:
-                    print ('WARN, discarded:', name, load.codesdict[name])
+                    print ('WARN, discarded:', name, codesdict[name])
                 except UnicodeEncodeError:
-                    print ('WARN, discarded:', 'unicode error', load.codesdict[name])
+                    print ('WARN, discarded:', 'unicode error', codesdict[name])
                 return True
             # 3-step filter
             step = 1
             while (step <= 3):
                 # launch function
                 if step == 1:
-                    winners = find_winner(load.codesdict[name], step)
+                    winners = find_winner(codesdict[name], step, metainfo)
                 else:
-                    winners = find_winner(winners, step)
+                    winners = find_winner(winners, step, metainfo)
                 # analyze result
                 if winners is None:
                     try:
-                        print ('ERROR, out of winners:', name, load.codesdict[name])
+                        print ('ERROR, out of winners:', name, codesdict[name])
                     except UnicodeEncodeError:
-                        print ('ERROR, out of winners:', 'unicode error', load.codesdict[name])
+                        print ('ERROR, out of winners:', 'unicode error', codesdict[name])
                     i += 1
                     return True
                 if not isinstance(winners, list):
@@ -171,7 +171,7 @@ def filter_store(name, multiflag):
         # throw dice and record
         #if len(winning_id) == 0:
         #    for element in best_ones:
-        #        print (name, element, scores[element], distances[element], str(load.metainfo[element]), sep='\t')
+        #        print (name, element, scores[element], distances[element], str(metainfo[element]), sep='\t')
         #        i += 1
             # random choice to store...
         #    winning_id = choice(best_ones)
@@ -186,7 +186,7 @@ def filter_store(name, multiflag):
         if winning_id not in results:
             results[winning_id] = list()
             try:
-                for element in load.metainfo[winning_id]:
+                for element in metainfo[winning_id]:
                     results[winning_id].append(element)
             except KeyError:
                 print ('ERROR, not found:', winning_id)
@@ -197,7 +197,7 @@ def filter_store(name, multiflag):
         else:
             # increment last element
             results[winning_id][-1] += 1
-        lastcountry = load.metainfo[winning_id][3]
+        lastcountry = metainfo[winning_id][3]
 
         # lines flag
         if linesbool is True:
@@ -218,17 +218,21 @@ def selected_lists(name, multiflag):
     templist = None
 
     # search + canonicalize
-    #if name in load.level0:
-    #    templist = [load.level0[name][0], load.level0[name][1], '0', 'NULL', 'NULL', load.level0[name][2]]
-    #elif name in load.level1:
-    #    templist = [load.level1[name][0], load.level1[name][1], '1', 'NULL', 'NULL', load.level1[name][2]]
-    #elif name in load.level2:
-    #    templist = [load.level2[name][0], load.level2[name][1], '2', 'NULL', 'NULL', load.level2[name][2]]
-    #elif name in load.level3:
-    #    templist = [load.level3[name][0], load.level3[name][1], '3', 'NULL', 'NULL', load.level3[name][2]]
+    ## this is ugly
+    try:
+        if name in level0:
+            templist = [level0[name][0], level0[name][1], '0', 'NULL', 'NULL', level0[name][2]]
+        elif name in level1:
+            templist = [level1[name][0], level1[name][1], '1', 'NULL', 'NULL', level1[name][2]]
+        elif name in level2:
+            templist = [level2[name][0], level2[name][1], '2', 'NULL', 'NULL', level2[name][2]]
+        elif name in level3:
+            templist = [level3[name][0], level3[name][1], '3', 'NULL', 'NULL', level3[name][2]]
     # filter here?
-    #elif name not in dictionary and name.lower() not in dictionary and name in load.level4:
-    #    templist = [load.level4[name][0], load.level4[name][1], '4', 'NULL', 'NULL', name] # load.level4[name][0]
+    #    elif name not in dictionary and name.lower() not in dictionary and name in level4:
+    #        templist = [level4[name][0], level4[name][1], '4', 'NULL', 'NULL', name] # level4[name][0]
+    except NameError:
+        pass
 
     # canonical result
     if templist is not None:
@@ -259,7 +263,7 @@ def selected_lists(name, multiflag):
         return True
 
 
-def search(searchlist):
+def search(searchlist, codesdict, metainfo):
     # init
     slide2 = ''
     slide3 = ''
@@ -312,14 +316,14 @@ def search(searchlist):
             flag = selected_lists(slide3, True)
             # if nothing has been found
             if flag is True:
-                flag = filter_store(slide3, True)
+                flag = filter_store(slide3, True, codesdict, metainfo)
         # longest chain first
         if flag is True and len(slide2) > 0 and slide2.count(' ') == 1:
             # selected lists first
             flag = selected_lists(slide2, True)
             # if nothing has been found
             if flag is True:
-                flag = filter_store(slide2, True)
+                flag = filter_store(slide2, True, codesdict, metainfo)
         # just one token, if nothing has been found
         if flag is True:
             if len(token) >= minlength and not re.match(r'[a-zäöü]', token) and token not in stoplist:
@@ -327,7 +331,7 @@ def search(searchlist):
                 flag = selected_lists(token, False)
                 # dict check before
                 if flag is True and token not in dictionary and token.lower() not in dictionary:
-                    flag = filter_store(token, False)
+                    flag = filter_store(token, False, codesdict, metainfo)
         
         # final check whether to keep the multi-word scan running
         if flag is False:
@@ -338,6 +342,8 @@ def search(searchlist):
         #                tempstring = token
 
         pair_counter += 1
+    # return something
+    return results
 
 
 # draw lines

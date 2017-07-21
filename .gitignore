@@ -1,0 +1,15 @@
+# Compiled python modules.
+*.py[cod]
+
+# Setuptools distribution folder.
+/dist/
+
+# Python egg metadata, regenerated from source files by setuptools.
+*.egg
+*.egg-info
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
