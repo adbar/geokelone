@@ -2,9 +2,14 @@
 
 
 
-## why disambiguate?
+#### why disambiguate?
 
 Did you know there was a Jerusalem in Bavaria and a Leipzig in Ukraine?
+
+
+#### why curating?
+
+Even with a touch of filtering, the token "Berlin" in Geonames is a place north of Germany with 0 inhabitants (see map below).
 
 
 ## cartopy install notes

@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+"""
+Fixed settings for extraction and projection of toponyms (as is: European places in German texts).
+"""
 
 
 
@@ -33,4 +36,9 @@ STANDARD_SETTING = 'Wittenberg'
 
 
 
-
+# coordinate frame suitable for Europe
+FIXED_FRAME = True
+EASTMOST = 25
+WESTMOST = -10
+NORTHMOST = 65
+SOUTHMOST = 35
