@@ -1,6 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+Fixed settings for extraction and projection of toponyms (as is: European places in German texts).
+"""
 
 
-from __future__ import print_function, unicode_literals
+# compatibility
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import exrex
 import re
@@ -89,6 +94,7 @@ def load_csv(filename):
                         dic[variant] = [columns[2], columns[3], canonical]
                         if settings.VERBOSITY == 'VVV':
                             print (variant, dic[variant])
+
     print (len(dic), 'entries found in registry', filename)
     return dic
 

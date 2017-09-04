@@ -1,7 +1,8 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, unicode_literals
+
+# compatibility
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from io import BytesIO
 import requests
@@ -11,6 +12,8 @@ from zipfile import ZipFile
 import locale
 import re
 
+from .. import settings
+
 
 # Python3 types
 if sys.version_info[0] == 3:
@@ -19,7 +22,7 @@ else:
     string_type = basestring
 
 
-locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8')
+locale.setlocale(locale.LC_ALL, settings.LOCALE)
 # directory = 'geonames'
 
 

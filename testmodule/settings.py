@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
 Fixed settings for extraction and projection of toponyms (as is: European places in German texts).
@@ -8,7 +7,7 @@ Fixed settings for extraction and projection of toponyms (as is: European places
 
 
 MINLENGTH = 4
-FILTER_LEVEL = 3
+FILTER_LEVEL = 3 # was 3
 CONTEXT_THRESHOLD = 20
 
 
@@ -19,7 +18,12 @@ LINESBOOL = False
 DATEBOOL = False
 
 
+## registers provided or not
+# CUSTOM_REGISTERS = True
 
+
+## dependent on language and text type
+LOCALE = 'de_DE.UTF-8'
 
 DISAMBIGUATION_SETTING = { \
     'Vienna': { \
@@ -36,7 +40,7 @@ STANDARD_SETTING = 'Wittenberg'
 
 
 
-# coordinate frame suitable for Europe
+## coordinate frame suitable for Europe
 FIXED_FRAME = True
 EASTMOST = 25
 WESTMOST = -10

@@ -212,34 +212,34 @@ def filter_store(name, multiflag, codesdict, metainfo):
 
 
 ## search in selected databases
-def selected_lists(name, multiflag):
+def selected_lists(name, multiflag, *args):
     # init
     global results
     templist = None
+    level0, level1, level2, level3 = (dict(),)*4
+    if len(args) == 4:
+        level0 = args[0]
+        level1 = args[1]
+        level2 = args[2]
+        level3 = args[3]
 
     # search + canonicalize
-    ## this is ugly
-    try:
-        if name in level0:
-            templist = [level0[name][0], level0[name][1], '0', 'NULL', 'NULL', level0[name][2]]
-        elif name in level1:
-            templist = [level1[name][0], level1[name][1], '1', 'NULL', 'NULL', level1[name][2]]
-        elif name in level2:
-            templist = [level2[name][0], level2[name][1], '2', 'NULL', 'NULL', level2[name][2]]
-        elif name in level3:
-            templist = [level3[name][0], level3[name][1], '3', 'NULL', 'NULL', level3[name][2]]
-    # filter here?
-    #    elif name not in dictionary and name.lower() not in dictionary and name in level4:
-    #        templist = [level4[name][0], level4[name][1], '4', 'NULL', 'NULL', name] # level4[name][0]
-    except NameError:
-        pass
+    if level0 and name in level0:
+        templist = [level0[name][0], level0[name][1], '0', 'NULL', 'NULL', level0[name][2]]
+    elif level1 and name in level1:
+        templist = [level1[name][0], level1[name][1], '1', 'NULL', 'NULL', level1[name][2]]
+    elif level2 and name in level2:
+        templist = [level2[name][0], level2[name][1], '2', 'NULL', 'NULL', level2[name][2]]
+    elif level3 and name in level3:
+        templist = [level3[name][0], level3[name][1], '3', 'NULL', 'NULL', level3[name][2]]
+    # TODO: implement here
+    #elif name not in dictionary and name.lower() not in dictionary and name in level4:
+    #    templist = [level4[name][0], level4[name][1], '4', 'NULL', 'NULL', name] # level4[name][0]
 
     # canonical result
     if templist is not None:
         canonname = templist[-1]
-
-    # results
-    if templist is not None:
+        # results
         # store whole result or just count
         if canonname not in results:
             # disable frequency count if multi-word on
@@ -263,11 +263,14 @@ def selected_lists(name, multiflag):
         return True
 
 
-def search(searchlist, codesdict, metainfo):
+def search(searchlist, codesdict, metainfo, *listargs):
     # init
     slide2 = ''
     slide3 = ''
     pair_counter = 0
+    if listargs and len(listargs) != 4:
+        sys.exit('4 custom lists expected, exiting...')
+
     # search for places
     for token in searchlist:
         flag = True
@@ -302,25 +305,20 @@ def search(searchlist, codesdict, metainfo):
         if settings.VERBOSITY == 'V':
             print (token, slide2, slide3, sep=";")
 
-        # flag test
-        #if args.prepositions is True:
-        #if multiword_flag is False:
-        #    if token == 'aus' or token == 'bei' or token == 'bis' or token == 'durch' or token == 'in' or token == 'nach' or token == u'über' or token == 'von' or token == 'zu':
-                # print (token)
-        #        multiword_flag = True
-
         ## analyze sliding window first, then token if necessary
         # longest chain first
         if len(slide3) > 0 and slide3.count(' ') == 2:
             # selected lists first
-            flag = selected_lists(slide3, True)
+            if listargs:
+                flag = selected_lists(slide3, True, listargs[0], listargs[1], listargs[2], listargs[3])
             # if nothing has been found
             if flag is True:
                 flag = filter_store(slide3, True, codesdict, metainfo)
         # longest chain first
         if flag is True and len(slide2) > 0 and slide2.count(' ') == 1:
             # selected lists first
-            flag = selected_lists(slide2, True)
+            if listargs:
+                flag = selected_lists(slide2, True, listargs[0], listargs[1], listargs[2], listargs[3])
             # if nothing has been found
             if flag is True:
                 flag = filter_store(slide2, True, codesdict, metainfo)
@@ -328,7 +326,8 @@ def search(searchlist, codesdict, metainfo):
         if flag is True:
             if len(token) >= settings.MINLENGTH and not re.match(r'[a-zäöü]', token) and token not in stoplist:
             # and (tokens[token]/numtokens) < threshold
-                flag = selected_lists(token, False)
+                if listargs:
+                    flag = selected_lists(token, False, listargs[0], listargs[1], listargs[2], listargs[3])
                 # dict check before
                 if flag is True and token not in dictionary and token.lower() not in dictionary:
                     flag = filter_store(token, False, codesdict, metainfo)
@@ -337,9 +336,6 @@ def search(searchlist, codesdict, metainfo):
         if flag is False:
             slide2 = ''
             slide3 = ''
-
-        #            if re.match(r'[A-ZÄÖÜ]', token, re.UNICODE):
-        #                tempstring = token
 
         pair_counter += 1
     # return something

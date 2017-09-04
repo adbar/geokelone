@@ -12,14 +12,14 @@ from setuptools import setup # find_packages,
 
 
 here = os.path.abspath(os.path.dirname(__file__))
-packages = ['htmldate']
+packages = ['testmodule']
 
 
 def readme():
     with open(os.path.join(here, 'README.rst'), 'r', 'utf-8') as readmefile:
         return readmefile.read()
 
-setup(name='unnamed',
+setup(name='testmodule',
       version='0.1',
       description='to complete',
       long_description=readme(),
