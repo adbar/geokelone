@@ -10,12 +10,17 @@ import numpy as np
 
 from .. import settings
 
+from ..data import validators
 
-# suitable for Europe
-eastmost = 25
-westmost = -10
-northmost = 65
-southmost = 35
+
+## TODO:
+# points types
+# ..
+# http://scitools.org.uk/cartopy/docs/latest/matplotlib/feature_interface.html
+# http://scitools.org.uk/cartopy/docs/latest/matplotlib/intro.html?highlight=ccrs%20geodetic
+# http://scitools.org.uk/cartopy/docs/latest/gallery.html
+
+
 
 # not all projections need this
 # standard_parallels = (45, 63)
@@ -27,10 +32,12 @@ southmost = 35
 def draw_map(filename, results):
     fig = plt.figure()
 
-    ax = fig.add_subplot(1, 1, 1,
-          projection=ccrs.Mollweide(central_longitude=0, globe=None))
+    ax = fig.add_subplot(1, 1, 1, projection=ccrs.Mollweide(central_longitude=0, globe=None))
 
-    ax.set_extent([westmost, eastmost, southmost, northmost])
+    if settings.FIXED_FRAME is True:
+        ax.set_extent([settings.WESTMOST, settings.EASTMOST, settings.SOUTHMOST, settings.NORTHMOST])
+    else:
+        print('## ERROR: flexible framing not implemented yet')
 
     # ax.gridlines()
     ax.add_feature(cfeature.OCEAN)
@@ -39,10 +46,15 @@ def draw_map(filename, results):
     ax.add_feature(cfeature.COASTLINE)
 
     for item in results:
-        lat, lon, ptype, country, something, pname, somethingelse, occurrences = results[item]
-        lat = float(lat)
-        lon = float(lon)
-        print('# INFO projecting:', pname, lat, lon)
+        if True: # if validate_mapdata(results[item]) is True
+            lat, lon, ptype, country, something, pname, somethingelse, occurrences = results[item]
+            lat = float(lat)
+            lon = float(lon)
+            print('# INFO projecting:', pname, lat, lon)
+        else:
+            print('# WARN problem with entry:', item)
+            continue
+
         # point
         ax.plot(lon, lat, marker='o', color='green', markersize=2, alpha=0.5, transform=ccrs.Geodetic())
         # text
