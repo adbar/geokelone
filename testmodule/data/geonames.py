@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
-
+"""
+Helpers to import data from geonames.
+"""
 
 # compatibility
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from io import BytesIO
-import requests
-import sys
-from zipfile import ZipFile
-
 import locale
 import re
+import sys
+from io import BytesIO
+from zipfile import ZipFile
+
+import requests
 
 from .. import settings
 
@@ -28,6 +30,9 @@ locale.setlocale(locale.LC_ALL, settings.LOCALE)
 
 # filter data
 def filterline(line, codesdict, metainfo):
+    """
+    Only store a geonames entry if it satisfies formal criteria (type, validity, etc.)
+    """
     seen_codes = set()
     columns = re.split('\t', line)
 
@@ -40,7 +45,7 @@ def filterline(line, codesdict, metainfo):
         return
     # check if exists in db
     if columns[0] in seen_codes:
-        print ('WARN: code already seen', line)
+        print('WARN: code already seen', line)
         return
 
     ## name, alternatenames, latitude, longitude, code, country, population
@@ -68,6 +73,9 @@ def filterline(line, codesdict, metainfo):
 
 # download data
 def fetchdata(countrycodes, codesdict, metainfo):
+    """
+    Retrieve data from geonames for the countries given.
+    """
     # make it a list
     if isinstance(countrycodes, string_type):
         tmp = countrycodes
@@ -79,16 +87,20 @@ def fetchdata(countrycodes, codesdict, metainfo):
         countrycode = countrycode.upper()
         url = 'http://download.geonames.org/export/dump/' + countrycode + '.zip'
         filename = countrycode + '.txt'
-        print ('downloading...', url)
+        print('downloading...', url)
         request = requests.get(url)
         with ZipFile(BytesIO(request.content)) as myzip:
             with myzip.open(filename) as myfile:
                 for line in myfile:
                     filterline(line.decode(), codesdict, metainfo)
                     i += 1
-        print (i, 'lines seen')
+        print(i, 'lines seen')
+
 
 def filterfile(filename, codesdict, metainfo):
+    """
+    File data helper.
+    """
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
             filterline(line, codesdict, metainfo)
@@ -96,7 +108,10 @@ def filterfile(filename, codesdict, metainfo):
 
 # write info to file
 def writefile(dictname, filename):
-    print ('writing register to file', filename)
+    """
+    Save geonames information to a file.
+    """
+    print('writing register to file', filename)
     i = 0
     with open(filename, 'w', encoding='utf-8') as outfh:
         for key in sorted(dictname):
@@ -106,7 +121,7 @@ def writefile(dictname, filename):
                     outfh.write('\t' + item)
                 outfh.write('\n')
                 i += 1
-    print (i, 'lines written')
+    print(i, 'lines written')
 
 
 # control

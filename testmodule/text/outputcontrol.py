@@ -1,6 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+Control and print/write results.
+"""
 
+
+# own
 ## outdated #  from ..geo import results, lines # datestok
-
 from .. import settings
 
 
@@ -8,6 +13,9 @@ COLUMN_NAMES = ('id', 'latitude', 'longitude', 'type', 'country', 'population', 
 
 
 def writefile(outputfile, results, datestok):
+    """
+    Control and write results to a file.
+    """
     with open(outputfile, 'w', encoding='utf-8') as outputfh:
         outputfh.write('\t'.join(COLUMN_NAMES))
         if settings.DATEBOOL is True:
@@ -37,6 +45,9 @@ def writefile(outputfile, results, datestok):
             outputfh.write('\n')
 
 def writelines(linesfile, lines):
+    """
+    Control and write line/collocation data to a file.
+    """
     with open(linesfile, 'w') as outputfh:
         outputfh.write('{"type": "FeatureCollection","features": [')
         i = 1

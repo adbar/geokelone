@@ -5,7 +5,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import matplotlib.pyplot as plt
 from matplotlib.transforms import offset_copy
-import numpy as np
+# import numpy as np
 
 
 from .. import settings
@@ -30,6 +30,9 @@ from ..data import validators
 
 
 def draw_map(filename, results):
+    """
+    Place points/lines on a map and save it in a file.
+    """
     fig = plt.figure()
 
     ax = fig.add_subplot(1, 1, 1, projection=ccrs.Mollweide(central_longitude=0, globe=None))
@@ -66,4 +69,3 @@ def draw_map(filename, results):
     # ax.coastlines(resolution='50m', color='black', linewidth=0.5)
 
     plt.savefig(filename, dpi=300)
-

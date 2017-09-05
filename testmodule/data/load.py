@@ -7,15 +7,22 @@ Fixed settings for extraction and projection of toponyms (as is: European places
 # compatibility
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import exrex
+# standard
 import re
 import sys
 
+# external
+import exrex
+
+# own
 from .. import settings
 
 
 
 def expand(expression):
+    """
+    Use regex entry expansion to populate the register.
+    """
     expresults = list(exrex.generate(expression))
     # no regex
     if len(expresults) == 1:
@@ -32,6 +39,9 @@ def expand(expression):
 
 
 def load_tsv(filename):
+    """
+    Open a TSV file and load its content into memory.
+    """
     dic = dict()
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
@@ -55,12 +65,15 @@ def load_tsv(filename):
                 for variant in expansions:
                     dic[variant] = [columns[1], columns[2], canonical]
                     if settings.VERBOSITY == 'VVV':
-                        print (variant, dic[variant])
-    print (len(dic), 'entries found in registry', filename)
+                        print(variant, dic[variant])
+    print(len(dic), 'entries found in registry', filename)
     return dic
 
 
 def load_csv(filename):
+    """
+    Open a CSV file and load its content into memory.
+    """
     dic = dict()
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
@@ -93,9 +106,9 @@ def load_csv(filename):
                     if len(variant) > 1:
                         dic[variant] = [columns[2], columns[3], canonical]
                         if settings.VERBOSITY == 'VVV':
-                            print (variant, dic[variant])
+                            print(variant, dic[variant])
 
-    print (len(dic), 'entries found in registry', filename)
+    print(len(dic), 'entries found in registry', filename)
     return dic
 
 
@@ -113,6 +126,9 @@ def load_csv(filename):
 # geonames
 ### FILE MUST EXIST, use the preprocessing script provided
 def loadmeta(filename): # './geonames-meta.dict'
+    """
+    Load metadata for a place name from Geonames.
+    """
     metainfo = dict()
     try:
         with open(filename, 'r', encoding='utf-8') as inputfh:
@@ -136,15 +152,18 @@ def loadmeta(filename): # './geonames-meta.dict'
                 for item in columns[1:]:
                     metainfo[columns[0]].append(item)
     except IOError:
-        print ('geonames data required at this stage')
+        print('geonames data required at this stage')
         sys.exit(1)
-    print ('different names:', len(metainfo))
+    print('different names:', len(metainfo))
     return metainfo
 
 
 # load codes (while implementing filter)
 ### FILE MUST EXIST, use the preprocessing script provided
 def loadcodes(filename, metainfo): # './geonames-codes.dict'
+    """
+    Load codes from Geonames for matching and disambiguation purposes.
+    """
     codesdict = dict()
     try:
         with open(filename, 'r', encoding='utf-8') as inputfh:
@@ -162,7 +181,7 @@ def loadcodes(filename, metainfo): # './geonames-codes.dict'
                             codesdict[columns[0]] = list()
                         codesdict[columns[0]].append(item)
     except IOError:
-        print ('geonames data required at this stage')
+        print('geonames data required at this stage')
         sys.exit(1)
-    print ('different codes:', len(codesdict))
+    print('different codes:', len(codesdict))
     return codesdict

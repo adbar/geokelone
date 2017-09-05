@@ -1,8 +1,17 @@
+# -*- coding: utf-8 -*-
+"""
+Read input texts in several formats.
+"""
+
+# standard
 import re
 
 
 # load all tokens
 def readplain(filename):
+    """
+    Read raw text from file and tokenize in a crude way.
+    """
     with open(filename, 'r', encoding='utf-8') as inputfh:
         # splitted = inputfh.read().replace('\n', ' ').split()
         text = inputfh.read().replace('\n', ' ')
@@ -15,14 +24,18 @@ def readplain(filename):
         #    tokens[elem] += 1
         return splitted
 
+
 def readtok(filename, datesbool, datestok):
+    """
+    Read tokenized text from file (one token per line).
+    """
     with open(filename, 'r', encoding='utf-8') as inputfh:
         i = 0
         splitted = list()
         for line in inputfh:
             i += 1
             if i % 10000000 == 0:
-                print (i)
+                print(i)
             # consider dates
             if datesbool is True:
                 columns = re.split('\t', line)
@@ -43,13 +56,16 @@ def readtok(filename, datesbool, datestok):
 
 
 def readtagged(filename, datesbool, datestok):
+    """
+    Read tokenized and tagged text from file (one token per line, tab-separated values).
+    """
     with open(filename, 'r', encoding='utf-8') as inputfh:
         i = 0
         splitted = list()
         for line in inputfh:
             i += 1
             if i % 10000000 == 0:
-                print (i)
+                print(i)
             # control
             # TODO: if validate is True: ...
 

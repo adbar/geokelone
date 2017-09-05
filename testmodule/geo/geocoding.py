@@ -1,53 +1,61 @@
-#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+"""
+Unit tests for the library.
+"""
 
 
 from heapq import nlargest
 from math import radians, cos, sin, asin, sqrt
 import re
+import sys
 
 from .. import settings
 
 
 
 if settings.FILTER_LEVEL == 1:
-    maxcandidates = 5 # was 10
+    maxcandidates = 5
 elif settings.FILTER_LEVEL == 2 or settings.FILTER_LEVEL == 3:
-    maxcandidates = 10 # was 10
+    maxcandidates = 10 
 
 vicinity = settings.DISAMBIGUATION_SETTING[settings.STANDARD_SETTING]['vicinity']
 reference = settings.DISAMBIGUATION_SETTING[settings.STANDARD_SETTING]['reference']
 
 i = 0
 results = dict()
-dictionary = set()
+common_names = set() # use wikt-to-dict
 stoplist = set()
 lines = list()
+lastcountry = ''
+pair = list()
+pair_counter = 0
 
-# print ('settings:', settings.MINLENGTH)
+# print('settings:', settings.MINLENGTH)
 
 
 
-# calculate distance
-## source: http://stackoverflow.com/questions/4913349/haversine-formula-in-python-bearing-and-distance-between-two-gps-points#4913653
 def haversine(lat1, lon1, lat2, lon2):
+# http://stackoverflow.com/questions/4913349/haversine-formula-in-python-bearing-and-distance-between-two-gps-points#4913653
     """
-    Calculate the great circle distance between two points 
-    on the earth (specified in decimal degrees)
+    Calculate the great circle distance between two points on the earth (specified in decimal degrees)
     """
-    # convert decimal degrees to radians 
+    # convert decimal degrees to radians
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-    # haversine formula 
-    dlon = lon2 - lon1 
-    dlat = lat2 - lat1 
+    # haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a)) 
+    c = 2 * asin(sqrt(a))
     km = 6367 * c
     return "{0:.1f}".format(km)
 
 def find_winner(candidates, step, metainfo):
+    """
+    Determine the most probable entry among candidates.
+    """
     # test if list
     if not isinstance(candidates, list):
-        print ('ERROR: not a list', candidates)
+        print('ERROR: type, not a list', candidates)
         return candidates
     # avoid single items
     if len(candidates) == 1:
@@ -100,11 +108,11 @@ def find_winner(candidates, step, metainfo):
             scores[candidate] += 1
     # best distance
     smallest_distance = min(distances.values())
-    for number in [k for k,v in distances.items() if v == smallest_distance]:
+    for number in [k for k, v in distances.items() if v == smallest_distance]:
         scores[number] += 1
     # best score
     best_score = max(scores.values())
-    best_ones = [k for k,v in scores.items() if v == best_score]
+    best_ones = [k for k, v in scores.items() if v == best_score]
     # analyze
     if len(best_ones) == 1:
         #if isinstance(best_ones, list):
@@ -118,9 +126,11 @@ def find_winner(candidates, step, metainfo):
         elif metainfo[best_ones[0]][2] == 'P' and metainfo[best_ones[1]][2] == 'A':
             return best_ones[0]
 
-# dict search
-def filter_store(name, multiflag, codesdict, metainfo):
 
+def filter_store(name, multiflag, codesdict, metainfo):
+    """
+    Disambiguate between several candidates for the same toponym.
+    """
     # double check for stoplist
     if name in stoplist:
         return True
@@ -135,13 +145,13 @@ def filter_store(name, multiflag, codesdict, metainfo):
             # discard if too many
             if len(codesdict[name]) >= maxcandidates:
                 try:
-                    print ('WARN, discarded:', name, codesdict[name])
+                    print('WARN, discarded:', name, codesdict[name])
                 except UnicodeEncodeError:
-                    print ('WARN, discarded:', 'unicode error', codesdict[name])
+                    print('WARN, discarded:', 'unicode error', codesdict[name])
                 return True
             # 3-step filter
             step = 1
-            while (step <= 3):
+            while step <= 3:
                 # launch function
                 if step == 1:
                     winners = find_winner(codesdict[name], step, metainfo)
@@ -150,9 +160,9 @@ def filter_store(name, multiflag, codesdict, metainfo):
                 # analyze result
                 if winners is None:
                     try:
-                        print ('ERROR, out of winners:', name, codesdict[name])
+                        print('ERROR, out of winners:', name, codesdict[name])
                     except UnicodeEncodeError:
-                        print ('ERROR, out of winners:', 'unicode error', codesdict[name])
+                        print('ERROR, out of winners:', 'unicode error', codesdict[name])
                     i += 1
                     return True
                 if not isinstance(winners, list):
@@ -161,9 +171,9 @@ def filter_store(name, multiflag, codesdict, metainfo):
                 # if len(winners) == 1
             if winning_id is None: ## NEVER HAPPENS??
                 try:
-                    print ('ERROR, too many winners:', name, winners)
+                    print('ERROR, too many winners:', name, winners)
                 except UnicodeEncodeError:
-                    print ('ERROR, too many winners:', 'unicode error', winners)
+                    print('ERROR, too many winners:', 'unicode error', winners)
 
                 i += 1
                 return True
@@ -171,7 +181,7 @@ def filter_store(name, multiflag, codesdict, metainfo):
         # throw dice and record
         #if len(winning_id) == 0:
         #    for element in best_ones:
-        #        print (name, element, scores[element], distances[element], str(metainfo[element]), sep='\t')
+        #        print(name, element, scores[element], distances[element], str(metainfo[element]), sep='\t')
         #        i += 1
             # random choice to store...
         #    winning_id = choice(best_ones)
@@ -189,7 +199,7 @@ def filter_store(name, multiflag, codesdict, metainfo):
                 for element in metainfo[winning_id]:
                     results[winning_id].append(element)
             except KeyError:
-                print ('ERROR, not found:', winning_id)
+                print('ERROR, not found:', winning_id)
                 return True
             results[winning_id].append(name)
             results[winning_id].append(freq)
@@ -207,12 +217,15 @@ def filter_store(name, multiflag, codesdict, metainfo):
         return False
     else:
         # not found
-        # print ('ERROR, not found:', name)
+        # print('ERROR, not found:', name)
         return True
 
 
 ## search in selected databases
 def selected_lists(name, multiflag, *args):
+    """
+    Bypass general search by looking into specified registers.
+    """
     # init
     global results
     templist = None
@@ -233,7 +246,7 @@ def selected_lists(name, multiflag, *args):
     elif level3 and name in level3:
         templist = [level3[name][0], level3[name][1], '3', 'NULL', 'NULL', level3[name][2]]
     # TODO: implement here
-    #elif name not in dictionary and name.lower() not in dictionary and name in level4:
+    #elif name not in common_names and name.lower() not in common_names and name in level4:
     #    templist = [level4[name][0], level4[name][1], '4', 'NULL', 'NULL', name] # level4[name][0]
 
     # canonical result
@@ -264,6 +277,10 @@ def selected_lists(name, multiflag, *args):
 
 
 def search(searchlist, codesdict, metainfo, *listargs):
+    """
+    Geocoding: search if valid place name and assign coordinates.
+    """
+    global pair_counter
     # init
     slide2 = ''
     slide3 = ''
@@ -284,26 +301,26 @@ def search(searchlist, codesdict, metainfo, *listargs):
         ## grow or limit (delete first word)
         # 2-gram
         if len(slide2) == 0:
-           slide2 = token
+            slide2 = token
         elif slide2.count(' ') == 0:
-           slide2 = slide2 + ' ' + token
+            slide2 = slide2 + ' ' + token
         else:
-           slide2 = re.sub(r'^.+? ', '', slide2)
-           slide2 = slide2 + ' ' + token
+            slide2 = re.sub(r'^.+? ', '', slide2)
+            slide2 = slide2 + ' ' + token
         # 3-gram
         if len(slide3) == 0:
-           slide3 = token
+            slide3 = token
         #elif slide3.count(' ') < 1:
         #   slide3 = slide3 + ' ' + token
         elif slide3.count(' ') < 2:
-           slide3 = slide3 + ' ' + token
+            slide3 = slide3 + ' ' + token
         else:
-           slide3 = re.sub(r'^.+? ', '', slide3)
-           slide3 = slide3 + ' ' + token
+            slide3 = re.sub(r'^.+? ', '', slide3)
+            slide3 = slide3 + ' ' + token
 
         # control
         if settings.VERBOSITY == 'V':
-            print (token, slide2, slide3, sep=";")
+            print(token, slide2, slide3, sep=";")
 
         ## analyze sliding window first, then token if necessary
         # longest chain first
@@ -329,9 +346,9 @@ def search(searchlist, codesdict, metainfo, *listargs):
                 if listargs:
                     flag = selected_lists(token, False, listargs[0], listargs[1], listargs[2], listargs[3])
                 # dict check before
-                if flag is True and token not in dictionary and token.lower() not in dictionary:
+                if flag is True and token not in common_names and token.lower() not in common_names:
                     flag = filter_store(token, False, codesdict, metainfo)
-        
+
         # final check whether to keep the multi-word scan running
         if flag is False:
             slide2 = ''
@@ -344,6 +361,9 @@ def search(searchlist, codesdict, metainfo, *listargs):
 
 # draw lines
 def draw_line(lat, lon):
+    """
+    Draw lines between points on the map.
+    """
     global pair, lines, pair_counter
     if pair_counter <= settings.CONTEXT_THRESHOLD:
         if len(pair) == 1:
@@ -356,5 +376,3 @@ def draw_line(lat, lon):
         pair = []
         pair.append((lat, lon))
     pair_counter = 0
-
-
