@@ -1,14 +1,27 @@
+"""
+testmodule
+description
+"""
+
+__version__ = '0.1'
+__author__ = 'Adrien Barbaresi'
 
 
-from .data import *
-from .geo import *
-from .text import *
+__all__ = [
+    'data',
+    'geo',
+    'text',
+]
 
 
-# __all__ = ["textprocessing"]
+# import data
 
-# from .readfile import *
-#from .outputcontrol import *
+
+#from .data import *
+#from .geo import *
+#from .text import *
+
+# from . import *
 
 # import .settings
 

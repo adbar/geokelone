@@ -8,11 +8,11 @@ http://github.com/adbar/...
 
 from codecs import open # python2
 import os
-from setuptools import setup # find_packages,
+from setuptools import setup, find_packages
 
 
 here = os.path.abspath(os.path.dirname(__file__))
-packages = ['testmodule']
+# packages = ['testmodule']
 
 
 def readme():
@@ -59,7 +59,7 @@ setup(name='testmodule',
       author='Adrien Barbaresi',
       author_email='adrien.barbaresi@oeaw.ac.at',
       license='license',
-      packages=['testmodule'],
+      packages=find_packages(),
       # packages=find_packages(exclude=['tests']),
       install_requires=[
           'exrex',
