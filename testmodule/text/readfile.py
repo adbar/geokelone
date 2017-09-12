@@ -8,7 +8,7 @@ import re
 
 
 # load all tokens
-def readplain(filename):
+def readplain(filename, datesbool=False, datestok=False):
     """
     Read raw text from file and tokenize in a crude way.
     """
@@ -25,7 +25,7 @@ def readplain(filename):
         return splitted
 
 
-def readtok(filename, datesbool, datestok):
+def readtok(filename, datesbool=False, datestok=False):
     """
     Read tokenized text from file (one token per line).
     """
@@ -55,7 +55,7 @@ def readtok(filename, datesbool, datestok):
         return splitted
 
 
-def readtagged(filename, datesbool, datestok):
+def readtagged(filename, datesbool=False, datestok=False):
     """
     Read tokenized and tagged text from file (one token per line, tab-separated values).
     """
@@ -70,7 +70,7 @@ def readtagged(filename, datesbool, datestok):
             # TODO: if validate is True: ...
 
 
-            columns = re.split('\t', line)
+            columns = re.split('\t', line.strip())
 
             # consider dates
             if datesbool is True:
