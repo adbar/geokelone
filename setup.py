@@ -8,18 +8,18 @@ http://github.com/adbar/...
 
 from codecs import open # python2
 import os
-from setuptools import setup, find_packages
+from setuptools import setup # find_packages
 
 
 here = os.path.abspath(os.path.dirname(__file__))
-# packages = ['testmodule']
+packages = ['geokelone']
 
 
 def readme():
     with open(os.path.join(here, 'README.rst'), 'r', 'utf-8') as readmefile:
         return readmefile.read()
 
-setup(name='testmodule',
+setup(name='geokelone',
       version='0.1',
       description='to complete',
       long_description=readme(),
@@ -37,7 +37,7 @@ setup(name='testmodule',
         'Intended Audience :: Information Technology',
         'Intended Audience :: Science/Research',
         'Intended Audience :: System Administrators',
-        #'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
         'Programming Language :: Python',
         #'Programming Language :: Python :: 2',
         #'Programming Language :: Python :: 2.7',
@@ -51,23 +51,22 @@ setup(name='testmodule',
         'Topic :: Scientific/Engineering :: GIS',
         'Topic :: Scientific/Engineering :: Visualization',
         'Topic :: Text Processing :: Linguistic',
-        #'License :: OSI Approved :: XX License',
 
       ],
       keywords=['keywords',],
-      url='http://github.com/adbar/...',
+      url='http://github.com/adbar/geokelone',
       author='Adrien Barbaresi',
       author_email='adrien.barbaresi@oeaw.ac.at',
-      license='license',
-      packages=find_packages(),
-      # packages=find_packages(exclude=['tests']),
+      license='GPLv3+',
+      packages=packages,
+      include_package_data=True,
       install_requires=[
+      #    'adjustText',
           'exrex',
           'requests',
       ],
     # install_requires=get_dependencies(),
      # test_suite='nose.collector',
      tests_require=['pytest', 'tox'],
-     include_package_data=True,
      zip_safe=False,
 )

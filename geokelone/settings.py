@@ -40,9 +40,9 @@ STANDARD_SETTING = 'Wittenberg'
 
 
 
-## coordinate frame suitable for Europe
+## coordinate frame suitable for Central Europe
 FIXED_FRAME = True
 EASTMOST = 25
-WESTMOST = -10
-NORTHMOST = 65
-SOUTHMOST = 35
+WESTMOST = 2.5 # for Europe: -10
+NORTHMOST = 62.5 # for Europe: 65
+SOUTHMOST = 42.5 # for Europe: 35

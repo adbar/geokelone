@@ -6,8 +6,8 @@ Unit tests for the library.
 import os
 import sys
 
-# from testmodule import *
-from testmodule import data
+# from geokelone import *
+from geokelone import data
 
 
 # TEST_DIR = os.path.abspath(os.path.dirname(__file__))
