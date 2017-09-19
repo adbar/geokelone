@@ -1,6 +1,7 @@
 geokelone: work in progress
 ==============================================
 
+
 .. image:: https://img.shields.io/pypi/v/geokelone.svg
     :target: https://pypi.python.org/pypi/geokelone
 
@@ -20,6 +21,9 @@ geokelone: work in progress
 About
 -----
 
+*work in progress*
+
+
 Why disambiguate?
 ~~~~~~~~~~~~~~~~~
 
@@ -31,8 +35,6 @@ Why curate special registers or gazetteers?
 
 Even with a touch of filtering, the token "Berlin" in Geonames is a place north of Germany with 0 inhabitants (see map below [add image]).
 
-
-work in progress.
 
 
 Installation
@@ -59,8 +61,7 @@ Finally:
 Proof of concept
 ----------------
 
-``test/...``
-
+see ``test/...`` *work in progress*
 
 .. code-block:: python
 
@@ -84,15 +85,13 @@ For a language-independent solution in the Python world, I would suggest <https:
 
 
 
-
-
-
 References
 ----------
 
-Previous uses of the code:
-- Barbaresi, A. and Biber, H. (2016). Extraction and Visualization of Toponyms in Diachronic Text Corpora. In Digital Humanities 2016, pages 732-734.
-- Barbaresi, A. (2016). Visualisierung von Ortsnamen im Deutschen Textarchiv. In DHd 2016, pages 264-267. Digital Humanities im deutschprachigen Raum eV.
-- Barbaresi, A. (2017). Toponyms as Entry Points into a Digital Edition: Mapping Die Fackel. In Digital Humanities 2017, pages 159-161.
+Previous uses of parts of the code:
 
-Legacy page, see for example for geographical data: <https://github.com/adbar/toponyms>`_
+- Barbaresi, A. (2016). `Visualisierung von Ortsnamen im Deutschen Textarchiv <https://halshs.archives-ouvertes.fr/halshs-01287931/document>`_. In DHd 2016, pages 264-267. Digital Humanities im deutschprachigen Raum eV.
+- Barbaresi, A. and Biber, H. (2016). `Extraction and Visualization of Toponyms in Diachronic Text Corpora <https://hal.archives-ouvertes.fr/hal-01348696/document>`_. In Digital Humanities 2016, pages 732-734.
+- Barbaresi, A. (2017). `Toponyms as Entry Points into a Digital Edition: Mapping Die Fackel <https://dh2017.adho.org/abstracts/209/209.pdf>`_. In Digital Humanities 2017, pages 159-161.
+
+Legacy page, see for more information: <https://github.com/adbar/toponyms>`_

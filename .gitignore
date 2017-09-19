@@ -4,6 +4,7 @@
 # logs
 *.log
 *.txt
+# !tests/fontane-stechlin.txt
 
 # packaging
 dist/
