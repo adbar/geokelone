@@ -6,6 +6,9 @@ Read input texts in several formats.
 # standard
 import re
 
+# own
+from ..data import validators
+
 
 # load all tokens
 def readplain(filename, datesbool=False, datestok=False):
@@ -16,6 +19,10 @@ def readplain(filename, datesbool=False, datestok=False):
         # splitted = inputfh.read().replace('\n', ' ').split()
         text = inputfh.read().replace('\n', ' ')
         ## validate: if text
+        if validators.validate_text(text) is False:
+            print('# WARN: text format not valid')
+            return None
+
         # very basic tokenizer
         splitted = re.split(r'([^\w-]+)', text, flags=re.UNICODE) # [ .,;:]
         # build frequency dict
@@ -36,6 +43,10 @@ def readtok(filename, datesbool=False, datestok=False):
             i += 1
             if i % 10000000 == 0:
                 print(i)
+            # control
+            if validators.validate_tok(line) is False:
+                print('# WARN: line not valid', line)
+                continue
             # consider dates
             if datesbool is True:
                 columns = re.split('\t', line)
@@ -67,9 +78,11 @@ def readtagged(filename, datesbool=False, datestok=False):
             if i % 10000000 == 0:
                 print(i)
             # control
-            # TODO: if validate is True: ...
+            if validators.validate_tagged(line) is False:
+                print('# WARN: line not valid', line)
+                continue
 
-
+            # split
             columns = re.split('\t', line.strip())
 
             # consider dates

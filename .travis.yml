@@ -8,7 +8,21 @@ python:
   - "3.5"
   - "3.6"
 
+
+before_install:
+  - apt-get install libgeos-* libgeos-dev libffi-dev libxslt1-dev
+  - pip install -U cairocffi exrex pyproj requests shapely
+  - pip install -U cartopy
+  - pip install -U codecov tox
+
 install:
   - pip install .
 
-# script: pytest
+script:
+  - pytest
+  - coverage run --source htmldate tests/unit_tests.py
+  # - tox
+
+cache:
+  - pip
+  # - apt-get

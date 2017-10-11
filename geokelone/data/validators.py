@@ -27,7 +27,8 @@ def validate_tok(line):
     """
     Validate tokenized input format.
     """
-    ## TODO
+    if re.match(r'.{1,100}$', line): # [^\t] ??
+        return True
     return False
 
 
@@ -35,7 +36,7 @@ def validate_tagged(line):
     """
     Validate tokenized and tagged input format.
     """
-    if re.search(r'^.+?\t[A-Z]+?\t.+$', line):
+    if re.match(r'.+?\t[A-Z]+?\t.+$', line):
         return True
     return False
 
@@ -57,9 +58,37 @@ def validate_mapdata(dicentry):
     return True
 
 
-def validate_registry(line):
+def validate_csv_registry(line):
     """
-    Validate registry data.
+    Validate CSV registry data.
+    """
+    # four columns expected
+    if re.match(r'[^,]+?,[^,]+?,[^,]+?,[^,]+?$', line):
+        return True
+    return False
+
+
+def validate_tsv registry(line):
+    """
+    Validate TSV registry data.
+    """
+    # three columns expected
+    if re.match(r'[^\t]+?\t[^\t]+?\t[^\t]+?$', line):
+        return True
+    return False
+
+
+def validate_geonames_registry(line)
+    """
+    Validate geonames registry data.
+    """
+    ## TODO
+    return True
+
+
+def validate_geonames_codes(line)
+    """
+    Validate geonames code data.
     """
     ## TODO
     return True

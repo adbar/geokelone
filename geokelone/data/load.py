@@ -16,6 +16,7 @@ import exrex
 
 # own
 from .. import settings
+import validators
 
 
 
@@ -45,6 +46,9 @@ def load_tsv(filename):
     dic = dict()
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
+            if validators.validate_tsv registry(line) is False:
+                print('# WARN: registry line not conform', line)
+                continue
             line = line.strip()
             columns = re.split('\t', line)
             # sanity check
@@ -77,6 +81,9 @@ def load_csv(filename):
     dic = dict()
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
+            if validators.validate_tsv registry(line) is False:
+                print('# WARN: registry line not conform', line)
+                continue
             line = line.strip()
             columns = re.split(',', line)
             if len(columns) == 4 and columns[2] is not None and columns[3] is not None:
@@ -133,6 +140,10 @@ def loadmeta(filename): # './geonames-meta.dict'
     try:
         with open(filename, 'r', encoding='utf-8') as inputfh:
             for line in inputfh:
+                if validators.validate_geonames_registry(line) is False:
+                    print('# WARN: geonames registry line not conform', line)
+                    continue
+
                 line = line.strip()
                 columns = re.split('\t', line)
 
@@ -168,6 +179,9 @@ def loadcodes(filename, metainfo): # './geonames-codes.dict'
     try:
         with open(filename, 'r', encoding='utf-8') as inputfh:
             for line in inputfh:
+                if validators.validate_geonames_codes(line) is False:
+                    print('# WARN: geonames code line not conform', line)
+                    continue
                 line = line.strip()
                 columns = re.split('\t', line)
                 # length filter

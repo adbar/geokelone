@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 Description here.
-http://github.com/adbar/...
+http://github.com/adbar/geokelone
 """
-
 
 from codecs import open # python2
 import os
@@ -51,7 +50,6 @@ setup(name='geokelone',
         'Topic :: Scientific/Engineering :: GIS',
         'Topic :: Scientific/Engineering :: Visualization',
         'Topic :: Text Processing :: Linguistic',
-
       ],
       keywords=['keywords',],
       url='http://github.com/adbar/geokelone',
@@ -62,11 +60,14 @@ setup(name='geokelone',
       include_package_data=True,
       install_requires=[
       #    'adjustText',
+          'cartopy',
+          'cairocffi',
           'exrex',
           'requests',
+          'pyproj',
+          'shapely',
       ],
-    # install_requires=get_dependencies(),
-     # test_suite='nose.collector',
+     # install_requires=get_dependencies(),
      tests_require=['pytest', 'tox'],
      zip_safe=False,
 )

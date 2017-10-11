@@ -1,0 +1,10 @@
+[run]
+source = geokelone
+
+omit =
+    tests/*
+    setup.py
+
+exclude_lines =
+    if __name__ == .__main__.:
+    except ImportError:

@@ -17,6 +17,9 @@ geokelone: work in progress
 .. image:: https://img.shields.io/travis/adbar/geokelone.svg
     :target: https://travis-ci.org/adbar/geokelone
 
+# .. image:: https://codecov.io/gh/adbar/geokelone/branch/master/graph/badge.svg
+#    :target: https://codecov.io/gh/adbar/geokelone
+
 
 About
 -----
@@ -53,7 +56,7 @@ And/or through python pip:
 
 Finally:
 - ``pip3 install cartopy``
-- or see here: <http://scitools.org.uk/cartopy/docs/latest/installing.html#installing>`_
+- or see here: `<http://scitools.org.uk/cartopy/docs/latest/installing.html#installing>`_
 
 ``pip install git+https://github.com/adbar/geokelone.git``
 
@@ -81,7 +84,7 @@ TODO
 Integration
 -----------
 
-For a language-independent solution in the Python world, I would suggest <https://github.com/aboSamoor/polyglot>`_
+For a language-independent solution in the Python world, I would suggest `<https://github.com/aboSamoor/polyglot>`_
 
 
 
@@ -94,4 +97,4 @@ Previous uses of parts of the code:
 - Barbaresi, A. and Biber, H. (2016). `Extraction and Visualization of Toponyms in Diachronic Text Corpora <https://hal.archives-ouvertes.fr/hal-01348696/document>`_. In Digital Humanities 2016, pages 732-734.
 - Barbaresi, A. (2017). `Toponyms as Entry Points into a Digital Edition: Mapping Die Fackel <https://dh2017.adho.org/abstracts/209/209.pdf>`_. In Digital Humanities 2017, pages 159-161.
 
-Legacy page, see for more information: <https://github.com/adbar/toponyms>`_
+Legacy page, see for more information: `<https://github.com/adbar/toponyms>`_
