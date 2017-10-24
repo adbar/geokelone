@@ -1,3 +1,4 @@
+sudo: false
 language: python
 
 python:
@@ -13,16 +14,16 @@ before_install:
   - apt-get install libgeos-* libgeos-dev libffi-dev libxslt1-dev
   - pip install -U cairocffi exrex pyproj requests shapely
   - pip install -U cartopy
-  - pip install -U codecov tox
+  # - pip install -U codecov tox
 
 install:
   - pip install .
 
 script:
   - pytest
-  - coverage run --source htmldate tests/unit_tests.py
+  # - coverage run --source htmldate tests/unit_tests.py
   # - tox
 
 cache:
   - pip
-  # - apt-get
+  - apt
