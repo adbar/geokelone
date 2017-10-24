@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 language: python
 
 python:
@@ -11,7 +11,8 @@ python:
 
 
 before_install:
-  - apt-get install libgeos-* libgeos-dev libffi-dev libxslt1-dev
+  - apt-get install libproj-dev proj-data proj-bin
+  - apt-get install libgeos-* libgeos-dev libffi-dev libxslt1-dev libgdal-dev
   - pip install -U cairocffi exrex pyproj requests shapely
   - pip install -U cartopy
   # - pip install -U codecov tox

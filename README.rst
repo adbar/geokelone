@@ -2,29 +2,16 @@ geokelone: work in progress
 ==============================================
 
 
-.. image:: https://img.shields.io/pypi/v/geokelone.svg
-    :target: https://pypi.python.org/pypi/geokelone
-
-.. image:: https://img.shields.io/pypi/l/geokelone.svg
-    :target: https://pypi.python.org/pypi/geokelone
-
-.. image:: https://img.shields.io/pypi/pyversions/geokelone.svg
-    :target: https://pypi.python.org/pypi/geokelone
-
-.. image:: https://img.shields.io/pypi/status/geokelone.svg
-    :target: https://pypi.python.org/pypi/geokelone
-
 .. image:: https://img.shields.io/travis/adbar/geokelone.svg
     :target: https://travis-ci.org/adbar/geokelone
-
-# .. image:: https://codecov.io/gh/adbar/geokelone/branch/master/graph/badge.svg
-#    :target: https://codecov.io/gh/adbar/geokelone
 
 
 About
 -----
 
 ``Geokelone`` is an effort to integrate spatial and textual data processing tools into a modular software package which features preprocessing, geocoding, disambiguation and visualization.
+
+Only Python3 is supported at the moment.
 
 
 Installation
@@ -34,19 +21,19 @@ Cartopy install notes
 ~~~~~~~~~~~~~~~~~~~~~
 
 Under Linux:
-- `The proj library <https://github.com/OSGeo/proj.4/>`_ is needed: *libproj0* or *libproj9* or *libproj12*
-- ``apt-get install libgeos-* libgeos-dev libffi-dev``
-- packages available directly: *libxslt1-dev python3-dev python3-shapely python3-gdal python3-pyproj*
+-  `The proj library <https://github.com/OSGeo/proj.4/>`_ is needed: *libproj0* or *libproj9* or *libproj12*: ``apt-get install libproj-dev proj-data proj-bin``
+-  ``apt-get install libgeos-* libgeos-dev libffi-dev libgdal-dev``
+-  packages available directly: *libxslt1-dev python3-dev python3-shapely python3-gdal python3-pyproj*
 
 And/or through python pip:
-- ``pip3 install cairocffi, pyproj, shapely``
+-  ``pip3 install cairocffi, pyproj, shapely``
 
 Finally:
-- ``pip3 install cartopy``
-- or see here: `<http://scitools.org.uk/cartopy/docs/latest/installing.html#installing>`_
+-  ``pip3 install cartopy``
+-  or see here: `<http://scitools.org.uk/cartopy/docs/latest/installing.html#installing>`_
 
 Direct installation of the latest version over pip is possible:
-- ``pip install git+https://github.com/adbar/geokelone.git``
+-  ``pip3 install git+https://github.com/adbar/geokelone.git``
 
 
 Usage
