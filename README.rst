@@ -20,7 +20,7 @@ Installation
 Cartopy install notes
 ~~~~~~~~~~~~~~~~~~~~~
 
-Under Linux:
+On Linux:
 
 -  `The proj library <https://github.com/OSGeo/proj.4/>`_ is needed: *libproj0* or *libproj9* or *libproj12*: ``apt-get install libproj-dev proj-data proj-bin``
 -  ``apt-get install libgeos-* libgeos-dev libffi-dev libgdal-dev``
@@ -119,7 +119,7 @@ TODO
 Integration
 -----------
 
-For a language-independent solution in the Python world, I would suggest `polyglot <https://github.com/aboSamoor/polyglot>`_
+For a language-independent solution in the Python world, I would suggest `polyglot <https://github.com/aboSamoor/polyglot>`_.
 
 
 
@@ -131,8 +131,6 @@ Previous uses of the code base:
 - Barbaresi, A. (2016). `Visualisierung von Ortsnamen im Deutschen Textarchiv <https://halshs.archives-ouvertes.fr/halshs-01287931/document>`_. In DHd 2016, pages 264-267. Digital Humanities im deutschprachigen Raum eV.
 - Barbaresi, A. and Biber, H. (2016). `Extraction and Visualization of Toponyms in Diachronic Text Corpora <https://hal.archives-ouvertes.fr/hal-01348696/document>`_. In Digital Humanities 2016, pages 732-734.
 - Barbaresi, A. (2017). `Toponyms as Entry Points into a Digital Edition: Mapping Die Fackel <https://dh2017.adho.org/abstracts/209/209.pdf>`_. In Digital Humanities 2017, pages 159-161.
-- Barbaresi A. (2018). A constellation and a rhizome: two studies on toponyms
-in literary texts. In *Visual Linguistics*, Bubenhofer N. & Kupietz M. (Eds.).
-Heldelberg University Publishing. to appear.
+- Barbaresi A. (2018). A constellation and a rhizome: two studies on toponyms in literary texts. In *Visual Linguistics*, Bubenhofer N. & Kupietz M. (Eds.), Heldelberg University Publishing, to appear.
 
 **Work in progress**, see legacy page for more information: `<https://github.com/adbar/toponyms>`_
