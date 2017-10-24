@@ -21,18 +21,23 @@ Cartopy install notes
 ~~~~~~~~~~~~~~~~~~~~~
 
 Under Linux:
+
 -  `The proj library <https://github.com/OSGeo/proj.4/>`_ is needed: *libproj0* or *libproj9* or *libproj12*: ``apt-get install libproj-dev proj-data proj-bin``
 -  ``apt-get install libgeos-* libgeos-dev libffi-dev libgdal-dev``
 -  packages available directly: *libxslt1-dev python3-dev python3-shapely python3-gdal python3-pyproj*
 
 And/or through python pip:
+
 -  ``pip3 install cairocffi, pyproj, shapely``
 
 Finally:
+
 -  ``pip3 install cartopy``
 -  or see here: `<http://scitools.org.uk/cartopy/docs/latest/installing.html#installing>`_
+-  or, on newer systems: ``apt-get install python3-cartopy`` `https://packages.ubuntu.com/source/zesty/python-cartopy`_
 
 Direct installation of the latest version over pip is possible:
+
 -  ``pip3 install git+https://github.com/adbar/geokelone.git``
 
 

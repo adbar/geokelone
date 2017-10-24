@@ -60,7 +60,7 @@ setup(name='geokelone',
       include_package_data=True,
       install_requires=[
       #    'adjustText',
-          'cartopy',
+          'cartopy == 0.14.0',
           'cairocffi',
           'exrex',
           'requests',
