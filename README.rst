@@ -22,7 +22,7 @@ Cartopy install notes
 
 On Linux:
 
--  `The proj library <https://github.com/OSGeo/proj.4/>`_ is needed: *libproj0* or *libproj9* or *libproj12*: ``apt-get install libproj-dev proj-data proj-bin``
+-  `The proj library <https://github.com/OSGeo/proj.4/>`_ is needed: *libproj0* or *libproj9* or *libproj12*: ``apt-get install libproj-dev proj-data proj-bin`` (on packages repositories posterior to 2016 only), otherwise install from source: ``wget http://download.osgeo.org/proj/proj-4.9.3.tar.gz``+ ``tar -xzvf proj-4.9.3.tar.gz`` + ``cd proj-4.9.3 && ./configure --prefix=/usr && make && sudo make install``
 -  ``apt-get install libgeos-* libgeos-dev libffi-dev libgdal-dev``
 -  packages available directly: *libxslt1-dev python3-dev python3-shapely python3-gdal python3-pyproj*
 
@@ -34,7 +34,7 @@ Finally:
 
 -  ``pip3 install cartopy``
 -  or see here: `<http://scitools.org.uk/cartopy/docs/latest/installing.html#installing>`_
--  or, on newer systems: ``apt-get install python3-cartopy`` `https://packages.ubuntu.com/source/zesty/python-cartopy`_
+-  or, on newer systems: ``apt-get install python3-cartopy`` cf `<https://packages.ubuntu.com/source/zesty/python-cartopy>`_
 
 Direct installation of the latest version over pip is possible:
 
