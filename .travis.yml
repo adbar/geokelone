@@ -17,9 +17,10 @@ before_install:
   - cd proj-4.9.3 && ./configure --prefix=/usr && make && sudo make install
   - sudo apt-get install proj-data # libproj-dev proj-bin
   - sudo apt-get install libgeos-* libgeos-dev libffi-dev libxslt1-dev libgdal-dev
-  - pip install -U cairocffi GDAL pyproj shapely
+  - sudo apt-get install python3-shapely python3-gdal python3-pyproj
+  # - pip install -U cairocffi GDAL pyproj shapely
   # - pip install cartopy
-  - pip install -U codecov tox
+  - pip install codecov tox # -U
 
 install:
   - pip install .
