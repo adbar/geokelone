@@ -8,6 +8,7 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
+  - "3.7-dev"
 
 
 before_install:
@@ -16,9 +17,9 @@ before_install:
   - cd proj-4.9.3 && ./configure --prefix=/usr && make && sudo make install
   - sudo apt-get install proj-data # libproj-dev proj-bin
   - sudo apt-get install libgeos-* libgeos-dev libffi-dev libxslt1-dev libgdal-dev
-  - pip install -U cairocffi exrex pyproj requests shapely
-  - pip install cartopy
-  # - pip install -U codecov tox
+  - pip install -U cairocffi, GDAL, pyproj, shapely
+  # - pip install cartopy
+  - pip install -U codecov tox
 
 install:
   - pip install .
@@ -28,6 +29,6 @@ script:
   # - coverage run --source htmldate tests/unit_tests.py
   # - tox
 
-cache:
-  - pip
-  - apt
+#cache:
+#  - pip
+#  - apt

@@ -9,6 +9,11 @@ from codecs import open # python2
 import os
 from setuptools import setup # find_packages
 
+#try:
+#    from setuptools import setup
+#except ImportError:
+#    from distutils.core import setup
+
 
 here = os.path.abspath(os.path.dirname(__file__))
 packages = ['geokelone']
@@ -18,11 +23,12 @@ def readme():
     with open(os.path.join(here, 'README.rst'), 'r', 'utf-8') as readmefile:
         return readmefile.read()
 
-setup(name='geokelone',
-      version='0.1',
-      description='to complete',
-      long_description=readme(),
-      classifiers=[
+setup(
+    name='geokelone',
+    version='0.1.0',
+    description='to complete',
+    long_description=readme(),
+    classifiers=[
         # As from http://pypi.python.org/pypi?%3Aaction=list_classifiers
         #'Development Status :: 1 - Planning',
         'Development Status :: 2 - Pre-Alpha',
@@ -50,24 +56,24 @@ setup(name='geokelone',
         'Topic :: Scientific/Engineering :: GIS',
         'Topic :: Scientific/Engineering :: Visualization',
         'Topic :: Text Processing :: Linguistic',
-      ],
-      keywords=['keywords',],
-      url='http://github.com/adbar/geokelone',
-      author='Adrien Barbaresi',
-      author_email='adrien.barbaresi@oeaw.ac.at',
-      license='GPLv3+',
-      packages=packages,
-      include_package_data=True,
-      install_requires=[
-      #    'adjustText',
-          'cartopy == 0.15.1',
-          'cairocffi',
-          'exrex',
-          'requests',
-          'pyproj',
-          'shapely',
-      ],
-     # install_requires=get_dependencies(),
-     tests_require=['pytest', 'tox'],
-     zip_safe=False,
+    ],
+    keywords=['keywords',],
+    url='http://github.com/adbar/geokelone',
+    author='Adrien Barbaresi',
+    author_email='adrien.barbaresi@oeaw.ac.at',
+    license='GPLv3+',
+    packages=packages,
+    include_package_data=True,
+    install_requires=[
+        # 'adjustText',
+        'cartopy == 0.15.1',
+        'cairocffi',
+        'exrex',
+        'requests',
+        'pyproj',
+        'shapely',
+    ],
+    python_requires='>=3',
+    tests_require=['pytest', 'tox'],
+    zip_safe=False,
 )

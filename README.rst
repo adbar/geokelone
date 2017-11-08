@@ -14,27 +14,50 @@ About
 Only Python3 is supported at the moment.
 
 
-Installation
-------------
+Installation on Linux
+---------------------
+
+Proj library
+~~~~~~~~~~~~
+
+The `proj library <https://github.com/OSGeo/proj.4/>`_ is needed. There are several ways to install it:
+
+- From a package repository (preferably posterior to 2016)
+
+  - there are several options (*libproj0* or *libproj9* or *libproj12*), to let the system decide:
+  - ``apt-get install libproj-dev proj-data proj-bin``
+
+- From source:
+
+  a. ``wget http://download.osgeo.org/proj/proj-4.9.3.tar.gz``
+  b. ``tar -xzvf proj-4.9.3.tar.gz``
+  c. ``cd proj-4.9.3 && ./configure --prefix=/usr && make && sudo make install``
+
+Other packages
+~~~~~~~~~~~~~~
+
+-  ``apt-get install libgeos-* libgeos-dev libffi-dev libgdal-dev libxslt1-dev``
+
+Python packages
+~~~~~~~~~~~~~~~
+
+Two options, from system repositories or through ``pip``:
+
+- *python3-dev python3-shapely python3-gdal python3-pyproj*
+- or simply ``pip3 install cairocffi, GDAL, pyproj, shapely``
 
 Cartopy install notes
 ~~~~~~~~~~~~~~~~~~~~~
 
-On Linux:
+Finally, *cartopy* can be installed:
 
--  `The proj library <https://github.com/OSGeo/proj.4/>`_ is needed: *libproj0* or *libproj9* or *libproj12*: ``apt-get install libproj-dev proj-data proj-bin`` (on packages repositories posterior to 2016 only), otherwise install from source: ``wget http://download.osgeo.org/proj/proj-4.9.3.tar.gz``+ ``tar -xzvf proj-4.9.3.tar.gz`` + ``cd proj-4.9.3 && ./configure --prefix=/usr && make && sudo make install``
--  ``apt-get install libgeos-* libgeos-dev libffi-dev libgdal-dev``
--  packages available directly: *libxslt1-dev python3-dev python3-shapely python3-gdal python3-pyproj*
+- ``pip3 install cartopy``
+- or on newer systems: ``apt-get install python3-cartopy`` cf `<https://packages.ubuntu.com/source/zesty/python-cartopy>`_
+- or see here: `<http://scitools.org.uk/cartopy/docs/latest/installing.html#installing>`_
 
-And/or through python pip:
 
--  ``pip3 install cairocffi, pyproj, shapely``
-
-Finally:
-
--  ``pip3 install cartopy``
--  or see here: `<http://scitools.org.uk/cartopy/docs/latest/installing.html#installing>`_
--  or, on newer systems: ``apt-get install python3-cartopy`` cf `<https://packages.ubuntu.com/source/zesty/python-cartopy>`_
+Install this package
+~~~~~~~~~~~~~~~~~~~~
 
 Direct installation of the latest version over pip is possible:
 
