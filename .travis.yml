@@ -23,6 +23,8 @@ before_install:
   - pip install codecov tox # -U
 
 install:
+  - pwd
+  - ls -al
   - pip install .
 
 script:
