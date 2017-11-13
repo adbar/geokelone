@@ -54,8 +54,8 @@ Python packages
 
 Two options, from system repositories or through ``pip``:
 
-- *python3-dev python3-shapely python3-gdal python3-pyproj*
-- or simply ``pip3 install cairocffi GDAL pyproj shapely``
+- *python3-dev python3-shapely python3-gdal python3-matplotlib python3-pyproj python3-shapely*
+- or simply ``pip3 install cairocffi GDAL matplotlib pyproj shapely``
 
 Cartopy install notes
 ~~~~~~~~~~~~~~~~~~~~~

@@ -69,6 +69,7 @@ setup(
         'cartopy == 0.15.1',
         'cairocffi',
         'exrex',
+        'matplotlib == 2.1.0',
         'requests',
         'pyproj',
         'shapely',
