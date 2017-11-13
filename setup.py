@@ -7,7 +7,7 @@ http://github.com/adbar/geokelone
 
 from codecs import open # python2
 import os
-from setuptools import setup # find_packages
+from setuptools import find_packages, setup # 
 
 #try:
 #    from setuptools import setup
@@ -16,7 +16,7 @@ from setuptools import setup # find_packages
 
 
 here = os.path.abspath(os.path.dirname(__file__))
-packages = ['geokelone']
+# packages = ['geokelone']
 
 
 def readme():
@@ -62,7 +62,7 @@ setup(
     author='Adrien Barbaresi',
     author_email='adrien.barbaresi@oeaw.ac.at',
     license='GPLv3+',
-    packages=packages,
+    packages=find_packages(),
     include_package_data=True,
     install_requires=[
         # 'adjustText',

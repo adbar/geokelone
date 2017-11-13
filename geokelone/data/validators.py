@@ -68,7 +68,7 @@ def validate_csv_registry(line):
     return False
 
 
-def validate_tsv registry(line):
+def validate_tsv_registry(line):
     """
     Validate TSV registry data.
     """
@@ -78,7 +78,7 @@ def validate_tsv registry(line):
     return False
 
 
-def validate_geonames_registry(line)
+def validate_geonames_registry(line):
     """
     Validate geonames registry data.
     """
@@ -86,7 +86,7 @@ def validate_geonames_registry(line)
     return True
 
 
-def validate_geonames_codes(line)
+def validate_geonames_codes(line):
     """
     Validate geonames code data.
     """

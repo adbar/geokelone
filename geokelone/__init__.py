@@ -17,9 +17,9 @@ __all__ = [
 # import data
 
 
-#from .data import *
-#from .geo import *
-#from .text import *
+# from data import *
+#from . import geo
+#from . import text
 
 # from . import *
 

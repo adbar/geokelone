@@ -89,7 +89,7 @@ Extraction, disambiguation and mapping
 .. code-block:: python
 
     >>> from geokelone import data, geo, text
-    >>> splitted = text.readfile.readtagged('tests/fontane-stechlin.tagged')
+    >>> splitted = text.readfile.readtagged('tests/data/fontane-stechlin.tagged')
     >>> metainfo = data.load.loadmeta('geonames-meta.dict')
     >>> codesdict = data.load.loadcodes('geonames-codes.dict', metainfo)
     >>> results = geo.geocoding.search(splitted, codesdict, metainfo)
