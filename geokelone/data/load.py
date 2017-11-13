@@ -16,7 +16,7 @@ import exrex
 
 # own
 from .. import settings
-import validators
+from . import validators
 
 
 
