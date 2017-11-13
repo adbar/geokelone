@@ -31,7 +31,7 @@ before_install:
   - sudo apt-get install python3-shapely python3-gdal python3-pyproj
   # - pip install -U cairocffi GDAL pyproj shapely
   # - pip install cartopy
-  - pip install codecov tox # -U
+  - pip install -U codecov tox
 
 install:
   - pwd
@@ -44,6 +44,6 @@ script:
 after_success:
   - codecov
 
-cache:
-  - pip
-  - apt
+#cache:
+#  - pip
+#  - apt
