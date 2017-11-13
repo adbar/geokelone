@@ -30,7 +30,7 @@ install:
 
 script:
   - pytest
-  - coverage run --source geokelone tests/unit_tests.py
+  - coverage run -m pytest--source geokelone tests/unit_tests.py
   # - tox
 
 cache:
