@@ -1,9 +1,20 @@
 geokelone: work in progress
 ==============================================
 
+.. image:: https://img.shields.io/pypi/v/geokelone.svg
+    :target: https://pypi.python.org/pypi/geokelone
+
+.. image:: https://img.shields.io/pypi/l/geokelone.svg
+    :target: https://pypi.python.org/pypi/geokelone
+
+.. image:: https://img.shields.io/pypi/pyversions/geokelone.svg
+    :target: https://pypi.python.org/pypi/geokelone
 
 .. image:: https://img.shields.io/travis/adbar/geokelone.svg
     :target: https://travis-ci.org/adbar/geokelone
+
+.. image:: https://codecov.io/gh/adbar/geokelone/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/adbar/geokelone
 
 
 About
