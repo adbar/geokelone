@@ -36,7 +36,7 @@ def validate_tagged(line):
     """
     Validate tokenized and tagged input format.
     """
-    if re.match(r'.+?\t[A-Z]+?\t.+$', line):
+    if re.match(r'[^\t]+?\t[A-Z$,().]+?\t.+$', line):
         return True
     return False
 
@@ -63,7 +63,7 @@ def validate_csv_registry(line):
     Validate CSV registry data.
     """
     # four columns expected
-    if re.match(r'[^,]+?,[^,]+?,[^,]+?,[^,]+?$', line):
+    if re.match(r'[^,]+?,[^,]+?,[^,]+?,[^,]+$', line):
         return True
     return False
 
@@ -73,7 +73,7 @@ def validate_tsv_registry(line):
     Validate TSV registry data.
     """
     # three columns expected
-    if re.match(r'[^\t]+?\t[^\t]+?\t[^\t]+?$', line):
+    if re.match(r'[^\t]+?\t[^\t]+?\t[^\t]+$', line):
         return True
     return False
 

@@ -81,7 +81,7 @@ def load_csv(filename):
     dic = dict()
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
-            if validators.validate_tsv_registry(line) is False:
+            if validators.validate_csv_registry(line) is False:
                 print('# WARN: registry line not conform', line)
                 continue
             line = line.strip()
