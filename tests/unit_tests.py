@@ -28,12 +28,16 @@ def test_read():
 def custom_csv():
     registry = path.join(TEST_DIR, 'data/dummy-registry.csv')
     level0 = data.load.load_csv(registry)
+    # test alternatives
+    assert 'Atest' in level0 and 'Btest' in level0
     return (level0, dict(), dict(), dict())
 
 
 def custom_tsv():
     registry = path.join(TEST_DIR, 'data/dummy-registry.tsv')
     level0 = data.load.load_tsv(registry)
+    # test alternatives
+    assert 'Sankt Petersburg' in level0 and 'St. Petersburg' in level0
     return (level0, dict(), dict(), dict())
 
 
@@ -65,21 +69,25 @@ def test_tok():
 
 def test_geonames():
     # setup
-    results = dict()
     inputfile = path.join(TEST_DIR, 'data/dummy-geonames-meta.dict')
     metainfo = data.load.loadmeta(inputfile)
     inputfile = path.join(TEST_DIR, 'data/dummy-geonames-codes.dict')
     codes = data.load.loadcodes(inputfile, metainfo)
     assert len(metainfo) == 2 and len(codes) == 2
     # search
-    #results = geo.geocoding.search(['Aachen', 'Aachen'], codes, metainfo)
-    #print('###')
-    #print(results)
-    #assert len(results) == 1 and 'Aachen' in results
-    #results = geo.geocoding.search(['Öderquarter', 'Moor'], codes, metainfo)
-    #print('###')
-    #print(results)
-    #assert len(results) == 1 and 'Öderquarter Moor' in results
+    results = dict()
+    results = geo.geocoding.search(['Aachen', 'Aachen'], codes, metainfo)
+    print('###')
+    print(results)
+    assert '3247449' in results # len(results) == 1 and
+    # multi-word
+    results = geo.geocoding.search(['Öderquarter'], codes, metainfo)
+    assert '2858070' not in results
+    results = dict()
+    results = geo.geocoding.search(['Öderquarter', 'Moor'], codes, metainfo)
+    print('###')
+    print(results)
+    assert '2858070' in results # len(results) == 1 and 
 
 
 if __name__ == '__main__':
@@ -90,5 +98,6 @@ if __name__ == '__main__':
     test_tagged()
     test_tok()
     test_geonames()
+
 
 
