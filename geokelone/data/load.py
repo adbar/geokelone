@@ -47,7 +47,6 @@ def load_tsv(filename):
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
             if validators.validate_tsv_registry(line) is False:
-                print('# WARN: registry line not conform', line)
                 continue
             line = line.strip()
             columns = re.split('\t', line)
@@ -82,7 +81,6 @@ def load_csv(filename):
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
             if validators.validate_csv_registry(line) is False:
-                print('# WARN: registry line not conform', line)
                 continue
             line = line.strip()
             columns = re.split(',', line)
@@ -140,13 +138,10 @@ def loadmeta(filename): # './geonames-meta.dict'
     try:
         with open(filename, 'r', encoding='utf-8') as inputfh:
             for line in inputfh:
-                if validators.validate_geonames_registry(line) is False:
-                    print('# WARN: geonames registry line not conform', line)
-                    continue
-
                 line = line.strip()
                 columns = re.split('\t', line)
-
+                if validators.validate_geonames_registry(columns) is False:
+                    continue
                 # no empty places at filter levels 1 & 2
                 if settings.FILTER_LEVEL == 1 or settings.FILTER_LEVEL == 2:
                     if columns[5] == '0':
@@ -179,13 +174,9 @@ def loadcodes(filename, metainfo): # './geonames-codes.dict'
     try:
         with open(filename, 'r', encoding='utf-8') as inputfh:
             for line in inputfh:
-                if validators.validate_geonames_codes(line) is False:
-                    print('# WARN: geonames code line not conform', line)
-                    continue
                 line = line.strip()
                 columns = re.split('\t', line)
-                # length filter
-                if len(columns[0]) < settings.MINLENGTH:
+                if validators.validate_geonames_codes(columns) is False:
                     continue
                 # add codes
                 for item in columns[1:]:

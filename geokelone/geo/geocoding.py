@@ -141,6 +141,7 @@ def filter_store(name, multiflag, codesdict, metainfo):
         # single winner
         if not isinstance(codesdict[name], list) or len(codesdict[name]) == 1:
             winning_id = codesdict[name][0]
+            print(codesdict[name])
         else:
             # discard if too many
             if len(codesdict[name]) >= maxcandidates:
@@ -193,6 +194,7 @@ def filter_store(name, multiflag, codesdict, metainfo):
         #    freq = '0'
         freq = 'NULL'
         # store result
+        # TODO: test id/name
         if winning_id not in results:
             results[winning_id] = list()
             try:
@@ -285,6 +287,7 @@ def search(searchlist, codesdict, metainfo, *listargs):
     slide2 = ''
     slide3 = ''
     pair_counter = 0
+    # results = dict()
     if listargs and len(listargs) != 4:
         sys.exit('4 custom lists expected, exiting...')
 

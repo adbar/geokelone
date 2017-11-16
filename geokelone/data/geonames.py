@@ -19,9 +19,9 @@ from .. import settings
 
 # Python3 types
 if sys.version_info[0] == 3:
-    string_type = str
+    STRING_TYPE = str
 else:
-    string_type = basestring
+    STRING_TYPE = basestring
 
 
 locale.setlocale(locale.LC_ALL, settings.LOCALE)
@@ -77,7 +77,7 @@ def fetchdata(countrycodes, codesdict, metainfo):
     Retrieve data from geonames for the countries given.
     """
     # make it a list
-    if isinstance(countrycodes, string_type):
+    if isinstance(countrycodes, STRING_TYPE):
         tmp = countrycodes
         countrycodes = list()
         countrycodes.append(tmp)

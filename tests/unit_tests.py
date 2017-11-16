@@ -15,7 +15,8 @@ TEST_DIR = path.abspath(path.dirname(__file__))
 
 
 def test_expand():
-    assert data.load.expand('Stevens?') == ['Steven', 'Stevens']
+    assert data.load.expand('[VW]ien(na)?') == ['Vien', 'Vienna', 'Wien', 'Wienna']
+    assert data.load.expand('(Außer|Über)au') == ['Außerau', 'Überau']
 
 
 def test_read():
@@ -62,6 +63,23 @@ def test_tok():
     assert 'Berlin' in results and 'Petersburg' in results and 'Preußen' in results
 
 
+def test_geonames():
+    # setup
+    results = dict()
+    inputfile = path.join(TEST_DIR, 'data/dummy-geonames-meta.dict')
+    metainfo = data.load.loadmeta(inputfile)
+    inputfile = path.join(TEST_DIR, 'data/dummy-geonames-codes.dict')
+    codes = data.load.loadcodes(inputfile, metainfo)
+    assert len(metainfo) == 2 and len(codes) == 2
+    # search
+    #results = geo.geocoding.search(['Aachen', 'Aachen'], codes, metainfo)
+    #print('###')
+    #print(results)
+    #assert len(results) == 1 and 'Aachen' in results
+    #results = geo.geocoding.search(['Öderquarter', 'Moor'], codes, metainfo)
+    #print('###')
+    #print(results)
+    #assert len(results) == 1 and 'Öderquarter Moor' in results
 
 
 if __name__ == '__main__':
@@ -71,5 +89,6 @@ if __name__ == '__main__':
     test_read()
     test_tagged()
     test_tok()
+    test_geonames()
 
 
