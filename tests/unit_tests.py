@@ -73,21 +73,27 @@ def test_geonames():
     metainfo = data.load.loadmeta(inputfile)
     inputfile = path.join(TEST_DIR, 'data/dummy-geonames-codes.dict')
     codes = data.load.loadcodes(inputfile, metainfo)
-    assert len(metainfo) == 2 and len(codes) == 2
+    assert len(metainfo) == 3 and len(codes) == 3
     # search
-    results = dict()
+    # results = dict()
     results = geo.geocoding.search(['Aachen', 'Aachen'], codes, metainfo)
     print('###')
     print(results)
-    assert '3247449' in results # len(results) == 1 and
-    # multi-word
+    assert len(results) == 1 and '3247449' in results
+    ## multi-word
+    # 2
     results = geo.geocoding.search(['Öderquarter'], codes, metainfo)
     assert '2858070' not in results
-    results = dict()
+    # results = dict()
     results = geo.geocoding.search(['Öderquarter', 'Moor'], codes, metainfo)
     print('###')
     print(results)
-    assert '2858070' in results # len(results) == 1 and 
+    assert len(results) == 1 and '2858070' in results
+    # 3
+    results = geo.geocoding.search(['It', 'was', 'in', 'Reichenbach', 'am', 'Heuberg', '.'], codes, metainfo)
+    print('###')
+    print(results)
+    assert len(results) == 1 and '2849119' in results
 
 
 if __name__ == '__main__':

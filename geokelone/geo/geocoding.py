@@ -14,9 +14,9 @@ from .. import settings
 
 
 if settings.FILTER_LEVEL == 1:
-    maxcandidates = 5
+    MAX_CANDIDATES = 5
 elif settings.FILTER_LEVEL == 2 or settings.FILTER_LEVEL == 3:
-    maxcandidates = 10 
+    MAX_CANDIDATES = 10
 
 vicinity = settings.DISAMBIGUATION_SETTING[settings.STANDARD_SETTING]['vicinity']
 reference = settings.DISAMBIGUATION_SETTING[settings.STANDARD_SETTING]['reference']
@@ -49,7 +49,8 @@ def haversine(lat1, lon1, lat2, lon2):
     km = 6367 * c
     return "{0:.1f}".format(km)
 
-def find_winner(candidates, step, metainfo):
+
+def disambiguate(candidates, step, metainfo):
     """
     Determine the most probable entry among candidates.
     """
@@ -127,57 +128,75 @@ def find_winner(candidates, step, metainfo):
             return best_ones[0]
 
 
-def filter_store(name, multiflag, codesdict, metainfo):
+def geofind(name, codesdict, metainfo):
     """
-    Disambiguate between several candidates for the same toponym.
+    Find the token(s) in the gazzetteer
     """
-    # double check for stoplist
-    if name in stoplist:
+    ## TODO: change return value from True to something else
+    # check
+    if name not in codesdict:
+        # not found
+        # print('ERROR, not found:', name)
         return True
     # else
-    global i, lastcountry, results
     winning_id = ''
-    if name in codesdict:
-        # single winner
-        if not isinstance(codesdict[name], list) or len(codesdict[name]) == 1:
-            winning_id = codesdict[name][0]
-            print(codesdict[name])
-        else:
-            # discard if too many
-            if len(codesdict[name]) >= maxcandidates:
-                try:
-                    print('WARN, discarded:', name, codesdict[name])
-                except UnicodeEncodeError:
-                    print('WARN, discarded:', 'unicode error', codesdict[name])
-                return True
-            # 3-step filter
-            step = 1
-            while step <= 3:
-                # launch function
-                if step == 1:
-                    winners = find_winner(codesdict[name], step, metainfo)
-                else:
-                    winners = find_winner(winners, step, metainfo)
-                # analyze result
-                if winners is None:
-                    try:
-                        print('ERROR, out of winners:', name, codesdict[name])
-                    except UnicodeEncodeError:
-                        print('ERROR, out of winners:', 'unicode error', codesdict[name])
-                    i += 1
-                    return True
-                if not isinstance(winners, list):
-                    winning_id = winners
-                    break
-                # if len(winners) == 1
-            if winning_id is None: ## NEVER HAPPENS??
-                try:
-                    print('ERROR, too many winners:', name, winners)
-                except UnicodeEncodeError:
-                    print('ERROR, too many winners:', 'unicode error', winners)
+    # single winner
+    if not isinstance(codesdict[name], list) or len(codesdict[name]) == 1:
+        winning_id = codesdict[name][0]
+        print(codesdict[name])
+    # hopefully find the right one
+    else:
+        winning_id = disambiguating_rounds(name, codesdict, metainfo)
+        if winning_id is True:
+            return True
 
-                i += 1
-                return True
+    store_result(winning_id, name, metainfo)
+    # return "found"
+    return False
+
+
+def disambiguating_rounds(name, codesdict, metainfo):
+    """
+    Disambiguate between several candidates for the same toponym, in up to three rounds.
+    """
+    # discard if too many
+    if len(codesdict[name]) >= MAX_CANDIDATES:
+        try:
+            print('WARN, discarded:', name, codesdict[name])
+        except UnicodeEncodeError:
+            print('WARN, discarded:', 'unicode error', codesdict[name])
+        return True
+    # init
+    global i
+    # 3-step filter
+    step = 1
+    while step <= 3:
+        # launch function
+        if step == 1:
+            winners = disambiguate(codesdict[name], step, metainfo)
+        else:
+            winners = disambiguate(winners, step, metainfo)
+        # nothing found
+        if winners is None:
+            try:
+                print('ERROR, out of winners:', name, codesdict[name])
+            except UnicodeEncodeError:
+                print('ERROR, out of winners:', 'unicode error', codesdict[name])
+            i += 1
+            return True
+        # found
+        if not isinstance(winners, list):
+            winning_id = winners
+            break
+                # if len(winners) == 1
+    ## TODO: NEVER HAPPENS??
+    if winning_id is None:
+        try:
+            print('ERROR, too many winners:', name, winners)
+        except UnicodeEncodeError:
+            print('ERROR, too many winners:', 'unicode error', winners)
+        i += 1
+        return True
 
         # throw dice and record
         #if len(winning_id) == 0:
@@ -187,50 +206,59 @@ def filter_store(name, multiflag, codesdict, metainfo):
             # random choice to store...
         #    winning_id = choice(best_ones)
 
-        # disable frequency count if multi-word on
-        #if multiflag is False:
-        #    freq = '{0:.4f}'.format(tokens[name]/numtokens)
-        #else:
-        #    freq = '0'
-        freq = 'NULL'
-        # store result
-        # TODO: test id/name
-        if winning_id not in results:
-            results[winning_id] = list()
-            try:
-                for element in metainfo[winning_id]:
-                    results[winning_id].append(element)
-            except KeyError:
-                print('ERROR, not found:', winning_id)
-                return True
-            results[winning_id].append(name)
-            results[winning_id].append(freq)
-            results[winning_id].append(1)
-        else:
-            # increment last element
-            results[winning_id][-1] += 1
-        lastcountry = metainfo[winning_id][3]
+    return winning_id
 
-        # lines flag
-        if settings.LINESBOOL is True:
-            draw_line(results[winning_id][0], results[winning_id][1])
 
-        # result
-        return False
+def store_result(winning_id, name, metainfo):
+    """
+    Store result along with context information.
+    """
+    # init
+    global i, lastcountry, results
+
+    ## frequency counts
+    # disable frequency count if multi-word on
+    #if multiflag is False:
+    #    freq = '{0:.4f}'.format(tokens[name]/numtokens)
+    #else:
+    #    freq = '0'
+    freq = 'NULL'
+    # TODO: test id/name
+
+    # store new result
+    if winning_id not in results:
+        results[winning_id] = list()
+        try:
+            for element in metainfo[winning_id]:
+                results[winning_id].append(element)
+        except KeyError:
+            print('ERROR, not found:', winning_id)
+            return True
+        results[winning_id].append(name)
+        results[winning_id].append(freq)
+        results[winning_id].append(1)
+    # increment last element
     else:
-        # not found
-        # print('ERROR, not found:', name)
-        return True
+        results[winning_id][-1] += 1
+
+    # store context info
+    lastcountry = metainfo[winning_id][3]
+
+    # lines flag
+    if settings.LINESBOOL is True:
+        draw_line(results[winning_id][0], results[winning_id][1])
+
+    return
 
 
-## search in selected databases
-def selected_lists(name, multiflag, *args):
+def selected_lists(name, *args):
     """
     Bypass general search by looking into specified registers.
     """
     # init
     global results
     templist = None
+    # TODO: variable number of levels
     level0, level1, level2, level3 = (dict(),)*4
     if len(args) == 4:
         level0 = args[0]
@@ -283,7 +311,9 @@ def search(searchlist, codesdict, metainfo, *listargs):
     Geocoding: search if valid place name and assign coordinates.
     """
     global pair_counter
+    global results
     # init
+    results = dict()
     slide2 = ''
     slide3 = ''
     pair_counter = 0
@@ -293,11 +323,11 @@ def search(searchlist, codesdict, metainfo, *listargs):
 
     # search for places
     for token in searchlist:
-        flag = True
+        keep_running = True
         if token == ' ':
             continue
         # skip and reinitialize:
-        if token == 'XXX' or re.match(r'[.,;:–]', token): # St.? -/–?
+        if token == 'XXX' or re.match(r'[.,;:–]', token): # St–?
             slide2 = ''
             slide3 = ''
             continue
@@ -330,30 +360,30 @@ def search(searchlist, codesdict, metainfo, *listargs):
         if len(slide3) > 0 and slide3.count(' ') == 2:
             # selected lists first
             if listargs:
-                flag = selected_lists(slide3, True, listargs[0], listargs[1], listargs[2], listargs[3])
+                keep_running = selected_lists(slide3, listargs[0], listargs[1], listargs[2], listargs[3])
             # if nothing has been found
-            if flag is True:
-                flag = filter_store(slide3, True, codesdict, metainfo)
+            if keep_running is True and slide3 not in stoplist:
+                keep_running = geofind(slide3, codesdict, metainfo)
         # longest chain first
-        if flag is True and len(slide2) > 0 and slide2.count(' ') == 1:
+        if keep_running is True and len(slide2) > 0 and slide2.count(' ') == 1:
             # selected lists first
             if listargs:
-                flag = selected_lists(slide2, True, listargs[0], listargs[1], listargs[2], listargs[3])
+                keep_running = selected_lists(slide2, listargs[0], listargs[1], listargs[2], listargs[3])
             # if nothing has been found
-            if flag is True:
-                flag = filter_store(slide2, True, codesdict, metainfo)
+            if keep_running is True and slide2 not in stoplist:
+                keep_running = geofind(slide2, codesdict, metainfo)
         # just one token, if nothing has been found
-        if flag is True:
+        if keep_running is True:
             if len(token) >= settings.MINLENGTH and not re.match(r'[a-zäöü]', token) and token not in stoplist:
             # and (tokens[token]/numtokens) < threshold
                 if listargs:
-                    flag = selected_lists(token, False, listargs[0], listargs[1], listargs[2], listargs[3])
+                    keep_running = selected_lists(token, listargs[0], listargs[1], listargs[2], listargs[3])
                 # dict check before
-                if flag is True and token not in common_names and token.lower() not in common_names:
-                    flag = filter_store(token, False, codesdict, metainfo)
+                if keep_running is True and token not in common_names and token.lower() not in common_names:
+                    keep_running = geofind(token, codesdict, metainfo)
 
         # final check whether to keep the multi-word scan running
-        if flag is False:
+        if keep_running is False:
             slide2 = ''
             slide3 = ''
 
