@@ -39,11 +39,16 @@ def expand(expression):
         return expresults
 
 
-def load_tsv(filename):
+def load_tsv(filename, level=0):
     """
-    Open a TSV file and load its content into memory.
+    Open a TSV file and load its content into memory. Requires a level.
     """
+    # init
     dic = dict()
+    if not isinstance(level, int):
+        print('# ERROR, level is not an int:', level) 
+        return dic
+    # read
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
             if validators.validate_tsv_registry(line) is False:
@@ -66,18 +71,36 @@ def load_tsv(filename):
                 # append
                 canonical = expansions[0]
                 for variant in expansions:
-                    dic[variant] = [columns[1], columns[2], canonical]
+                    # verbosity
                     if settings.VERBOSITY == 'VVV':
                         print(variant, dic[variant])
+                    # control and store
+                    if len(variant) < settings.MINLENGTH:
+                        print('# WARN, key too short:', variant)
+                        continue
+                    if variant in dic:
+                        if dic[variant]['level'] > level:
+                            print('# WARN, key discarded:', variant, level)
+                        elif dic[variant]['level'] == level:
+                            print('# WARN, duplicate entry:', variant, level)
+                    else:
+                        dic[variant] = dict()
+                        dic[variant]['values'] = [columns[1], columns[2], canonical]
+                        dic[variant]['level'] = level
+
     print(len(dic), 'entries found in registry', filename)
     return dic
 
 
-def load_csv(filename):
+def load_csv(filename, level=0):
     """
     Open a CSV file and load its content into memory.
     """
+    # init
     dic = dict()
+    if not isinstance(level, int):
+        print('# ERROR, level is not an int:', level) 
+        return dic
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
             if validators.validate_csv_registry(line) is False:
@@ -107,11 +130,22 @@ def load_csv(filename):
                 canonical = expansions[0]
                 # process variants
                 for variant in expansions:
-                    # correction
-                    if len(variant) > 1:
-                        dic[variant] = [columns[2], columns[3], canonical]
-                        if settings.VERBOSITY == 'VVV':
-                            print(variant, dic[variant])
+                    # verbosity
+                    if settings.VERBOSITY == 'VVV':
+                        print(variant, dic[variant])
+                    # control and store
+                    if len(variant) < settings.MINLENGTH:
+                        print('# WARN, key too short:', variant)
+                        continue
+                    if variant in dic:
+                        if dic[variant]['level'] > level:
+                            print('# WARN, key discarded:', variant, level)
+                        elif dic[variant]['level'] == level:
+                            print('# WARN, duplicate entry:', variant, level)
+                    else:
+                        dic[variant] = dict()
+                        dic[variant]['values'] = [columns[2], columns[3], canonical]
+                        dic[variant]['level'] = level
 
     print(len(dic), 'entries found in registry', filename)
     return dic

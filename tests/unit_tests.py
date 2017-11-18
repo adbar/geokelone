@@ -27,18 +27,18 @@ def test_read():
 
 def custom_csv():
     registry = path.join(TEST_DIR, 'data/dummy-registry.csv')
-    level0 = data.load.load_csv(registry)
+    customized = data.load.load_csv(registry)
     # test alternatives
-    assert 'Atest' in level0 and 'Btest' in level0
-    return (level0, dict(), dict(), dict())
+    assert 'Atest' in customized and 'Btest' in customized
+    return (customized)
 
 
 def custom_tsv():
     registry = path.join(TEST_DIR, 'data/dummy-registry.tsv')
-    level0 = data.load.load_tsv(registry)
+    customized = data.load.load_tsv(registry)
     # test alternatives
-    assert 'Sankt Petersburg' in level0 and 'St. Petersburg' in level0
-    return (level0, dict(), dict(), dict())
+    assert 'Sankt Petersburg' in customized and 'St. Petersburg' in customized
+    return (customized)
 
 
 def test_tagged():
@@ -46,10 +46,10 @@ def test_tagged():
     inputfile = path.join(TEST_DIR, 'data/fontane-stechlin.tagged')
     splitted = text.readfile.readtagged(inputfile)
     # search
-    results = geo.geocoding.search(splitted, dict(), dict(), *custom_csv())
+    results = geo.geocoding.search(splitted, dict(), dict(), custom_csv())
     assert len(results) == 3
     assert 'Berlin' in results and 'Petersburg' in results and 'Preußen' in results
-    results = geo.geocoding.search(splitted, dict(), dict(), *custom_tsv())
+    results = geo.geocoding.search(splitted, dict(), dict(), custom_tsv())
     assert len(results) == 3
     assert 'Berlin' in results and 'Petersburg' in results and 'Preußen' in results
 
@@ -59,10 +59,10 @@ def test_tok():
     inputfile = path.join(TEST_DIR, 'data/fontane-stechlin.tok')
     splitted = text.readfile.readtok(inputfile)
     # search
-    results = geo.geocoding.search(splitted, dict(), dict(), *custom_csv())
+    results = geo.geocoding.search(splitted, dict(), dict(), custom_csv())
     assert len(results) == 3
     assert 'Berlin' in results and 'Petersburg' in results and 'Preußen' in results
-    results = geo.geocoding.search(splitted, dict(), dict(), *custom_tsv())
+    results = geo.geocoding.search(splitted, dict(), dict(), custom_tsv())
     assert len(results) == 3
     assert 'Berlin' in results and 'Petersburg' in results and 'Preußen' in results
 

@@ -7,7 +7,7 @@ Unit tests for the library.
 from heapq import nlargest
 from math import radians, cos, sin, asin, sqrt
 import re
-import sys
+# import sys
 
 from .. import settings
 
@@ -251,36 +251,22 @@ def store_result(winning_id, name, metainfo):
     return
 
 
-def selected_lists(name, *args):
+def selected_lists(name, dic):
     """
     Bypass general search by looking into specified registers.
     """
     # init
     global results
-    templist = None
-    # TODO: variable number of levels
-    level0, level1, level2, level3 = (dict(),)*4
-    if len(args) == 4:
-        level0 = args[0]
-        level1 = args[1]
-        level2 = args[2]
-        level3 = args[3]
 
     # search + canonicalize
-    if level0 and name in level0:
-        templist = [level0[name][0], level0[name][1], '0', 'NULL', 'NULL', level0[name][2]]
-    elif level1 and name in level1:
-        templist = [level1[name][0], level1[name][1], '1', 'NULL', 'NULL', level1[name][2]]
-    elif level2 and name in level2:
-        templist = [level2[name][0], level2[name][1], '2', 'NULL', 'NULL', level2[name][2]]
-    elif level3 and name in level3:
-        templist = [level3[name][0], level3[name][1], '3', 'NULL', 'NULL', level3[name][2]]
+    if name in dic:
+        templist = [dic[name]['values'][0], dic[name]['values'][1], dic[name]['level'], 'NULL', 'NULL', dic[name]['values'][2]]
+
     # TODO: implement here
     #elif name not in common_names and name.lower() not in common_names and name in level4:
     #    templist = [level4[name][0], level4[name][1], '4', 'NULL', 'NULL', name] # level4[name][0]
 
     # canonical result
-    if templist is not None:
         canonname = templist[-1]
         # results
         # store whole result or just count
@@ -302,24 +288,21 @@ def selected_lists(name, *args):
             draw_line(templist[0], templist[1])
         # store flag
         return False
-    else:
-        return True
+    # else
+    return True
 
 
-def search(searchlist, codesdict, metainfo, *listargs):
+def search(searchlist, codesdict, metainfo, custom_lists=None):
     """
     Geocoding: search if valid place name and assign coordinates.
     """
+    # init
     global pair_counter
     global results
-    # init
     results = dict()
     slide2 = ''
     slide3 = ''
     pair_counter = 0
-    # results = dict()
-    if listargs and len(listargs) != 4:
-        sys.exit('4 custom lists expected, exiting...')
 
     # search for places
     for token in searchlist:
@@ -359,16 +342,16 @@ def search(searchlist, codesdict, metainfo, *listargs):
         # longest chain first
         if len(slide3) > 0 and slide3.count(' ') == 2:
             # selected lists first
-            if listargs:
-                keep_running = selected_lists(slide3, listargs[0], listargs[1], listargs[2], listargs[3])
+            if custom_lists is not None:
+                keep_running = selected_lists(slide3, custom_lists)
             # if nothing has been found
             if keep_running is True and slide3 not in stoplist:
                 keep_running = geofind(slide3, codesdict, metainfo)
         # longest chain first
         if keep_running is True and len(slide2) > 0 and slide2.count(' ') == 1:
             # selected lists first
-            if listargs:
-                keep_running = selected_lists(slide2, listargs[0], listargs[1], listargs[2], listargs[3])
+            if custom_lists is not None:
+                keep_running = selected_lists(slide2, custom_lists)
             # if nothing has been found
             if keep_running is True and slide2 not in stoplist:
                 keep_running = geofind(slide2, codesdict, metainfo)
@@ -376,8 +359,8 @@ def search(searchlist, codesdict, metainfo, *listargs):
         if keep_running is True:
             if len(token) >= settings.MINLENGTH and not re.match(r'[a-zäöü]', token) and token not in stoplist:
             # and (tokens[token]/numtokens) < threshold
-                if listargs:
-                    keep_running = selected_lists(token, listargs[0], listargs[1], listargs[2], listargs[3])
+                if custom_lists is not None:
+                    keep_running = selected_lists(token, custom_lists)
                 # dict check before
                 if keep_running is True and token not in common_names and token.lower() not in common_names:
                     keep_running = geofind(token, codesdict, metainfo)
