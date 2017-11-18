@@ -122,8 +122,9 @@ The helper function in ``data.load.load_tsv()`` allow for additional registers t
 .. code-block:: python
 
     >>> from geokelone import data
-    >>> level0 = data.load.load_tsv('file-X.tsv')
-    >>> level1 = data.load.load_csv('file-Y.csv')
+    >>> customized = data.load.load_tsv('file-X.tsv')
+    >>> customized = data.load.load_csv('file-Y.csv', level=1)
+    >>> results = geo.geocoding.search(splitted, codesdict, metainfo, customized)
 
 
 Why curate special registers or gazetteers?

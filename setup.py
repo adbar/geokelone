@@ -57,7 +57,7 @@ setup(
         'Topic :: Scientific/Engineering :: Visualization',
         'Topic :: Text Processing :: Linguistic',
     ],
-    keywords=['keywords',],
+    keywords=['geocoder', 'mapping', 'digital-humanities', 'text-visualization'],
     url='http://github.com/adbar/geokelone',
     author='Adrien Barbaresi',
     author_email='adrien.barbaresi@oeaw.ac.at',
