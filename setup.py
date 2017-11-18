@@ -74,7 +74,7 @@ setup(
         'pyproj',
         'shapely',
     ],
-    python_requires='>=3',
+    # python_requires='>=3',
     tests_require=['pytest', 'tox'],
     zip_safe=False,
 )
