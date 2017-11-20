@@ -7,6 +7,7 @@ Helpers to import data from geonames.
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import locale
+import logging
 import re
 import sys
 from io import BytesIO
@@ -23,7 +24,10 @@ if sys.version_info[0] == 3:
 else:
     STRING_TYPE = basestring
 
+# logging
+logger = logging.getLogger(__name__)
 
+# locale
 locale.setlocale(locale.LC_ALL, settings.LOCALE)
 # directory = 'geonames'
 
@@ -45,7 +49,7 @@ def filterline(line, codesdict, metainfo):
         return
     # check if exists in db
     if columns[0] in seen_codes:
-        print('WARN: code already seen', line)
+        logger.warning('code already seen: %s', line)
         return
 
     ## name, alternatenames, latitude, longitude, code, country, population
@@ -87,14 +91,14 @@ def fetchdata(countrycodes, codesdict, metainfo):
         countrycode = countrycode.upper()
         url = 'http://download.geonames.org/export/dump/' + countrycode + '.zip'
         filename = countrycode + '.txt'
-        print('downloading...', url)
+        logger.info('downloading... %s', url)
         request = requests.get(url)
         with ZipFile(BytesIO(request.content)) as myzip:
             with myzip.open(filename) as myfile:
                 for line in myfile:
                     filterline(line.decode(), codesdict, metainfo)
                     i += 1
-        print(i, 'lines seen')
+        logger.info(i, '%s lines seen')
 
 
 def filterfile(filename, codesdict, metainfo):
@@ -111,7 +115,7 @@ def writefile(dictname, filename):
     """
     Save geonames information to a file.
     """
-    print('writing register to file', filename)
+    logger.info('writing register to file %s', filename)
     i = 0
     with open(filename, 'w', encoding='utf-8') as outfh:
         for key in sorted(dictname):
@@ -121,7 +125,7 @@ def writefile(dictname, filename):
                     outfh.write('\t' + item)
                 outfh.write('\n')
                 i += 1
-    print(i, 'lines written')
+    logger.info(i, '%s lines written')
 
 
 # control

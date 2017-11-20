@@ -8,6 +8,7 @@ Fixed settings for extraction and projection of toponyms (as is: European places
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 # standard
+import logging
 import re
 import sys
 
@@ -18,6 +19,8 @@ import exrex
 from .. import settings
 from . import validators
 
+# logging
+logger = logging.getLogger(__name__)
 
 
 def expand(expression):
@@ -39,6 +42,42 @@ def expand(expression):
         return expresults
 
 
+def store_variants(expanded, columns, level):
+    """
+    Stores variants and metadata in a dictionary.
+    """
+    # init
+    dic = dict()
+    canonical = expanded[0]
+    lat, lon = columns[-1], columns[-2]
+    # logger.debug('%s %s %s %s', canonical, expanded, columns, level)
+    # loop
+    for variant in expanded:
+        # verbosity
+        ## TODO: change logging level
+        if settings.VERBOSITY == 'VVV':
+            logger.debug('%s', variant) # , dic[variant]
+        # control and store
+        if len(variant) < settings.MINLENGTH:
+            logger.warning('key too short: %s', variant)
+            continue
+        if variant in dic:
+            if dic[variant]['level'] > level:
+                logger.warning('key discarded: %s %s', variant, level)
+            elif dic[variant]['level'] == level:
+                logger.warning('duplicate entry: %s %s', variant, level)
+            else:
+                dic[variant]['values'] = [lat, lon, canonical]
+        else:
+            dic[variant] = dict()
+            dic[variant]['values'] = [lat, lon, canonical]
+            dic[variant]['level'] = level
+    # finish
+    logger.debug('%s', dic)
+    return dic
+
+
+
 def load_tsv(filename, level=0):
     """
     Open a TSV file and load its content into memory. Requires a level.
@@ -46,7 +85,7 @@ def load_tsv(filename, level=0):
     # init
     dic = dict()
     if not isinstance(level, int):
-        print('# ERROR, level is not an int:', level) 
+        logger.error('level is not an int: %s', level) 
         return dic
     # read
     with open(filename, 'r', encoding='utf-8') as inputfh:
@@ -68,27 +107,12 @@ def load_tsv(filename, level=0):
                         expansions.extend(expand(item))
                 else:
                     expansions.extend(expand(columns[0]))
-                # append
+                # canonical form?
                 canonical = expansions[0]
-                for variant in expansions:
-                    # verbosity
-                    if settings.VERBOSITY == 'VVV':
-                        print(variant, dic[variant])
-                    # control and store
-                    if len(variant) < settings.MINLENGTH:
-                        print('# WARN, key too short:', variant)
-                        continue
-                    if variant in dic:
-                        if dic[variant]['level'] > level:
-                            print('# WARN, key discarded:', variant, level)
-                        elif dic[variant]['level'] == level:
-                            print('# WARN, duplicate entry:', variant, level)
-                    else:
-                        dic[variant] = dict()
-                        dic[variant]['values'] = [columns[1], columns[2], canonical]
-                        dic[variant]['level'] = level
+                # process variants
+                dic.update(store_variants(expansions, columns, level))
 
-    print(len(dic), 'entries found in registry', filename)
+    logger.info('%s entries found in registry %s', len(dic), filename)
     return dic
 
 
@@ -99,7 +123,7 @@ def load_csv(filename, level=0):
     # init
     dic = dict()
     if not isinstance(level, int):
-        print('# ERROR, level is not an int:', level) 
+        logger.error('level is not an int: %s', level) 
         return dic
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
@@ -126,28 +150,10 @@ def load_csv(filename, level=0):
                         expansions.extend(expand(item))
                 else:
                     expansions.extend(expand(columns[1]))
-                # canonical form?
-                canonical = expansions[0]
                 # process variants
-                for variant in expansions:
-                    # verbosity
-                    if settings.VERBOSITY == 'VVV':
-                        print(variant, dic[variant])
-                    # control and store
-                    if len(variant) < settings.MINLENGTH:
-                        print('# WARN, key too short:', variant)
-                        continue
-                    if variant in dic:
-                        if dic[variant]['level'] > level:
-                            print('# WARN, key discarded:', variant, level)
-                        elif dic[variant]['level'] == level:
-                            print('# WARN, duplicate entry:', variant, level)
-                    else:
-                        dic[variant] = dict()
-                        dic[variant]['values'] = [columns[2], columns[3], canonical]
-                        dic[variant]['level'] = level
+                dic.update(store_variants(expansions, columns, level))
 
-    print(len(dic), 'entries found in registry', filename)
+    logger.info('%s entries found in registry %s', len(dic), filename)
     return dic
 
 
@@ -192,9 +198,9 @@ def loadmeta(filename): # './geonames-meta.dict'
                 for item in columns[1:]:
                     metainfo[columns[0]].append(item)
     except IOError:
-        print('geonames data required at this stage')
+        logger.error('geonames data or empty dictionary object required at this stage')
         sys.exit(1)
-    print('different names:', len(metainfo))
+    logger.info('different names: %s', len(metainfo))
     return metainfo
 
 
@@ -220,7 +226,7 @@ def loadcodes(filename, metainfo): # './geonames-codes.dict'
                             codesdict[columns[0]] = list()
                         codesdict[columns[0]].append(item)
     except IOError:
-        print('geonames data required at this stage')
+        logger.error('geonames data or empty dictionary object required at this stage')
         sys.exit(1)
-    print('different codes:', len(codesdict))
+    logger.info('different codes: %s', len(codesdict))
     return codesdict

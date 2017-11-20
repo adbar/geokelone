@@ -3,10 +3,15 @@
 Control and print/write results.
 """
 
+import logging
 
 # own
 ## outdated #  from ..geo import results, lines # datestok
 from .. import settings
+
+
+# logging
+logger = logging.getLogger(__name__)
 
 
 COLUMN_NAMES = ('id', 'latitude', 'longitude', 'type', 'country', 'population', 'place', 'frequency', 'occurrences')

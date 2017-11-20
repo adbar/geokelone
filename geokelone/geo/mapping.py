@@ -7,12 +7,16 @@ import matplotlib.pyplot as plt
 from matplotlib.transforms import offset_copy
 # import numpy as np
 
+import logging
 import random
 # from adjustText import adjust_text # https://github.com/Phlya/adjustText/
 
 from .. import settings
 
 from ..data import validators
+
+# logging
+logger = logging.getLogger(__name__)
 
 
 ## TODO:
@@ -43,7 +47,7 @@ def draw_map(filename, results):
     if settings.FIXED_FRAME is True:
         ax.set_extent([settings.WESTMOST, settings.EASTMOST, settings.SOUTHMOST, settings.NORTHMOST])
     else:
-        print('## ERROR: flexible framing not implemented yet')
+        logger.error('flexible framing not implemented yet')
 
     # ax.gridlines()
     ax.add_feature(cfeature.OCEAN)
@@ -58,9 +62,9 @@ def draw_map(filename, results):
             lat, lon, ptype, country, something, pname, somethingelse, occurrences = results[item]
             lat = float(lat)
             lon = float(lon)
-            print('# INFO projecting:', pname, lat, lon)
+            logger.info('projecting: %s %s %s', pname, lat, lon)
         else:
-            print('# WARN problem with entry:', item)
+            logger.warning('problem with entry: %s', item)
             continue
 
         # point
@@ -83,7 +87,7 @@ def draw_map(filename, results):
             yval = random.choice([-5, 5])
         elif ychoice == 'top':
             yval = 30
-        print('# DEBUG', xchoice, xval, ychoice, yval)
+        logger.debug('%s %s %s %s', xchoice, xval, ychoice, yval)
         text_transform = offset_copy(geodetic_transform, x=xval, y=yval, units='dots')
         ax.text(lon, lat, pname, verticalalignment=ychoice, horizontalalignment=xchoice, transform=text_transform, fontsize=5, wrap=True,) #  zorder=i
         # texts.append(ax.text(lon, lat, pname, fontsize=5, transform=text_transform,)) #  wrap=True
@@ -96,6 +100,6 @@ def draw_map(filename, results):
     # ax.coastlines(resolution='50m', color='black', linewidth=0.5)
 
     # adjust_text(texts, force_points=0.2, force_text=0.2, expand_points=(1,1), expand_text=(1,1), arrowprops=dict(arrowstyle="-", color='black', lw=0.5, alpha=0.5)) # 
-    # print(adjust_text(texts))
+    # logger.debug(adjust_text(texts))
 
     plt.savefig(filename, dpi=300)

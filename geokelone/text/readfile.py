@@ -4,10 +4,14 @@ Read input texts in several formats.
 """
 
 # standard
+import logging
 import re
 
 # own
 from ..data import validators
+
+# logging
+logger = logging.getLogger(__name__)
 
 
 # load all tokens
@@ -20,7 +24,7 @@ def readplain(filename, datesbool=False, datestok=False):
         text = inputfh.read().replace('\n', ' ')
         ## validate: if text
         if validators.validate_text(text) is False:
-            print('# WARN: text format not valid')
+            logger.warning('text format not valid')
             return None
 
         # very basic tokenizer
@@ -42,10 +46,10 @@ def readtok(filename, datesbool=False, datestok=False):
         for line in inputfh:
             i += 1
             if i % 10000000 == 0:
-                print(i)
+                logger.info('tokens seen: %s', i)
             # control
             if validators.validate_tok(line) is False:
-                print('# WARN: line not valid', line)
+                logger.warning('line not valid: %s', line)
                 continue
             # consider dates
             if datesbool is True:
@@ -76,10 +80,10 @@ def readtagged(filename, datesbool=False, datestok=False):
         for line in inputfh:
             i += 1
             if i % 10000000 == 0:
-                print(i)
+                logger.info('tokens seen: %s', i)
             # control
             if validators.validate_tagged(line) is False:
-                print('# WARN: line not valid', line)
+                logger.warning('line not valid: %s', line)
                 continue
 
             # split

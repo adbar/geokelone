@@ -26,7 +26,7 @@ def readme():
 setup(
     name='geokelone',
     version='0.1.0',
-    description='to complete',
+    description='integrates spatial and textual data processing tools into a modular software package which features preprocessing, geocoding, disambiguation and visualization',
     long_description=readme(),
     classifiers=[
         # As from http://pypi.python.org/pypi?%3Aaction=list_classifiers

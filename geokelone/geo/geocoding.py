@@ -4,14 +4,18 @@ Unit tests for the library.
 """
 
 
-from heapq import nlargest
-from math import radians, cos, sin, asin, sqrt
+import logging
 import re
 # import sys
+
+from heapq import nlargest
+from math import radians, cos, sin, asin, sqrt
 
 from .. import settings
 
 
+# logging
+logger = logging.getLogger(__name__)
 
 if settings.FILTER_LEVEL == 1:
     MAX_CANDIDATES = 5
@@ -30,7 +34,7 @@ lastcountry = ''
 pair = list()
 pair_counter = 0
 
-# print('settings:', settings.MINLENGTH)
+# logger.info('settings: %s', settings.MINLENGTH)
 
 
 
@@ -56,7 +60,7 @@ def disambiguate(candidates, step, metainfo):
     """
     # test if list
     if not isinstance(candidates, list):
-        print('ERROR: type, not a list', candidates)
+        logger.error('type, not a list: %s', ' '.join(candidates))
         return candidates
     # avoid single items
     if len(candidates) == 1:
@@ -143,7 +147,7 @@ def geofind(name, codesdict, metainfo):
     # single winner
     if not isinstance(codesdict[name], list) or len(codesdict[name]) == 1:
         winning_id = codesdict[name][0]
-        print(codesdict[name])
+        logger.info('winner: %s', codesdict[name])
     # hopefully find the right one
     else:
         winning_id = disambiguating_rounds(name, codesdict, metainfo)
@@ -162,9 +166,9 @@ def disambiguating_rounds(name, codesdict, metainfo):
     # discard if too many
     if len(codesdict[name]) >= MAX_CANDIDATES:
         try:
-            print('WARN, discarded:', name, codesdict[name])
+            logger.warning('discarded: %s %s', name, codesdict[name])
         except UnicodeEncodeError:
-            print('WARN, discarded:', 'unicode error', codesdict[name])
+            logger.warning('discarded + unicode error: %s', codesdict[name])
         return True
     # init
     global i
@@ -179,9 +183,9 @@ def disambiguating_rounds(name, codesdict, metainfo):
         # nothing found
         if winners is None:
             try:
-                print('ERROR, out of winners:', name, codesdict[name])
+                logger.warning('out of winners: %s %s', name, codesdict[name])
             except UnicodeEncodeError:
-                print('ERROR, out of winners:', 'unicode error', codesdict[name])
+                logger.warning('out of winners + unicode error: %s', codesdict[name])
             i += 1
             return True
         # found
@@ -192,9 +196,9 @@ def disambiguating_rounds(name, codesdict, metainfo):
     ## TODO: NEVER HAPPENS??
     if winning_id is None:
         try:
-            print('ERROR, too many winners:', name, winners)
+            logger.warning('too many winners: %s %s', name, winners)
         except UnicodeEncodeError:
-            print('ERROR, too many winners:', 'unicode error', winners)
+            logger.warning('too many winners + unicode error: %s', winners)
         i += 1
         return True
 
@@ -232,7 +236,7 @@ def store_result(winning_id, name, metainfo):
             for element in metainfo[winning_id]:
                 results[winning_id].append(element)
         except KeyError:
-            print('ERROR, not found:', winning_id)
+            logger.error('key not found: %s', winning_id)
             return True
         results[winning_id].append(name)
         results[winning_id].append(freq)
@@ -336,7 +340,8 @@ def search(searchlist, codesdict, metainfo, custom_lists=None):
 
         # control
         if settings.VERBOSITY == 'V':
-            print(token, slide2, slide3, sep=";")
+            ## TODO: verbosity control
+            logger.info('%s %s %s', token, slide2, slide3)
 
         ## analyze sliding window first, then token if necessary
         # longest chain first
