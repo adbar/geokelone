@@ -22,7 +22,7 @@ About
 
 ``Geokelone`` is an effort to integrate spatial and textual data processing tools into a modular software package which features preprocessing, geocoding, disambiguation and visualization.
 
-Only Python3 is supported at the moment.
+Only Python3 (especially 3.4 onwards) is supported, although the scripts may work for Python 2.7.
 
 
 Installation on Linux
@@ -114,6 +114,12 @@ Why disambiguate?
 Did you know there was a Jerusalem in Bavaria and a Leipzig in Ukraine?
 
 
+Why curate special registers or gazetteers?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Even with a touch of filtering, the token "Berlin" in Geonames is a place north of Germany with 0 inhabitants (see map below [add image]).
+
+
 Extension of gazetteers
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -127,17 +133,28 @@ The helper function in ``data.load.load_tsv()`` allow for additional registers t
     >>> results = geo.geocoding.search(splitted, codesdict, metainfo, customized)
 
 
-Why curate special registers or gazetteers?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using Wikipedia to build custom lists
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Even with a touch of filtering, the token "Berlin" in Geonames is a place north of Germany with 0 inhabitants (see map below [add image]).
+The module includes helpers to navigate categories, for example the `World Heritage Sites in England <https://en.wikipedia.org/wiki/Category:World_Heritage_Sites_in_England>`_ or the `Cultural Landscapes of Japan <https://en.wikipedia.org/wiki/Category:Cultural_Landscapes_of_Japan>`_ and to fetch coordinates for a given list by querying Wikipedia.
+
+.. code-block:: python
+
+    >>> from geokelone import wikipedia
+    # chained operations for a list of categories
+    >>> wikipedia.process_todolist('mytodolist.txt', outputfile='solved.tsv', categories=True)
+    # discover entries in a category
+    >>> category_members = wikipedia.navigate_category('XYZ')
+    # process them one by one
+    >>> for member in category_members:
+    >>>     lat, lon = find_coordinates(member, language='de')
+    >>>     print(member, lat, lon)
 
 
 Special parameters
 ~~~~~~~~~~~~~~~~~~
 
 A series of parameters can be set to affect both search and visualization, see ``settings.py`` file.
-
 
 
 TODO

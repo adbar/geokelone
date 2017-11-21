@@ -49,6 +49,7 @@ def writefile(outputfile, results, datestok):
                     outputfh.write('\t' + str(item))
             outputfh.write('\n')
 
+
 def writelines(linesfile, lines):
     """
     Control and write line/collocation data to a file.
