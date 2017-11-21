@@ -51,7 +51,11 @@ def haversine(lat1, lon1, lat2, lon2):
     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
     c = 2 * asin(sqrt(a))
     km = 6367 * c
-    return "{0:.1f}".format(km)
+    logger.debug('raw distance in km: %s', km)
+    # sufficient resolution for most calculations, locations in a city may require more
+    returnval = "{0:.2f}".format(km)
+    logger.debug('estimated distance in km: %s', returnval)
+    return returnval
 
 
 def disambiguate(candidates, step, metainfo):

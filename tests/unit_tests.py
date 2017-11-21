@@ -92,6 +92,14 @@ def test_geonames():
     assert len(results) == 1 and '2849119' in results
 
 
+def test_haversine():
+    assert geo.geocoding.haversine(53.4, 1.2, 61, 10.53) == '1012.13'
+    assert geo.geocoding.haversine(-53.466666, 1, 61, -3.33333) == '12725.89'
+
+
+
+
+
 if __name__ == '__main__':
     # print('testing', TEST_DIR)
     # print (os.path.join(sys.path[0], '..'))
@@ -100,6 +108,7 @@ if __name__ == '__main__':
     test_tagged()
     test_tok()
     test_geonames()
+    test_haversine()
 
 
 
