@@ -66,6 +66,7 @@ def store_variants(expanded, columns, level):
                 logger.warning('key discarded: %s %s', variant, level)
             elif dic[variant]['level'] == level:
                 logger.warning('duplicate entry: %s %s', variant, level)
+                dic[variant]['values'] = [lat, lon, canonical]
             else:
                 dic[variant]['values'] = [lat, lon, canonical]
         else:
@@ -157,20 +158,9 @@ def load_csv(filename, level=0):
     return dic
 
 
-#if __name__ == "__main__":
-# load infos level 0
-#level0 = load_tsv('./rang0-makro.tsv')
-# load infos level 1
-#level1 = load_tsv('./rang1-staaten.tsv')
-# load infos level 2
-#level2 = load_csv('./rang2-regionen.csv')
-# load infos level 3
-#level3 = load_csv('./rang3-staedte.csv')
-
-
 # geonames
 ### FILE MUST EXIST, use the preprocessing script provided
-def loadmeta(filename): # './geonames-meta.dict'
+def geonames_meta(filename): # './geonames-meta.dict'
     """
     Load metadata for a place name from Geonames.
     """
@@ -206,7 +196,7 @@ def loadmeta(filename): # './geonames-meta.dict'
 
 # load codes (while implementing filter)
 ### FILE MUST EXIST, use the preprocessing script provided
-def loadcodes(filename, metainfo): # './geonames-codes.dict'
+def geonames_codes(filename, metainfo): # './geonames-codes.dict'
     """
     Load codes from Geonames for matching and disambiguation purposes.
     """

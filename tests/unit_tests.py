@@ -33,7 +33,6 @@ def custom_csv():
     registry = path.join(TEST_DIR, 'data/dummy-registry.csv')
     customized = data.load.load_csv(registry)
     # test alternatives
-    print(customized)
     assert 'Atest' in customized and 'Btest' in customized
     return (customized)
 
@@ -75,29 +74,21 @@ def test_tok():
 def test_geonames():
     # setup
     inputfile = path.join(TEST_DIR, 'data/dummy-geonames-meta.dict')
-    metainfo = data.load.loadmeta(inputfile)
+    metainfo = data.load.geonames_meta(inputfile)
     inputfile = path.join(TEST_DIR, 'data/dummy-geonames-codes.dict')
-    codes = data.load.loadcodes(inputfile, metainfo)
+    codes = data.load.geonames_codes(inputfile, metainfo)
     assert len(metainfo) == 3 and len(codes) == 3
     # search
-    # results = dict()
     results = geo.geocoding.search(['Aachen', 'Aachen'], codes, metainfo)
-    print('###')
-    print(results)
     assert len(results) == 1 and '3247449' in results
     ## multi-word
     # 2
     results = geo.geocoding.search(['Öderquarter'], codes, metainfo)
     assert '2858070' not in results
-    # results = dict()
     results = geo.geocoding.search(['Öderquarter', 'Moor'], codes, metainfo)
-    print('###')
-    print(results)
     assert len(results) == 1 and '2858070' in results
     # 3
     results = geo.geocoding.search(['It', 'was', 'in', 'Reichenbach', 'am', 'Heuberg', '.'], codes, metainfo)
-    print('###')
-    print(results)
     assert len(results) == 1 and '2849119' in results
 
 

@@ -101,8 +101,8 @@ Extraction, disambiguation and mapping
 
     >>> from geokelone import data, geo, text
     >>> splitted = text.readfile.readtagged('tests/data/fontane-stechlin.tagged')
-    >>> metainfo = data.load.loadmeta('geonames-meta.dict')
-    >>> codesdict = data.load.loadcodes('geonames-codes.dict', metainfo)
+    >>> metainfo = data.load.geonames_meta('geonames-meta.dict')
+    >>> codesdict = data.load.geonames_codes('geonames-codes.dict', metainfo)
     >>> results = geo.geocoding.search(splitted, codesdict, metainfo)
     >>> text.outputcontrol.writefile('test.out', results, dict())
     >>> geo.mapping.draw_map('testmap.png', results)
