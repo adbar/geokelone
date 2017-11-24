@@ -181,6 +181,7 @@ def disambiguating_rounds(name, codesdict, metainfo):
     while step <= 3:
         # launch function
         if step == 1:
+            # print(codesdict[name], step, metainfo)
             winners = disambiguate(codesdict[name], step, metainfo)
         else:
             winners = disambiguate(winners, step, metainfo)
@@ -196,7 +197,9 @@ def disambiguating_rounds(name, codesdict, metainfo):
         if not isinstance(winners, list):
             winning_id = winners
             break
-                # if len(winners) == 1
+        elif len(winners) == 1:
+            winning_id = winners[0]
+            break
     ## TODO: NEVER HAPPENS??
     if winning_id is None:
         try:

@@ -45,6 +45,18 @@ def custom_tsv():
     return (customized)
 
 
+def geonames_filter():
+    # malformed
+    assert data.geonames.filterline('\n', dict(), dict()) == 0
+    assert data.geonames.filterline('	1	2.3', dict(), dict()) == 0
+    # wrong type
+    assert data.geonames.filterline('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02', dict(), dict()) == 0
+    # OK
+    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25', dict(), dict()) == 1
+    # duplicate entry
+    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25', dict(), dict()) == 0
+
+
 def test_tagged():
     # setup
     inputfile = path.join(TEST_DIR, 'data/fontane-stechlin.tagged')
@@ -97,6 +109,35 @@ def test_haversine():
     assert geo.geocoding.haversine(-53.466666, 1, 61, -3.33333) == '12725.89'
 
 
+def test_disambiguate():
+    test_metainfo = {\
+                    '1':[48.13, 8.85, 'P', 'DE', 0],\
+                    '2':[48.13, 8.85, 'P', 'DE', 10],\
+                    }
+    assert geo.geocoding.disambiguate(['1', '2'], 1, test_metainfo) == '2'
+    assert geo.geocoding.disambiguate(['1', '2'], 2, test_metainfo) == '2'
+    test_metainfo = {\
+                    '1':[48.13, 8.85, 'P', 'DE', 10],\
+                    '2':[48.13, 8.85, 'A', 'DE', 10],\
+                    }
+    assert geo.geocoding.disambiguate(['1', '2'], 1, test_metainfo) == '1'
+    assert geo.geocoding.disambiguate(['1', '2'], 2, test_metainfo) == '1'
+
+    #print(geo.geocoding.disambiguate(['1', '2', '3'], 1, {'2': [-46.13, -8.85, 'P', 'ZZ', 10], '3': [45.13, 9.85, 'P', 'DE', 2000], '1': [47.13, 7.85, 'P', 'DE', 0]}))
+
+
+def test_rounds():
+    test_metainfo = {\
+                    '1':[47.13, 7.85, 'P', 'DE', 0],\
+                    '2':[46.13, 8.85, 'P', 'DE', 10],\
+                    '3':[45.13, 9.85, 'P', 'DE', 2000],\
+                    }
+    test_codesdict = {\
+                    'AAA':['1', '2', '3'],\
+                    }
+
+    #print(geo.geocoding.disambiguating_rounds('AAA', test_codesdict, test_metainfo))
+    #assert geo.geocoding.disambiguating_rounds('AAA', test_codesdict, test_metainfo) == '3'
 
 
 
@@ -107,8 +148,11 @@ if __name__ == '__main__':
     test_read()
     test_tagged()
     test_tok()
+    geonames_filter()
     test_geonames()
     test_haversine()
+    test_disambiguate()
+    # test_rounds()
 
 
 

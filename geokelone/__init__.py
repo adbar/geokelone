@@ -35,6 +35,10 @@ logging.getLogger(__name__).addHandler(NullHandler())
 
 
 
+# from codecs import open # python2
+
+
+
 
 # from . import geo
 # from . import text

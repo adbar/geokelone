@@ -31,26 +31,35 @@ logger = logging.getLogger(__name__)
 locale.setlocale(locale.LC_ALL, settings.LOCALE)
 # directory = 'geonames'
 
+# vars
+seen_codes = set()
+
 
 # filter data
 def filterline(line, codesdict, metainfo):
     """
     Only store a geonames entry if it satisfies formal criteria (type, validity, etc.)
     """
-    seen_codes = set()
+    global seen_codes # codesdict, metainfo, 
     columns = re.split('\t', line)
 
     ## filters
+    if len(columns) < 10: # could be higher
+        logger.debug('malformed: %s', line)
+        return 0
     if len(columns[0]) < 1 or len(columns[1]) < 1:
-        return
+        logger.debug('malformed: %s', line)
+        return 0
     if columns[1].count(' ') > 3:
-        return
+        logger.debug('malformed: %s', columns[1])
+        return 0
     if columns[7] in ('BANK', 'BLDG', 'HTL', 'PLDR', 'PS', 'SWT', 'TOWR'):
-        return
+        logger.debug('not suitable type: %s', columns[7])
+        return 0
     # check if exists in db
     if columns[0] in seen_codes:
         logger.warning('code already seen: %s', line)
-        return
+        return 0
 
     ## name, alternatenames, latitude, longitude, code, country, population
     # main
@@ -73,6 +82,7 @@ def filterline(line, codesdict, metainfo):
     # store selected information
     metainfo[columns[0]] = (columns[4], columns[5], columns[6], columns[8], columns[14])
     seen_codes.add(columns[0])
+    return 1
 
 
 # download data
@@ -93,12 +103,18 @@ def fetchdata(countrycodes, codesdict, metainfo):
         filename = countrycode + '.txt'
         logger.info('downloading... %s', url)
         request = requests.get(url)
-        with ZipFile(BytesIO(request.content)) as myzip:
-            with myzip.open(filename) as myfile:
-                for line in myfile:
-                    filterline(line.decode(), codesdict, metainfo)
-                    i += 1
-        logger.info(i, '%s lines seen')
+
+        # log and exit if unsuccessful
+        if request.status_code != requests.codes.ok:
+            logger.error('problem with response (%s) for url %s', request.status_code, url)
+        # normal case
+        else:
+            with ZipFile(BytesIO(request.content)) as myzip:
+                with myzip.open(filename) as myfile:
+                    for line in myfile:
+                        fresult = filterline(line.decode(), codesdict, metainfo)
+                        i += 1
+            logger.info('%s lines seen', i)
 
 
 def filterfile(filename, codesdict, metainfo):
@@ -107,7 +123,7 @@ def filterfile(filename, codesdict, metainfo):
     """
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
-            filterline(line, codesdict, metainfo)
+            fresult = filterline(line, codesdict, metainfo)
 
 
 # write info to file
