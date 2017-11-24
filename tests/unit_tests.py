@@ -110,34 +110,35 @@ def test_haversine():
 
 
 def test_disambiguate():
+    ## pop count
     test_metainfo = {\
                     '1':[48.13, 8.85, 'P', 'DE', 0],\
-                    '2':[48.13, 8.85, 'P', 'DE', 10],\
+                    '2':[49.13, 8.85, 'P', 'DE', 0],\
+                    '3':[50.13, 8.85, 'P', 'DE', 1000],\
                     }
-    assert geo.geocoding.disambiguate(['1', '2'], 1, test_metainfo) == '2'
-    assert geo.geocoding.disambiguate(['1', '2'], 2, test_metainfo) == '2'
+    assert geo.geocoding.disambiguate(['1', '2', '3'], 1, test_metainfo) == '3'
+    assert geo.geocoding.disambiguate(['1', '2', '3'], 2, test_metainfo) == '3'
+    ## place type
     test_metainfo = {\
                     '1':[48.13, 8.85, 'P', 'DE', 10],\
                     '2':[48.13, 8.85, 'A', 'DE', 10],\
                     }
     assert geo.geocoding.disambiguate(['1', '2'], 1, test_metainfo) == '1'
     assert geo.geocoding.disambiguate(['1', '2'], 2, test_metainfo) == '1'
-
-    #print(geo.geocoding.disambiguate(['1', '2', '3'], 1, {'2': [-46.13, -8.85, 'P', 'ZZ', 10], '3': [45.13, 9.85, 'P', 'DE', 2000], '1': [47.13, 7.85, 'P', 'DE', 0]}))
+    ## distance
+    assert geo.geocoding.disambiguate(['1', '2', '3'], 1, {'2': [-46.13, -8.85, 'P', 'ZZ', 1000], '3': [-45.13, -9.85, 'P', 'ZZ', 1000], '1': [47.13, 7.85, 'P', 'ZZ', 1000]}) == '3'
 
 
 def test_rounds():
     test_metainfo = {\
                     '1':[47.13, 7.85, 'P', 'DE', 0],\
-                    '2':[46.13, 8.85, 'P', 'DE', 10],\
+                    '2':[46.13, 8.85, 'P', 'DE', 0],\
                     '3':[45.13, 9.85, 'P', 'DE', 2000],\
                     }
     test_codesdict = {\
                     'AAA':['1', '2', '3'],\
                     }
-
-    #print(geo.geocoding.disambiguating_rounds('AAA', test_codesdict, test_metainfo))
-    #assert geo.geocoding.disambiguating_rounds('AAA', test_codesdict, test_metainfo) == '3'
+    assert geo.geocoding.disambiguating_rounds('AAA', test_codesdict, test_metainfo) == '3'
 
 
 
@@ -152,7 +153,7 @@ if __name__ == '__main__':
     test_geonames()
     test_haversine()
     test_disambiguate()
-    # test_rounds()
+    test_rounds()
 
 
 
