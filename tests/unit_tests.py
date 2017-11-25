@@ -66,10 +66,8 @@ def test_geonames_store():
     alternatives, code, infotuple = data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25')
 
     # store code
-    assert code not in data.geonames.seen_codes
     assert code not in data.geonames.codesdict
     data.geonames.store_codesdata(code, alternatives)
-    assert code in data.geonames.seen_codes
     assert code in data.geonames.codesdict
 
     # store info
@@ -78,7 +76,7 @@ def test_geonames_store():
     assert infotuple[0] in data.geonames.metainfo
 
     # duplicate entry
-    #print(data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25'))
+    print(data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25'))
     #assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
 
 

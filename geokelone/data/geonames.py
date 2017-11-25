@@ -34,7 +34,17 @@ locale.setlocale(locale.LC_ALL, settings.LOCALE)
 # vars
 codesdict = dict()
 metainfo = dict()
-seen_codes = set()
+
+
+def name_filter(name):
+    # length filter
+    if len(name) < settings.MINLENGTH:
+        return False
+    # filter non-locale characters
+    elif re.match(r'[^\w -]+$', name, re.LOCALE):
+        return False
+    # catchall
+    return True
 
 
 def generate_urls(countrycodes):
@@ -81,30 +91,31 @@ def filterline(line):
     if columns[7] in ('BANK', 'BLDG', 'HTL', 'PLDR', 'PS', 'SWT', 'TOWR'):
         logger.debug('not suitable type: %s', columns[7])
         return None
-    # check if exists in db
-    if columns[0] in seen_codes:
-        logger.warning('code already seen: %s', line)
+
+    # name
+    if name_filter(columns[1]) is False:
+        logger.debug('no suitable name: %s', columns[1])
         return None
 
-    ## name, alternatenames, latitude, longitude, code, country, population
-    # main
-
-
+    # check if exists in db
+    if columns[0] in codesdict:
+        logger.warning('code already seen: %s', line)
+        return None
     # examine alternatives
     alternatives = set()
     if ',' in columns[3]:
         for alternative in re.split(',', columns[3]):
-            # TODO: internationalize
-            # filter non-German/European characters
-            #if len(alternative) > 2 or re.match(r'[^\w -]+$', item, re.LOCALE):
-            #    continue
             # store
-            alternatives.add(alternative)
+            if name_filter(alternative) is True:
+                alternatives.add(alternative)
     else:
-        alternatives.add(columns[3])
+        if name_filter(columns[3]) is True:
+            alternatives.add(columns[3])
 
     # store selected information
     # metainfo[columns[0]] = (columns[4], columns[5], columns[6], columns[8], columns[14])
+    ## name, alternatenames, latitude, longitude, code, country, population
+    # main
     return alternatives, columns[1], (columns[0], columns[4], columns[5], columns[6], columns[8], columns[14])
 
 
@@ -112,11 +123,10 @@ def store_codesdata(code, alternatives):
     """
     Store codes data in register.
     """
-    global codesdict, seen_codes
+    global codesdict
     # control
     if code not in codesdict:
         codesdict[code] = set()
-    seen_codes.add(code)
     # add
     codesdict[code].update(alternatives)
 
