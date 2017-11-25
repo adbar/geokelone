@@ -32,64 +32,17 @@ locale.setlocale(locale.LC_ALL, settings.LOCALE)
 # directory = 'geonames'
 
 # vars
+codesdict = dict()
+metainfo = dict()
 seen_codes = set()
 
 
-# filter data
-def filterline(line, codesdict, metainfo):
+def generate_urls(countrycodes):
     """
-    Only store a geonames entry if it satisfies formal criteria (type, validity, etc.)
+    generate download URLs
     """
-    global seen_codes # codesdict, metainfo, 
-    columns = re.split('\t', line)
-
-    ## filters
-    if len(columns) < 10: # could be higher
-        logger.debug('malformed: %s', line)
-        return 0
-    if len(columns[0]) < 1 or len(columns[1]) < 1:
-        logger.debug('malformed: %s', line)
-        return 0
-    if columns[1].count(' ') > 3:
-        logger.debug('malformed: %s', columns[1])
-        return 0
-    if columns[7] in ('BANK', 'BLDG', 'HTL', 'PLDR', 'PS', 'SWT', 'TOWR'):
-        logger.debug('not suitable type: %s', columns[7])
-        return 0
-    # check if exists in db
-    if columns[0] in seen_codes:
-        logger.warning('code already seen: %s', line)
-        return 0
-
-    ## name, alternatenames, latitude, longitude, code, country, population
-    # main
-    if columns[1] not in codesdict:
-        codesdict[columns[1]] = set()
-        codesdict[columns[1]].add(columns[0])
-
-    # examine alternatives
-    alternatives = re.split(',', columns[3])
-    if len(alternatives) > 0:
-        for item in alternatives:
-            # filter non-German characters
-            if len(item) > 2 or re.match(r'[^\w -]+$', item, re.LOCALE):
-                continue
-            # add to known codes
-            if item not in codesdict:
-                codesdict[item] = set()
-                codesdict[item].add(columns[0])
-
-    # store selected information
-    metainfo[columns[0]] = (columns[4], columns[5], columns[6], columns[8], columns[14])
-    seen_codes.add(columns[0])
-    return 1
-
-
-# download data
-def fetchdata(countrycodes, codesdict, metainfo):
-    """
-    Retrieve data from geonames for the countries given.
-    """
+    urls = list()
+    filenames = list()
     # make it a list
     if isinstance(countrycodes, STRING_TYPE):
         tmp = countrycodes
@@ -97,11 +50,100 @@ def fetchdata(countrycodes, codesdict, metainfo):
         countrycodes.append(tmp)
     # iterate through countrycodes
     for countrycode in countrycodes:
-        i = 0
+        # i = 0
         countrycode = countrycode.upper()
         url = 'http://download.geonames.org/export/dump/' + countrycode + '.zip'
         filename = countrycode + '.txt'
-        logger.info('downloading... %s', url)
+        urls.append(url)
+        filenames.append(filename)
+    # bundle
+    return urls, filenames
+
+
+# filter data
+def filterline(line):
+    """
+    Only store a geonames entry if it satisfies formal criteria (type, validity, etc.)
+    """
+    # global codesdict, metainfo
+    columns = re.split('\t', line)
+
+    ## filters
+    if len(columns) < 10: # could be higher
+        logger.debug('malformed: %s', line)
+        return None
+    if len(columns[0]) < 1 or len(columns[1]) < 1:
+        logger.debug('malformed: %s', line)
+        return None
+    if columns[1].count(' ') > 3:
+        logger.debug('malformed: %s', columns[1])
+        return None
+    if columns[7] in ('BANK', 'BLDG', 'HTL', 'PLDR', 'PS', 'SWT', 'TOWR'):
+        logger.debug('not suitable type: %s', columns[7])
+        return None
+    # check if exists in db
+    if columns[0] in seen_codes:
+        logger.warning('code already seen: %s', line)
+        return None
+
+    ## name, alternatenames, latitude, longitude, code, country, population
+    # main
+
+
+    # examine alternatives
+    alternatives = set()
+    if ',' in columns[3]:
+        for alternative in re.split(',', columns[3]):
+            # TODO: internationalize
+            # filter non-German/European characters
+            #if len(alternative) > 2 or re.match(r'[^\w -]+$', item, re.LOCALE):
+            #    continue
+            # store
+            alternatives.add(alternative)
+    else:
+        alternatives.add(columns[3])
+
+    # store selected information
+    # metainfo[columns[0]] = (columns[4], columns[5], columns[6], columns[8], columns[14])
+    return alternatives, columns[1], (columns[0], columns[4], columns[5], columns[6], columns[8], columns[14])
+
+
+def store_codesdata(code, alternatives):
+    """
+    Store codes data in register.
+    """
+    global codesdict, seen_codes
+    # control
+    if code not in codesdict:
+        codesdict[code] = set()
+    seen_codes.add(code)
+    # add
+    codesdict[code].update(alternatives)
+
+
+def store_metainfo(infotuple):
+    """
+    Store metainfo data in register.
+    """
+    global metainfo
+    # control
+    if infotuple[0] in metainfo:
+        logger.warning('item already in register: %s', infotuple[0])
+    # store
+    metainfo[infotuple[0]] = (infotuple[1], infotuple[2], infotuple[3], infotuple[4], infotuple[5])
+
+
+# download data
+def fetchdata(countrycodes):
+    """
+    Retrieve data from geonames for the countries given.
+    """
+    i = 1
+    urls, filenames = generate_urls(countrycodes)
+    for url in urls:
+        # start
+        j = 0
+        logger.info('download %s url: %s', i, url)
         request = requests.get(url)
 
         # log and exit if unsuccessful
@@ -110,20 +152,31 @@ def fetchdata(countrycodes, codesdict, metainfo):
         # normal case
         else:
             with ZipFile(BytesIO(request.content)) as myzip:
-                with myzip.open(filename) as myfile:
+                with myzip.open(filenames[i]) as myfile:
                     for line in myfile:
-                        fresult = filterline(line.decode(), codesdict, metainfo)
-                        i += 1
-            logger.info('%s lines seen', i)
+                        # filter
+                        alternatives, code, infotuple = filterline(line.decode())
+                        # store
+                        store_codesdata(code, alternatives)
+                        store_metainfo(infotuple)
+                        j += 1
+            logger.info('%s lines seen', j)
+        i += 1
+    return codesdict, metainfo
 
 
-def filterfile(filename, codesdict, metainfo):
+def filterfile(filename):
     """
     File data helper.
     """
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
-            fresult = filterline(line, codesdict, metainfo)
+            # filter
+            alternatives, code, infotuple = filterline(line.decode())
+            # store
+            store_codesdata(code, alternatives)
+            store_metainfo(infotuple)
+    return codesdict, metainfo
 
 
 # write info to file

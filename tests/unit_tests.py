@@ -45,16 +45,43 @@ def custom_tsv():
     return (customized)
 
 
-def geonames_filter():
+def test_geonames_download():
+    assert data.geonames.generate_urls('fi') == (['http://download.geonames.org/export/dump/FI.zip'], ['FI.txt'])
+    assert data.geonames.generate_urls(['fi']) == (['http://download.geonames.org/export/dump/FI.zip'], ['FI.txt'])
+    assert data.geonames.generate_urls(['fa', 'fi', 'fr']) == (['http://download.geonames.org/export/dump/FA.zip', 'http://download.geonames.org/export/dump/FI.zip', 'http://download.geonames.org/export/dump/FR.zip'], ['FA.txt', 'FI.txt', 'FR.txt'])
+
+
+def test_geonames_filter():
     # malformed
-    assert data.geonames.filterline('\n', dict(), dict()) == 0
-    assert data.geonames.filterline('	1	2.3', dict(), dict()) == 0
+    assert data.geonames.filterline('\n') is None
+    assert data.geonames.filterline('	1	2.3') is None
     # wrong type
-    assert data.geonames.filterline('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02', dict(), dict()) == 0
+    assert data.geonames.filterline('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  is None
     # OK
-    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25', dict(), dict()) == 1
+    data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not None
+
+
+def test_geonames_store():
+    # init
+    alternatives, code, infotuple = data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25')
+
+    # store code
+    assert code not in data.geonames.seen_codes
+    assert code not in data.geonames.codesdict
+    data.geonames.store_codesdata(code, alternatives)
+    assert code in data.geonames.seen_codes
+    assert code in data.geonames.codesdict
+
+    # store info
+    assert infotuple[0] not in data.geonames.metainfo
+    data.geonames.store_metainfo(infotuple)
+    assert infotuple[0] in data.geonames.metainfo
+
     # duplicate entry
-    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25', dict(), dict()) == 0
+    #print(data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25'))
+    #assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
+
+
 
 
 def test_tagged():
@@ -149,7 +176,9 @@ if __name__ == '__main__':
     test_read()
     test_tagged()
     test_tok()
-    geonames_filter()
+    test_geonames_download()
+    test_geonames_filter()
+    test_geonames_store()
     test_geonames()
     test_haversine()
     test_disambiguate()

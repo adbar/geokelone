@@ -41,6 +41,15 @@ session = requests.Session()
 session.mount('https://', MyAdapter())
 
 
+def send_request(query_url):
+    """Send a request over the network."""
+    logger.debug('sending request %s', query_url)
+    request = session.get(query_url, verify=False)
+    if request.status_code != requests.codes.ok:
+        logger.error('problem with response (%s) for url %s', request.status_code, query_url)
+        return None
+    return request
+
 
 def navigate_category(name, language='en'):
     """Takes a category name as input and returns all category members"""
@@ -57,8 +66,10 @@ def navigate_category(name, language='en'):
         elif flag == 2:
             query_url = 'https://' + language + '.wikipedia.org/w/api.php?action=query&list=categorymembers&format=json&cmlimit=500&cmtitle=' + name + '&cmcontinue=' + continuecode
         # send request
-        logger.debug('sending request %s', query_url)
-        request = session.get(query_url, verify=False)
+        request = send_request(query_url)
+        if request is None:
+            return list()
+        # extract
         jsonresponse = request.text
         for match in re.finditer(r'"title":"(.+?)"', request.text):
             try:
@@ -84,19 +95,20 @@ def find_coordinates(name, language='en'):
     """Find coordinates for given wikipedia entry"""
     # init
     query_url = 'https://' + language + '.wikipedia.org/w/api.php?action=query&format=json&prop=coordinates&titles=' + name
-    logger.debug('sending request %s', query_url)
     # send request
-    request = session.get(query_url, verify=False)
-    try:
-        latitude = re.search(r'"lat":-?([0-9\.]+?),', request.text).group(1)
-        longitude = re.search(r'"lon":-?([0-9\.]+?),', request.text).group(1)
-    except AttributeError:
-        logger.warning('Unexpected response for query %s', query_url)
-        # outputfh.write(line + '\t' + '' + '\t' + '' + '\n')
-    else:
-        return latitude, longitude
-        # sleep(0.25)
-        # outputfh.write(line + '\t' + latitude + '\t' + longitude + '\n')
+    request = send_request(query_url)
+    if request is not None:
+        try:
+            latitude = re.search(r'"lat":-?([0-9\.]+?),', request.text).group(1)
+            longitude = re.search(r'"lon":-?([0-9\.]+?),', request.text).group(1)
+        except AttributeError:
+            logger.warning('Unexpected response for query %s', query_url)
+            # outputfh.write(line + '\t' + '' + '\t' + '' + '\n')
+        else:
+            return latitude, longitude
+            # sleep(0.25)
+            # outputfh.write(line + '\t' + latitude + '\t' + longitude + '\n')
+    # catchall
     return None, None
 
 
@@ -132,6 +144,4 @@ def process_todolist(filename, outputfile=None, categories=False): # , language=
                     outputfh.write(line + '\t' + str(lat) + '\t' + str(lon) + '\n')
                 else:
                     logger.warning('no coordinates found for entry %s', line)
-
     return
-
