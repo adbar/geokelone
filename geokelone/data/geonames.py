@@ -41,7 +41,8 @@ def name_filter(name):
     if len(name) < settings.MINLENGTH:
         return False
     # filter non-locale characters
-    elif re.match(r'[^\w -]+$', name, re.LOCALE):
+    # TODO: fix Python 3.6 locale error
+    elif re.match(r'[^\w -]+$', name): # , re.LOCALE
         return False
     # catchall
     return True
