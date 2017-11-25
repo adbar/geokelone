@@ -64,7 +64,7 @@ def disambiguate(candidates, step, metainfo):
     """
     # test if list
     if not isinstance(candidates, list):
-        logger.error('type, not a list: %s', ' '.join(candidates))
+        logger.error('type, not a list: %s, %s', type(candidates), candidates)
         return candidates
     # avoid single items
     if len(candidates) == 1:

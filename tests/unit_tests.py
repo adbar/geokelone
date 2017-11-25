@@ -135,21 +135,32 @@ def test_haversine():
 
 
 def test_disambiguate():
+    ## type
+    assert geo.geocoding.disambiguate(None, 1, dict()) is None
+    assert geo.geocoding.disambiguate('Test', 1, dict()) is 'Test'
+
     ## pop count
     test_metainfo = {\
                     '1':[48.13, 8.85, 'P', 'DE', 0],\
-                    '2':[49.13, 8.85, 'P', 'DE', 0],\
-                    '3':[50.13, 8.85, 'P', 'DE', 1000],\
+                    '2':[49.13, 8.84, 'P', 'DE', 10],\
+                    '3':[49.13, 8.85, 'P', 'DE', 20],\
+                    '4':[50.13, 8.85, 'P', 'DE', 10000],\
                     }
-    assert geo.geocoding.disambiguate(['1', '2', '3'], 1, test_metainfo) == '3'
+    assert geo.geocoding.disambiguate(['1', '2'], 1, test_metainfo) == '2'
+    print(geo.geocoding.disambiguate(['2', '3'], 1, test_metainfo))
+    assert geo.geocoding.disambiguate(['2', '3'], 1, test_metainfo) == '3'
+    assert geo.geocoding.disambiguate(['3', '4'], 1, test_metainfo) == '4'
     assert geo.geocoding.disambiguate(['1', '2', '3'], 2, test_metainfo) == '3'
+    assert geo.geocoding.disambiguate(['1', '2', '3', '4'], 2, test_metainfo) == '4'
+
     ## place type
     test_metainfo = {\
                     '1':[48.13, 8.85, 'P', 'DE', 10],\
                     '2':[48.13, 8.85, 'A', 'DE', 10],\
+                    '3':[30, 8, 'A', 'DE', 0],\
                     }
-    assert geo.geocoding.disambiguate(['1', '2'], 1, test_metainfo) == '1'
-    assert geo.geocoding.disambiguate(['1', '2'], 2, test_metainfo) == '1'
+    assert geo.geocoding.disambiguate(['1', '2', '3'], 2, test_metainfo) == '1'
+
     ## distance
     assert geo.geocoding.disambiguate(['1', '2', '3'], 1, {'2': [-46.13, -8.85, 'P', 'ZZ', 1000], '3': [-45.13, -9.85, 'P', 'ZZ', 1000], '1': [47.13, 7.85, 'P', 'ZZ', 1000]}) == '3'
 
