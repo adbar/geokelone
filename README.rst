@@ -17,9 +17,6 @@ geokelone: work in progress
     :target: https://codecov.io/gh/adbar/geokelone
 
 
-About
------
-
 ``Geokelone`` is an effort to integrate spatial and textual data processing tools into a modular software package which features preprocessing, geocoding, disambiguation and visualization.
 
 Only Python3 (especially 3.4 onwards) is supported, although the scripts may work for Python 2.7.
@@ -28,7 +25,8 @@ Current source for more information:
 
 - Barbaresi, A. (2017). Towards a toolbox to map historical text collections, *Proceedings of 11th Workshop on Geographic Information Retrieval*, ACM, Heidelberg.
 
-.. contents:: Contents
+
+.. contents:: **Contents**
     :backlinks: none
 
 
@@ -135,7 +133,6 @@ Why curate special registers or gazetteers?
 Even with a touch of filtering, the token "Berlin" in Geonames is a place north of Germany with 0 inhabitants, see map below:
 
 .. image:: tests/example-wrong.png
-    :height: 300
     :align: center
     :alt: example
 

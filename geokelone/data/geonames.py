@@ -82,7 +82,7 @@ def filterline(line):
         return None
 
     # check if exists in db
-    if columns[0] in codesdict:
+    if columns[0] in metainfo:
         logger.warning('code already seen: %s', line)
         return None
     # examine alternatives

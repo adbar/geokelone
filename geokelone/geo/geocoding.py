@@ -144,8 +144,6 @@ def geofind(name, codesdict, metainfo, custom_lists):
     if custom_lists is not None:
         stop_search = selected_lists(name, custom_lists)
         if stop_search is True:
-            # TODO:
-            # store_result(winning_id, name, metainfo)
             # return "found"
             return True
 
@@ -157,7 +155,7 @@ def geofind(name, codesdict, metainfo, custom_lists):
     if name not in codesdict:
         # not found
         # print('ERROR, not found:', name)
-        return False # was "True"
+        return False
     # else
     winning_id = ''
     # single winner
@@ -167,12 +165,12 @@ def geofind(name, codesdict, metainfo, custom_lists):
     # hopefully find the right one
     else:
         winning_id = disambiguating_rounds(name, codesdict, metainfo)
-        if winning_id is True:
-            return False # was "True"
+        if winning_id is None:
+            return False
 
     store_result(winning_id, name, metainfo)
 
-    return True # was "False"
+    return True
 
 
 def disambiguating_rounds(name, codesdict, metainfo):
@@ -185,7 +183,7 @@ def disambiguating_rounds(name, codesdict, metainfo):
             logger.warning('discarded: %s %s', name, codesdict[name])
         except UnicodeEncodeError:
             logger.warning('discarded + unicode error: %s', codesdict[name])
-        return True
+        return None
     # init
     global i
     # 3-step filter
@@ -204,7 +202,7 @@ def disambiguating_rounds(name, codesdict, metainfo):
             except UnicodeEncodeError:
                 logger.warning('out of winners + unicode error: %s', codesdict[name])
             i += 1
-            return True
+            return None
         # found
         if not isinstance(winners, list):
             winning_id = winners
@@ -219,7 +217,7 @@ def disambiguating_rounds(name, codesdict, metainfo):
         except UnicodeEncodeError:
             logger.warning('too many winners + unicode error: %s', winners)
         i += 1
-        return True
+        return None
 
         # throw dice and record
         #if len(winning_id) == 0:
@@ -239,14 +237,13 @@ def store_result(winning_id, name, metainfo):
     # init
     global i, lastcountry, results
 
-    ## frequency counts
+    # TODO: frequency counts
     # disable frequency count if multi-word on
     #if multiflag is False:
     #    freq = '{0:.4f}'.format(tokens[name]/numtokens)
     #else:
     #    freq = '0'
     freq = 'NULL'
-    # TODO: test id/name
 
     # store new result
     if winning_id not in results:
@@ -284,34 +281,18 @@ def selected_lists(name, dic):
     # search + canonicalize
     if name in dic:
         templist = [dic[name]['values'][0], dic[name]['values'][1], dic[name]['level'], 'NULL', 'NULL', dic[name]['values'][2]]
+        canonname = dic[name]['values'][2]
+        tempdic = {canonname: [dic[name]['values'][0], dic[name]['values'][1], dic[name]['level'], 'NULL', 'NULL', canonname]}
+        store_result(canonname, name, tempdic)
 
-        ## TODO: call to store_result(winning_id, name, metainfo)
-        # tempdic = {canonname: [dic[name]['values'][0], dic[name]['values'][1], dic[name]['level'], 'NULL', 'NULL', dic[name]['values'][2]]}
-        # store_result(canonname, name, metainfo)
-
-        # canonical result
-        canonname = templist[-1]
-        # store whole result or just count
-        if canonname not in results:
-            # disable frequency count if multi-word on
-            #if multiflag is False:
-            #    freq = '{0:.4f}'.format(tokens[canonname]/numtokens)
-            #else:
-            #    freq = '0'
-            freq = 'NULL'
-            results[canonname] = templist
-            results[canonname].append(freq)
-            results[canonname].append(1)
-        else:
-            # increment last element
-            results[canonname][-1] += 1
         # lines flag
         if settings.LINESBOOL is True:
             draw_line(templist[0], templist[1])
+
         # store flag
-        return True # was False
+        return True
     # else
-    return False # was True
+    return False
 
 
 def search(searchlist, codesdict, metainfo, custom_lists=None):
@@ -373,8 +354,7 @@ def search(searchlist, codesdict, metainfo, custom_lists=None):
              # dict check before
             if token not in common_names and token.lower() not in common_names:
                 stop_search = geofind(token, codesdict, metainfo, custom_lists)
-            # if len(token) >= settings.MINLENGTH and token[0].isupper() and token not in stoplist:
-            # and (tokens[token]/numtokens) < threshold
+            # TODO: frequency threshold? (tokens[token]/numtokens) < threshold
 
         # final check whether to keep the multi-word scan running
         if stop_search is True:
@@ -387,6 +367,7 @@ def search(searchlist, codesdict, metainfo, custom_lists=None):
 
 
 # draw lines
+## TODO: test and evaluate
 def draw_line(lat, lon):
     """
     Draw lines between points on the map.

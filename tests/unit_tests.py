@@ -104,10 +104,7 @@ def test_geonames_store():
     assert infotuple[0] in data.geonames.metainfo
 
     # duplicate entry
-    print(data.geonames.codesdict)
-    print(data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25'))
-    print(data.geonames.codesdict)
-    #assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
+    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
 
 
 def test_tagged():
@@ -116,7 +113,6 @@ def test_tagged():
     splitted = text.readfile.readtagged(inputfile)
     # search
     results = geo.geocoding.search(splitted, dict(), dict(), custom_csv())
-    print(results)
     assert len(results) == 3
     assert 'Berlin' in results and 'Petersburg' in results and 'Preußen' in results
     results = geo.geocoding.search(splitted, dict(), dict(), custom_tsv())
@@ -196,15 +192,15 @@ def test_disambiguate():
 
     ## place type
     test_metainfo = {\
-                    '1':[48.13, 8.85, 'P', 'DE', 10],\
-                    '2':[48.13, 8.85, 'A', 'DE', 10],\
-                    '3':[30, 8, 'A', 'DE', 0],\
+                    '1':[48.13, 8.85, 'P', 'DE', 100],\
+                    '2':[48.13, 8.85, 'A', 'DE', 100],\
+                    '3':[30, 8, 'A', 'XX', 0],\
                     }
     assert geo.geocoding.disambiguate(['1', '2', '3'], 2, test_metainfo) == '1'
     test_metainfo = {\
-                    '1':[48.13, 8.85, 'A', 'DE', 10],\
-                    '2':[48.13, 8.85, 'P', 'DE', 10],\
-                    '3':[30, 8, 'P', 'DE', 0],\
+                    '1':[48.13, 8.85, 'A', 'DE', 100],\
+                    '2':[48.13, 8.85, 'P', 'DE', 100],\
+                    '3':[30, 8, 'P', 'XX', 0],\
                     }
     assert geo.geocoding.disambiguate(['1', '2', '3'], 2, test_metainfo) == '2'
 
@@ -213,6 +209,7 @@ def test_disambiguate():
 
 
 def test_rounds():
+    ## normal situation
     test_metainfo = {\
                     '1':[47.13, 7.85, 'P', 'DE', 0],\
                     '2':[46.13, 8.85, 'P', 'DE', 0],\
@@ -222,6 +219,36 @@ def test_rounds():
                     'AAA':['1', '2', '3'],\
                     }
     assert geo.geocoding.disambiguating_rounds('AAA', test_codesdict, test_metainfo) == '3'
+    ## no winner
+    test_metainfo = {\
+                    '1':[47.13, 7.85, 'P', 'DE', 0],\
+                    '2':[47.13, 7.85, 'P', 'DE', 0],\
+                    '3':[47.13, 7.85, 'P', 'DE', 0],\
+                    '4':[47.13, 7.85, 'P', 'DE', 0],\
+                    }
+    test_codesdict = {\
+                    'AAA':['1', '2', '3', '4'],\
+                    }
+    assert geo.geocoding.disambiguating_rounds('AAA', test_codesdict, test_metainfo) is None
+    ## too many values
+    test_metainfo = {\
+                    '1':[47.13, 7.85, 'P', 'DE', 0],\
+                    '2':[47.13, 7.85, 'P', 'DE', 0],\
+                    '3':[47.13, 7.85, 'P', 'DE', 0],\
+                    '4':[47.13, 7.85, 'P', 'DE', 0],\
+                    '5':[47.13, 7.85, 'P', 'DE', 0],\
+                    '6':[47.13, 7.85, 'P', 'DE', 0],\
+                    '7':[47.13, 7.85, 'P', 'DE', 0],\
+                    '8':[47.13, 7.85, 'P', 'DE', 0],\
+                    '9':[47.13, 7.85, 'P', 'DE', 0],\
+                    '10':[47.13, 7.85, 'P', 'DE', 0],\
+                    '11':[47.13, 7.85, 'P', 'DE', 0],\
+                    '12':[47.13, 7.85, 'P', 'DE', 0],\
+                    }
+    test_codesdict = {\
+                    'AAA':['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],\
+                    }
+    assert geo.geocoding.disambiguating_rounds('AAA', test_codesdict, test_metainfo) is None
 
 
 
