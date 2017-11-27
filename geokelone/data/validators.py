@@ -8,6 +8,7 @@ Validate input data types.
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 # standard
+# import locale
 import logging
 import re
 
@@ -16,6 +17,9 @@ from .. import settings
 
 # logging
 logger = logging.getLogger(__name__)
+
+# locale
+# locale.setlocale(locale.LC_ALL, settings.LOCALE)
 
 
 def validate_text(text):
@@ -78,6 +82,23 @@ def validate_tsv_registry(line):
     return False
 
 
+def validate_entry(name):
+    # length filter
+    if len(name) < settings.MINLENGTH:
+        logger.debug('entry too short: %s', name)
+        return False
+    # too many spaces
+    elif name.count(' ') > 3:
+        logger.debug('too many spaces: %s', name)
+        return False
+    # refuse non-word characters (and out of Unicode charset)
+    elif re.search(r'[^\w .&-]', name): # , re.LOCALE Python 3.6 locale error
+        logger.debug('contains unsuitable characters: %s', name)
+        return False
+    # catchall
+    return True
+
+
 def validate_geonames_registry(columns):
     """
     Validate geonames registry data.
@@ -86,7 +107,7 @@ def validate_geonames_registry(columns):
     if len(columns) != 6:
         logger.warning('geonames metainfo line not conform: %s', ' '.join(columns))
         return False
-    # 
+    # metadata
     if not columns[0].isdigit() or not re.match(r'[0-9.-]+$', columns[1]) or not re.match(r'[0-9.-]+$', columns[2]):
         logger.warning('geonames metainfo line not conform: %s %s %s', columns[0], columns[1], columns[2])
         return False
@@ -106,9 +127,9 @@ def validate_geonames_codes(columns):
     if len(columns) <= 1 or not columns[1].isdigit():
         logger.warning('geonames code line not conform: %s', columns)
         return False
-    # length filter
-    elif len(columns[0]) < settings.MINLENGTH:
-        logger.warning('entry name too short: %s', columns[0])
+    # form filter
+    if validate_entry(columns[0]) is False:
+        logger.debug('entry refused: %s', columns[0])
         return False
     return True
 

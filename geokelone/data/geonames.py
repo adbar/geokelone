@@ -6,7 +6,6 @@ Helpers to import data from geonames.
 # compatibility
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import locale
 import logging
 import re
 import sys
@@ -15,7 +14,8 @@ from zipfile import ZipFile
 
 import requests
 
-from .. import settings
+# from .. import settings
+from . import validators
 
 
 # Python3 types
@@ -27,25 +27,11 @@ else:
 # logging
 logger = logging.getLogger(__name__)
 
-# locale
-locale.setlocale(locale.LC_ALL, settings.LOCALE)
-# directory = 'geonames'
 
+# directory = 'geonames'
 # vars
 codesdict = dict()
 metainfo = dict()
-
-
-def name_filter(name):
-    # length filter
-    if len(name) < settings.MINLENGTH:
-        return False
-    # filter non-locale characters
-    # TODO: fix Python 3.6 locale error
-    elif re.match(r'[^\w -]+$', name): # , re.LOCALE
-        return False
-    # catchall
-    return True
 
 
 def generate_urls(countrycodes):
@@ -86,16 +72,13 @@ def filterline(line):
     if len(columns[0]) < 1 or len(columns[1]) < 1:
         logger.debug('malformed: %s', line)
         return None
-    if columns[1].count(' ') > 3:
-        logger.debug('malformed: %s', columns[1])
-        return None
     if columns[7] in ('BANK', 'BLDG', 'HTL', 'PLDR', 'PS', 'SWT', 'TOWR'):
-        logger.debug('not suitable type: %s', columns[7])
+        logger.debug('not a suitable type: %s', columns[7])
         return None
 
     # name
-    if name_filter(columns[1]) is False:
-        logger.debug('no suitable name: %s', columns[1])
+    if validators.validate_entry(columns[1]) is False:
+        logger.debug('no suitable name for entry: %s', columns[1])
         return None
 
     # check if exists in db
@@ -107,10 +90,10 @@ def filterline(line):
     if ',' in columns[3]:
         for alternative in re.split(',', columns[3]):
             # store
-            if name_filter(alternative) is True:
+            if validators.validate_entry(alternative) is True:
                 alternatives.add(alternative)
     else:
-        if name_filter(columns[3]) is True:
+        if validators.validate_entry(columns[3]) is True:
             alternatives.add(columns[3])
 
     # store selected information
@@ -176,18 +159,18 @@ def fetchdata(countrycodes):
     return codesdict, metainfo
 
 
-def filterfile(filename):
-    """
-    File data helper.
-    """
-    with open(filename, 'r', encoding='utf-8') as inputfh:
-        for line in inputfh:
-            # filter
-            alternatives, code, infotuple = filterline(line.decode())
-            # store
-            store_codesdata(code, alternatives)
-            store_metainfo(infotuple)
-    return codesdict, metainfo
+#def filterfile(filename):
+#    """
+#    File data helper.
+#    """
+#    with open(filename, 'r', encoding='utf-8') as inputfh:
+#        for line in inputfh:
+#            # filter
+#            alternatives, code, infotuple = filterline(line.decode())
+#            # store
+#            store_codesdata(code, alternatives)
+#            store_metainfo(infotuple)
+#    return codesdict, metainfo
 
 
 # write info to file
@@ -206,21 +189,3 @@ def writefile(dictname, filename):
                 outfh.write('\n')
                 i += 1
     logger.info(i, '%s lines written')
-
-
-# control
-#with open('geonames-codes.dict', 'w') as out1:
-#    with open('geonames-meta.dict', 'w') as out2:
-#        for key in codesdict:
-            #if len(key) > 1:
-#            out1.write (key)
-#            for item in codesdict[key]:
-#                out1.write ('\t' + item)
-#                out2.write (item)
-#                for metaelem in metainfo[item]:
-#                    out2.write ('\t' + metaelem)
-#                out2.write ('\n')
-#            out1.write ('\n')
-
-
-# writefile('geonames.filtered', places)

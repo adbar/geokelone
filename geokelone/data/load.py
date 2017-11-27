@@ -32,10 +32,11 @@ def expand(expression):
     if len(expresults) == 1:
         results = list()
         results.append(expression)
-        # German genitive form: if no s at the end of one component
-        if not re.search(r's$', expression) and not re.search(r'\s', expression):
-            temp = expression + 's'
-            results.append(temp)
+        if settings.LANGUAGE == 'DE':
+            # German genitive form: if no s at the end of one component
+            if not re.search(r's$', expression) and not re.search(r'\s', expression):
+                temp = expression + 's'
+                results.append(temp)
         return results
     # serialize
     else:
@@ -58,8 +59,8 @@ def store_variants(expanded, columns, level):
         if settings.VERBOSITY == 'VVV':
             logger.debug('%s', variant) # , dic[variant]
         # control and store
-        if len(variant) < settings.MINLENGTH:
-            logger.warning('key too short: %s', variant)
+        if validators.validate_entry(variant) is False:
+            logger.debug('refused: %s', variant)
             continue
         if variant in dic:
             if dic[variant]['level'] > level:
@@ -86,7 +87,7 @@ def load_tsv(filename, level=0):
     # init
     dic = dict()
     if not isinstance(level, int):
-        logger.error('level is not an int: %s', level) 
+        logger.error('level is not an int: %s', level)
         return dic
     # read
     with open(filename, 'r', encoding='utf-8') as inputfh:
@@ -124,7 +125,7 @@ def load_csv(filename, level=0):
     # init
     dic = dict()
     if not isinstance(level, int):
-        logger.error('level is not an int: %s', level) 
+        logger.error('level is not an int: %s', level)
         return dic
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:

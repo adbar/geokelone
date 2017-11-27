@@ -45,6 +45,32 @@ def custom_tsv():
     return (customized)
 
 
+def test_validate_entry():
+    assert data.validators.validate_entry(' ') is False
+    assert data.validators.validate_entry('Efghi!') is False
+    assert data.validators.validate_entry('AAA BBB Ccc Dddd Ee') is False # too many spaces
+    assert data.validators.validate_entry('Amsterdam') is True
+    assert data.validators.validate_entry('Marcq-en-Barœul') is True
+
+
+def test_text_validators():
+    assert data.validators.validate_tok('Marcq-en-Barœul') is True
+    assert data.validators.validate_tok('Marcq en Barœul') is False
+    assert data.validators.validate_tagged('Token	NN	Token') is True
+    assert data.validators.validate_tagged('Token	nn	Token') is False
+    assert data.validators.validate_tagged(',	$,	,') is True
+    # assert data.validators.validate_text('') is True
+
+
+
+def test_geodata_validators():
+    assert data.validators.validate_latlon(0, 0) is True
+    assert data.validators.validate_latlon(-90, 180) is True
+    assert data.validators.validate_latlon(90.1, -180.1) is False
+    assert data.validators.validate_latlon(1000, +1000) is False
+
+
+
 def test_geonames_download():
     assert data.geonames.generate_urls('fi') == (['http://download.geonames.org/export/dump/FI.zip'], ['FI.txt'])
     assert data.geonames.generate_urls(['fi']) == (['http://download.geonames.org/export/dump/FI.zip'], ['FI.txt'])
@@ -55,6 +81,8 @@ def test_geonames_filter():
     # malformed
     assert data.geonames.filterline('\n') is None
     assert data.geonames.filterline('	1	2.3') is None
+    assert data.geonames.filterline('		2.3	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA') is None
+    assert data.geonames.filterline('6466296	AAA BBB GGG AAA BBBB	Amba		51	4	P	PPL	BE		VLG	VAN	11	11002	0		7	XX	YY')  is None
     # wrong type
     assert data.geonames.filterline('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  is None
     # OK
@@ -76,10 +104,10 @@ def test_geonames_store():
     assert infotuple[0] in data.geonames.metainfo
 
     # duplicate entry
+    print(data.geonames.codesdict)
     print(data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25'))
+    print(data.geonames.codesdict)
     #assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
-
-
 
 
 def test_tagged():
@@ -160,6 +188,12 @@ def test_disambiguate():
                     '3':[30, 8, 'A', 'DE', 0],\
                     }
     assert geo.geocoding.disambiguate(['1', '2', '3'], 2, test_metainfo) == '1'
+    test_metainfo = {\
+                    '1':[48.13, 8.85, 'A', 'DE', 10],\
+                    '2':[48.13, 8.85, 'P', 'DE', 10],\
+                    '3':[30, 8, 'P', 'DE', 0],\
+                    }
+    assert geo.geocoding.disambiguate(['1', '2', '3'], 2, test_metainfo) == '2'
 
     ## distance
     assert geo.geocoding.disambiguate(['1', '2', '3'], 1, {'2': [-46.13, -8.85, 'P', 'ZZ', 1000], '3': [-45.13, -9.85, 'P', 'ZZ', 1000], '1': [47.13, 7.85, 'P', 'ZZ', 1000]}) == '3'
@@ -181,15 +215,28 @@ def test_rounds():
 if __name__ == '__main__':
     # print('testing', TEST_DIR)
     # print (os.path.join(sys.path[0], '..'))
+
+    # registry functions
     test_expand()
+    test_validate_entry()
+
+    # input/output functions
     test_read()
-    test_tagged()
     test_tok()
+    test_tagged()
+    test_text_validators()
+
+    # geonames functions
     test_geonames_download()
     test_geonames_filter()
     test_geonames_store()
     test_geonames()
+
+    # GIS functions
     test_haversine()
+    test_geodata_validators()
+
+    # geocoding functions
     test_disambiguate()
     test_rounds()
 

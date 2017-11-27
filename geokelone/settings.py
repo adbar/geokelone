@@ -10,6 +10,8 @@ MINLENGTH = 4
 FILTER_LEVEL = 3 # was 3
 CONTEXT_THRESHOLD = 20
 
+LANGUAGE = 'DE' # 2-letter language code
+
 
 VERBOSITY = 'V'
 
