@@ -116,6 +116,7 @@ def test_tagged():
     splitted = text.readfile.readtagged(inputfile)
     # search
     results = geo.geocoding.search(splitted, dict(), dict(), custom_csv())
+    print(results)
     assert len(results) == 3
     assert 'Berlin' in results and 'Petersburg' in results and 'Preußen' in results
     results = geo.geocoding.search(splitted, dict(), dict(), custom_tsv())
@@ -160,6 +161,18 @@ def test_geonames():
 def test_haversine():
     assert geo.geocoding.haversine(53.4, 1.2, 61, 10.53) == '1012.13'
     assert geo.geocoding.haversine(-53.466666, 1, 61, -3.33333) == '12725.89'
+
+
+def test_geofind():
+    test_metainfo = {\
+                    '1':[47.13, 7.85, 'P', 'DE', 0],\
+                    '2':[48.13, 7.85, 'P', 'DE', 2000],\
+                    }
+    test_codesdict = {\
+                    'AAA':['1'],\
+                    }
+    assert geo.geocoding.geofind('AAA', test_codesdict, test_metainfo) is False
+
 
 
 def test_disambiguate():

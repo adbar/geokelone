@@ -136,16 +136,28 @@ def disambiguate(candidates, step, metainfo):
             return best_ones[0]
 
 
-def geofind(name, codesdict, metainfo):
+def geofind(name, codesdict, metainfo, custom_lists):
     """
-    Find the token(s) in the gazzetteer
+    Find the token(s) in the gazzetteer(s)
     """
-    ## TODO: change return value from True to something else
+    # selected lists first
+    if custom_lists is not None:
+        stop_search = selected_lists(name, custom_lists)
+        if stop_search is True:
+            # TODO:
+            # store_result(winning_id, name, metainfo)
+            # return "found"
+            return True
+
+    # condition to examine
+    if len(name) <= settings.MINLENGTH or not name[0].isupper() or name in stoplist:
+        return False
+
     # check
     if name not in codesdict:
         # not found
         # print('ERROR, not found:', name)
-        return True
+        return False # was "True"
     # else
     winning_id = ''
     # single winner
@@ -156,11 +168,11 @@ def geofind(name, codesdict, metainfo):
     else:
         winning_id = disambiguating_rounds(name, codesdict, metainfo)
         if winning_id is True:
-            return True
+            return False # was "True"
 
     store_result(winning_id, name, metainfo)
-    # return "found"
-    return False
+
+    return True # was "False"
 
 
 def disambiguating_rounds(name, codesdict, metainfo):
@@ -273,13 +285,12 @@ def selected_lists(name, dic):
     if name in dic:
         templist = [dic[name]['values'][0], dic[name]['values'][1], dic[name]['level'], 'NULL', 'NULL', dic[name]['values'][2]]
 
-    # TODO: implement here
-    #elif name not in common_names and name.lower() not in common_names and name in level4:
-    #    templist = [level4[name][0], level4[name][1], '4', 'NULL', 'NULL', name] # level4[name][0]
+        ## TODO: call to store_result(winning_id, name, metainfo)
+        # tempdic = {canonname: [dic[name]['values'][0], dic[name]['values'][1], dic[name]['level'], 'NULL', 'NULL', dic[name]['values'][2]]}
+        # store_result(canonname, name, metainfo)
 
-    # canonical result
+        # canonical result
         canonname = templist[-1]
-        # results
         # store whole result or just count
         if canonname not in results:
             # disable frequency count if multi-word on
@@ -298,9 +309,9 @@ def selected_lists(name, dic):
         if settings.LINESBOOL is True:
             draw_line(templist[0], templist[1])
         # store flag
-        return False
+        return True # was False
     # else
-    return True
+    return False # was True
 
 
 def search(searchlist, codesdict, metainfo, custom_lists=None):
@@ -317,11 +328,12 @@ def search(searchlist, codesdict, metainfo, custom_lists=None):
 
     # search for places
     for token in searchlist:
-        keep_running = True
+        stop_search = False
         if token == ' ':
             continue
         # skip and reinitialize:
-        if token == 'XXX' or re.match(r'[.,;:–]', token): # St–?
+        # TODO: quotation marks? brackets?
+        if token == 'XXX' or re.match(r'[.!?…,;:–]', token): # St–?
             slide2 = ''
             slide3 = ''
             continue
@@ -346,39 +358,26 @@ def search(searchlist, codesdict, metainfo, custom_lists=None):
             slide3 = slide3 + ' ' + token
 
         # control
-        if settings.VERBOSITY == 'V':
-            ## TODO: verbosity control
-            logger.info('%s %s %s', token, slide2, slide3)
+        # if settings.VERBOSITY == 'V':
+        logger.debug('%s %s %s', token, slide2, slide3)
 
         ## analyze sliding window first, then token if necessary
         # longest chain first
-        if len(slide3) > 0 and slide3.count(' ') == 2:
-            # selected lists first
-            if custom_lists is not None:
-                keep_running = selected_lists(slide3, custom_lists)
-            # if nothing has been found
-            if keep_running is True and slide3 not in stoplist:
-                keep_running = geofind(slide3, codesdict, metainfo)
+        if slide3.count(' ') == 2:
+            stop_search = geofind(slide3, codesdict, metainfo, custom_lists)
         # longest chain first
-        if keep_running is True and len(slide2) > 0 and slide2.count(' ') == 1:
-            # selected lists first
-            if custom_lists is not None:
-                keep_running = selected_lists(slide2, custom_lists)
-            # if nothing has been found
-            if keep_running is True and slide2 not in stoplist:
-                keep_running = geofind(slide2, codesdict, metainfo)
+        if stop_search is False and slide2.count(' ') == 1:
+            stop_search = geofind(slide2, codesdict, metainfo, custom_lists)
         # just one token, if nothing has been found
-        if keep_running is True:
-            if len(token) >= settings.MINLENGTH and not re.match(r'[a-zäöü]', token) and token not in stoplist:
+        if stop_search is False:
+             # dict check before
+            if token not in common_names and token.lower() not in common_names:
+                stop_search = geofind(token, codesdict, metainfo, custom_lists)
+            # if len(token) >= settings.MINLENGTH and token[0].isupper() and token not in stoplist:
             # and (tokens[token]/numtokens) < threshold
-                if custom_lists is not None:
-                    keep_running = selected_lists(token, custom_lists)
-                # dict check before
-                if keep_running is True and token not in common_names and token.lower() not in common_names:
-                    keep_running = geofind(token, codesdict, metainfo)
 
         # final check whether to keep the multi-word scan running
-        if keep_running is False:
+        if stop_search is True:
             slide2 = ''
             slide3 = ''
 
