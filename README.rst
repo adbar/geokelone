@@ -24,6 +24,13 @@ About
 
 Only Python3 (especially 3.4 onwards) is supported, although the scripts may work for Python 2.7.
 
+Current source for more information:
+
+- Barbaresi, A. (2017). Towards a toolbox to map historical text collections, *Proceedings of 11th Workshop on Geographic Information Retrieval*, ACM, Heidelberg.
+
+.. contents::
+    :backlinks: none
+
 
 Installation on Linux
 ---------------------
@@ -86,10 +93,13 @@ Data helpers are included to derive geographic data from existing sources such a
 .. code-block:: python
 
     >>> from geokelone import data
-    >>> countries = ['da', 'fi']
     >>> codesdict = dict()
     >>> metainfo = dict()
+    # decide countries for which Geonames information is downloaded
+    >>> countries = ['da', 'fi'] # 2-letter country code
+    # go fetch the data
     >>> data.fetchdata(countries, codesdict, metainfo)
+    # write files for further use
     >>> data.writefile(codesdict, 'geonames-codes.dict')
     >>> data.writefile(metainfo, 'geonames-meta.dict')
 
@@ -100,11 +110,16 @@ Extraction, disambiguation and mapping
 .. code-block:: python
 
     >>> from geokelone import data, geo, text
+    # read from a tagged text (one token per line)
     >>> splitted = text.readfile.readtagged('tests/data/fontane-stechlin.tagged')
+    # load default gazetteer info (Geonames, see above)
     >>> metainfo = data.load.geonames_meta('geonames-meta.dict')
     >>> codesdict = data.load.geonames_codes('geonames-codes.dict', metainfo)
+    # search for place names and store a list of resolved toponyms with metadata
     >>> results = geo.geocoding.search(splitted, codesdict, metainfo)
+    # write the results to a file
     >>> text.outputcontrol.writefile('test.out', results, dict())
+    # draw a map
     >>> geo.mapping.draw_map('testmap.png', results)
 
 
@@ -117,7 +132,9 @@ Did you know there was a Jerusalem in Bavaria and a Leipzig in Ukraine?
 Why curate special registers or gazetteers?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Even with a touch of filtering, the token "Berlin" in Geonames is a place north of Germany with 0 inhabitants (see map below [add image]).
+Even with a touch of filtering, the token "Berlin" in Geonames is a place north of Germany with 0 inhabitants, see map below:
+
+.. image:: tests/example-wrong.png
 
 
 Extension of gazetteers
@@ -128,8 +145,11 @@ The helper function in ``data.load.load_tsv()`` allow for additional registers t
 .. code-block:: python
 
     >>> from geokelone import data
+    # read from a TSV-file with three columns: name, latitude, longitude
     >>> customized = data.load.load_tsv('file-X.tsv')
-    >>> customized = data.load.load_csv('file-Y.csv', level=1)
+    # read from a CSV-file with optional level option (additional metadata)
+    # four columns expected: name, canonical name, latitude, longitude
+    >>> customized = data.load.load_csv('file-Y.csv', level=1
     >>> results = geo.geocoding.search(splitted, codesdict, metainfo, customized)
 
 
@@ -167,22 +187,21 @@ TODO
 - documentation
 
 
-
 Integration
 -----------
 
 For a language-independent solution in the Python world, I would suggest `polyglot <https://github.com/aboSamoor/polyglot>`_.
 
 
-
 References
 ----------
 
-Previous uses of the code base:
+Uses of the code base so far:
 
 - Barbaresi, A. (2016). `Visualisierung von Ortsnamen im Deutschen Textarchiv <https://halshs.archives-ouvertes.fr/halshs-01287931/document>`_. In DHd 2016, pages 264-267. Digital Humanities im deutschprachigen Raum eV.
 - Barbaresi, A. and Biber, H. (2016). `Extraction and Visualization of Toponyms in Diachronic Text Corpora <https://hal.archives-ouvertes.fr/hal-01348696/document>`_. In Digital Humanities 2016, pages 732-734.
-- Barbaresi, A. (2017). `Toponyms as Entry Points into a Digital Edition: Mapping Die Fackel <https://dh2017.adho.org/abstracts/209/209.pdf>`_. In Digital Humanities 2017, pages 159-161.
+- Barbaresi, A. (2017). `Toponyms as Entry Points into a Digital Edition: Mapping Die Fackel (1899-1936)<https://dh2017.adho.org/abstracts/209/209.pdf>`_. In Digital Humanities 2017, pages 159-161.
+- Barbaresi, A. (2017). "Towards a toolbox to map historical text collections", *Proceedings of 11th Workshop on Geographic Information Retrieval*, ACM, Heidelberg.
 - Barbaresi A. (2018). A constellation and a rhizome: two studies on toponyms in literary texts. In *Visual Linguistics*, Bubenhofer N. & Kupietz M. (Eds.), Heldelberg University Publishing, to appear.
 
 **Work in progress**, see legacy page for more information: `<https://github.com/adbar/toponyms>`_
