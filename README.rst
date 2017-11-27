@@ -28,7 +28,7 @@ Current source for more information:
 
 - Barbaresi, A. (2017). Towards a toolbox to map historical text collections, *Proceedings of 11th Workshop on Geographic Information Retrieval*, ACM, Heidelberg.
 
-.. contents::
+.. contents:: Contents
     :backlinks: none
 
 
@@ -135,6 +135,9 @@ Why curate special registers or gazetteers?
 Even with a touch of filtering, the token "Berlin" in Geonames is a place north of Germany with 0 inhabitants, see map below:
 
 .. image:: tests/example-wrong.png
+    :height: 300
+    :align: center
+    :alt: example
 
 
 Extension of gazetteers

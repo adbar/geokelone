@@ -171,7 +171,7 @@ def test_geofind():
     test_codesdict = {\
                     'AAA':['1'],\
                     }
-    assert geo.geocoding.geofind('AAA', test_codesdict, test_metainfo) is False
+    assert geo.geocoding.geofind('AAA', test_codesdict, test_metainfo, None) is False
 
 
 
