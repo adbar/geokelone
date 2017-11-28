@@ -127,7 +127,8 @@ def validate_geonames_codes(columns):
     Validate geonames code data.
     """
     # formal validation
-    if len(columns) <= 1 or not columns[1].isdigit():
+    # TODO: add column by column validation for multiple columns
+    if len(columns) < 2 or not columns[-1].isdigit():
         logger.warning('geonames code line not conform: %s', columns)
         return False
     # form filter
