@@ -53,6 +53,28 @@ def test_validate_entry():
     assert data.validators.validate_entry('Marcq-en-Barœul') is True
 
 
+def test_data_validators():
+    # custom files
+    assert data.validators.validate_csv_registry('Petersburg;Sankt-Petersburg,Sankt Petersburg,-2,-2.2') is True
+    assert data.validators.validate_csv_registry('Petersburg,St. Petersburg,-2,2,3') is False
+    assert data.validators.validate_tsv_registry('Preußens?	-33.3	33.3') is True
+    assert data.validators.validate_tsv_registry('AAA	NNN	NNN	NNN') is False
+    # entries in gazetteers
+    assert data.validators.validate_mapdata({'place': 'test', 'lat': '30', 'lon': 30}) is True
+    assert data.validators.validate_mapdata({'place': None, 'lat': '30', 'lon': 30}) is False
+    assert data.validators.validate_mapdata({'place': 'test', 'lat': '300', 'lon': 300}) is False
+    # load gazetteers
+    assert data.validators.validate_geonames_registry('2849119	48.13333	8.85	P	DE	0	0') is False
+    assert data.validators.validate_geonames_registry('2849119	48.13333	8.85') is False
+    assert data.validators.validate_geonames_registry('AAA	48.13333	8.85	P	DE	0') is False
+    assert data.validators.validate_geonames_registry('2849119	G13	D10	P	DE	0') is False
+    assert data.validators.validate_geonames_registry('2849119	48.13333	8.85	P	DE	-10') is False
+    assert data.validators.validate_geonames_codes('Reichenbach am Heuberg	2849119') is True
+    assert data.validators.validate_geonames_codes('Reichenbach	12	++') is False
+    assert data.validators.validate_geonames_codes('RR	2849119') is False
+    assert data.validators.validate_geonames_codes('Reichenbach am Heuberg	V12') is False
+
+
 def test_text_validators():
     assert data.validators.validate_tok('Marcq-en-Barœul') is True
     assert data.validators.validate_tok('Marcq en Barœul') is False
@@ -62,13 +84,11 @@ def test_text_validators():
     # assert data.validators.validate_text('') is True
 
 
-
 def test_geodata_validators():
     assert data.validators.validate_latlon(0, 0) is True
     assert data.validators.validate_latlon(-90, 180) is True
     assert data.validators.validate_latlon(90.1, -180.1) is False
     assert data.validators.validate_latlon(1000, +1000) is False
-
 
 
 def test_geonames_download():
@@ -86,7 +106,11 @@ def test_geonames_filter():
     # wrong type
     assert data.geonames.filterline('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  is None
     # OK
-    data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not None
+    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not None
+    # alternatives
+    result = data.geonames.filterline('2867714	Munich	Munich	Monachium,Monaco di Baviera,München	48.13743	11.57549	P	PPLA	DE		02	091	09162	09162000	1260391		524	Europe/Berlin	2014-01-26')
+    print(result)
+    assert result is not None and result[0] == {'Monachium', 'Monaco di Baviera', 'München'}
 
 
 def test_geonames_store():
@@ -175,6 +199,7 @@ def test_disambiguate():
     ## type
     assert geo.geocoding.disambiguate(None, 1, dict()) is None
     assert geo.geocoding.disambiguate('Test', 1, dict()) is 'Test'
+    assert geo.geocoding.disambiguate(['Test'], 1, dict()) is 'Test'
 
     ## pop count
     test_metainfo = {\

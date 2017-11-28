@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Unit tests for the library.
+Geocoding and disambiguation functions needed to extract and resolve place names.
 """
 
 

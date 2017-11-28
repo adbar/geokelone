@@ -56,8 +56,11 @@ def validate_mapdata(dicentry):
     if dicentry['place'] is None:
         logger.warning('empty key: %s', dicentry['place'])
         return False
+    # coordinates
+    if dicentry['lat'] is None or dicentry['lon'] is None:
+        logger.warning('empty coordinates: %s', dicentry)
+        return False
     return validate_latlon(dicentry['lat'], dicentry['lon'])
-    # return True
 
 
 def validate_csv_registry(line):
