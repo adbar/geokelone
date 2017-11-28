@@ -65,14 +65,14 @@ def test_data_validators():
     assert data.validators.validate_mapdata({'place': 'test', 'lat': '300', 'lon': 300}) is False
     # load gazetteers
     assert data.validators.validate_geonames_registry('2849119	48.13333	8.85	P	DE	0	0') is False
-    assert data.validators.validate_geonames_registry('2849119	48.13333	8.85') is False
-    assert data.validators.validate_geonames_registry('AAA	48.13333	8.85	P	DE	0') is False
-    assert data.validators.validate_geonames_registry('2849119	G13	D10	P	DE	0') is False
-    assert data.validators.validate_geonames_registry('2849119	48.13333	8.85	P	DE	-10') is False
-    assert data.validators.validate_geonames_codes('Reichenbach am Heuberg	2849119') is True
-    assert data.validators.validate_geonames_codes('Reichenbach	12	++') is False
-    assert data.validators.validate_geonames_codes('RR	2849119') is False
-    assert data.validators.validate_geonames_codes('Reichenbach am Heuberg	V12') is False
+    assert data.validators.validate_geonames_registry(['2849119','48.13333','8.85']) is False
+    assert data.validators.validate_geonames_registry(['AAA','48.13333','8.85','P','DE','0']) is False
+    assert data.validators.validate_geonames_registry(['2849119','G13','D10','P','DE','0']) is False
+    assert data.validators.validate_geonames_registry(['2849119','48.13333','8.85','P','DE','-10']) is False
+    assert data.validators.validate_geonames_codes(['Reichenbach am Heuberg','2849119']) is True
+    assert data.validators.validate_geonames_codes(['Reichenbach','12','++']) is False
+    assert data.validators.validate_geonames_codes(['RR','2849119']) is False
+    assert data.validators.validate_geonames_codes(['Reichenbach am Heuberg','V12']) is False
 
 
 def test_text_validators():
