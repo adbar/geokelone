@@ -21,9 +21,7 @@ geokelone: work in progress
 
 Only Python3 (especially 3.4 onwards) is supported, although the scripts may work for Python 2.7.
 
-Current source for more information:
-
-- Barbaresi, A. (2017). Towards a toolbox to map historical text collections, *Proceedings of 11th Workshop on Geographic Information Retrieval*, ACM, Heidelberg.
+Current source for more information: Barbaresi, A. (2017). Towards a toolbox to map historical text collections, *Proceedings of 11th Workshop on Geographic Information Retrieval*, ACM, Heidelberg.
 
 
 .. contents:: **Contents**

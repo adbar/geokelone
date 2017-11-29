@@ -59,9 +59,7 @@ def writelines(linesfile, lines):
         i = 1
         threshold = int(len(lines)/10) # https://github.com/alexpreynolds/colormaker
         color = 1
-        #r = 0
-        #g = 255
-        #b = 255
+        #r, g, b = 0, 255, 255
         for line in lines:
             (lat1, lon1) = line[0]
             (lat2, lon2) = line[1]
