@@ -7,7 +7,7 @@ http://github.com/adbar/geokelone
 
 from codecs import open # python2
 import os
-from setuptools import find_packages, setup # 
+from setuptools import find_packages, setup
 
 #try:
 #    from setuptools import setup
@@ -16,7 +16,7 @@ from setuptools import find_packages, setup #
 
 
 here = os.path.abspath(os.path.dirname(__file__))
-# packages = ['geokelone']
+# packages = find_packages() # packages = ['geokelone']
 
 
 def readme():
@@ -38,10 +38,8 @@ setup(
         #'Development Status :: 6 - Mature',
         #'Development Status :: 7 - Inactive',
         'Intended Audience :: Developers',
-        'Intended Audience :: End Users/Desktop',
         'Intended Audience :: Information Technology',
         'Intended Audience :: Science/Research',
-        'Intended Audience :: System Administrators',
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
         'Programming Language :: Python',
         #'Programming Language :: Python :: 2',
@@ -74,6 +72,7 @@ setup(
         'pyproj',
         'shapely',
     ],
+    # extras_require={}
     # python_requires='>=3',
     tests_require=['pytest', 'tox'],
     zip_safe=False,

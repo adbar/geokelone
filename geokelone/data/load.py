@@ -221,3 +221,7 @@ def geonames_codes(filename, metainfo): # './geonames-codes.dict'
         sys.exit(1)
     logger.info('different codes: %s', len(codesdict))
     return codesdict
+
+
+## TODO:
+# def load_results():

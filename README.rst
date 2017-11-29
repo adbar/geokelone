@@ -13,7 +13,7 @@ geokelone: work in progress
 .. image:: https://img.shields.io/travis/adbar/geokelone.svg
     :target: https://travis-ci.org/adbar/geokelone
 
-.. image:: https://codecov.io/gh/adbar/geokelone/branch/master/graph/badge.svg
+.. image:: https://img.shields.io/codecov/c/github/adbar/geokelone.svg
     :target: https://codecov.io/gh/adbar/geokelone
 
 
@@ -147,7 +147,7 @@ The helper function in ``data.load.load_tsv()`` allow for additional registers t
     >>> customized = data.load.load_tsv('file-X.tsv')
     # read from a CSV-file with optional level option (additional metadata)
     # four columns expected: name, canonical name, latitude, longitude
-    >>> customized = data.load.load_csv('file-Y.csv', level=1
+    >>> customized = data.load.load_csv('file-Y.csv', level=1)
     >>> results = geo.geocoding.search(splitted, codesdict, metainfo, customized)
 
 

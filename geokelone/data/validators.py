@@ -48,21 +48,6 @@ def validate_tagged(line):
     return False
 
 
-def validate_mapdata(dicentry):
-    """
-    Validate metadata imported from registries.
-    """
-    # toponym
-    if dicentry['place'] is None:
-        logger.warning('empty key: %s', dicentry['place'])
-        return False
-    # coordinates
-    if 'lat' not in dicentry or 'lon' not in dicentry:
-        logger.warning('empty coordinates: %s', dicentry)
-        return False
-    return validate_latlon(dicentry['lat'], dicentry['lon'])
-
-
 def validate_csv_registry(line):
     """
     Validate CSV registry data.
@@ -151,3 +136,32 @@ def validate_latlon(lat, lon):
         logger.warning('longitude out of bounds: %s', lon)
         return False
     return True
+
+
+def validate_mapdata(dicentry):
+    """
+    Validate metadata imported from registries.
+    """
+    if len(dicentry) < 8:
+        logger.warning('malformed result line: %s', dicentry)
+    # toponym
+    #if 'place' not in dicentry:
+    #    logger.warning('empty key in dict: %s', dicentry)
+    #    return False
+    if not re.search(r'\w', dicentry[5]):
+        logger.warning('malformed entry name: %s', dicentry[6])
+    # coordinates
+    #if 'lat' not in dicentry or 'lon' not in dicentry:
+    #    logger.warning('empty coordinates: %s', dicentry)
+    #    return False
+    try:
+        lat = float(dicentry[0])
+        lon = float(dicentry[1])
+    except ValueError:
+        logger.warning('malformed coordinates: %s %s', dicentry[1], dicentry[2])
+    # return validate_latlon(dicentry['lat'], dicentry['lon'])
+    return validate_latlon(lat, lon)
+
+
+## TODO:
+# def validate_results_file():
