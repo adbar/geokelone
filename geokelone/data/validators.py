@@ -57,7 +57,7 @@ def validate_mapdata(dicentry):
         logger.warning('empty key: %s', dicentry['place'])
         return False
     # coordinates
-    if dicentry['lat'] is None or dicentry['lon'] is None:
+    if 'lat' not in dicentry or 'lon' not in dicentry:
         logger.warning('empty coordinates: %s', dicentry)
         return False
     return validate_latlon(dicentry['lat'], dicentry['lon'])
