@@ -46,7 +46,7 @@ def draw_map(filename, results):
     Place points/lines on a map and save it in a file.
     """
     fig = plt.figure()
-    texts = list()
+    # texts = list()
 
     ax = fig.add_subplot(1, 1, 1, projection=ccrs.Mollweide(central_longitude=0, globe=None))
 
@@ -65,7 +65,8 @@ def draw_map(filename, results):
 
     for item in results:
         if validators.validate_mapdata(results[item]) is True:
-            lat, lon, ptype, country, something, pname, somethingelse, occurrences = results[item]
+            # unused: country, ptype, something, somethingelse
+            lat, lon, _, _, _, pname, _, occurrences = results[item]
             lat = float(lat)
             lon = float(lon)
             logger.info('projecting: %s %s %s', pname, lat, lon)

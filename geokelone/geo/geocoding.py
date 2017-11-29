@@ -373,14 +373,19 @@ def draw_line(lat, lon):
     Draw lines between points on the map.
     """
     global pair, lines, pair_counter
+    logger.debug('line drawing check: %s %s %s %s', pair, pair_counter, lat, lon)
     if pair_counter <= settings.CONTEXT_THRESHOLD:
         if len(pair) == 1:
             pair.append((lat, lon))
             lines.append((pair[0], pair[1]))
+            logger.debug('line drawn: %s', (pair[0], pair[1]))
             del pair[0]
         else:
             pair.append((lat, lon))
+            logger.debug('line component added: %s', (lat, lon))
     else:
+        logger.debug('context size exceeded (%s), pair reset', pair_counter)
         pair = []
         pair.append((lat, lon))
+        logger.debug('line component added: %s', (lat, lon))
     pair_counter = 0

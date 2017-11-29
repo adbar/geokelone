@@ -63,6 +63,7 @@ def test_data_validators():
     assert data.validators.validate_mapdata({'place': 'test', 'lat': '30', 'lon': 30}) is True
     assert data.validators.validate_mapdata({'place': None, 'lat': '30', 'lon': 30}) is False
     assert data.validators.validate_mapdata({'place': 'test', 'lat': '300', 'lon': 300}) is False
+    assert data.validators.validate_mapdata({'place': 'test', 'lat': '20.5'}) is False
     # load gazetteers
     assert data.validators.validate_geonames_registry('2849119	48.13333	8.85	P	DE	0	0') is False
     assert data.validators.validate_geonames_registry(['2849119','48.13333','8.85']) is False
@@ -88,7 +89,8 @@ def test_geodata_validators():
     assert data.validators.validate_latlon(0, 0) is True
     assert data.validators.validate_latlon(-90, 180) is True
     assert data.validators.validate_latlon(90.1, -180.1) is False
-    assert data.validators.validate_latlon(1000, +1000) is False
+    assert data.validators.validate_latlon(-10, 365) is False
+    assert data.validators.validate_latlon(10, +1000) is False
 
 
 def test_geonames_download():
@@ -204,16 +206,15 @@ def test_disambiguate():
     ## pop count
     test_metainfo = {\
                     '1':[48.13, 8.85, 'P', 'DE', 0],\
-                    '2':[49.13, 8.84, 'P', 'DE', 10],\
-                    '3':[49.13, 8.85, 'P', 'DE', 20],\
-                    '4':[50.13, 8.85, 'P', 'DE', 10000],\
+                    '2':[48.13, 8.85, 'P', 'DE', 100],\
+                    '3':[48.13, 8.85, 'P', 'DE', 10000],\
                     }
     assert geo.geocoding.disambiguate(['1', '2'], 1, test_metainfo) == '2'
-    print(geo.geocoding.disambiguate(['2', '3'], 1, test_metainfo))
+    assert geo.geocoding.disambiguate(['1', '2'], 2, test_metainfo) == '2'
     assert geo.geocoding.disambiguate(['2', '3'], 1, test_metainfo) == '3'
-    assert geo.geocoding.disambiguate(['3', '4'], 1, test_metainfo) == '4'
+    assert geo.geocoding.disambiguate(['2', '3'], 2, test_metainfo) == '3'
+    assert geo.geocoding.disambiguate(['1', '2', '3'], 1, test_metainfo) == '3'
     assert geo.geocoding.disambiguate(['1', '2', '3'], 2, test_metainfo) == '3'
-    assert geo.geocoding.disambiguate(['1', '2', '3', '4'], 2, test_metainfo) == '4'
 
     ## place type
     test_metainfo = {\
@@ -276,6 +277,22 @@ def test_rounds():
     assert geo.geocoding.disambiguating_rounds('AAA', test_codesdict, test_metainfo) is None
 
 
+def test_draw_line():
+    geo.geocoding.pair = list()
+    geo.geocoding.lines = list()
+    geo.geocoding.pair_counter = 0
+    # draw a line
+    geo.geocoding.draw_line(10, 10)
+    assert len(geo.geocoding.pair) == 1 and geo.geocoding.pair[0] == (10, 10)
+    geo.geocoding.draw_line(20, 20)
+    assert len(geo.geocoding.pair) == 1 and geo.geocoding.pair[0] == (20, 20)
+    assert len(geo.geocoding.lines) == 1 and geo.geocoding.lines[0] == ((10, 10), (20, 20))
+    # window limit exceeded
+    geo.geocoding.pair_counter = 100
+    geo.geocoding.draw_line(10, 10)
+    assert len(geo.geocoding.pair) == 1 and geo.geocoding.pair[0] == (10, 10)
+
+
 
 if __name__ == '__main__':
     # print('testing', TEST_DIR)
@@ -300,6 +317,7 @@ if __name__ == '__main__':
     # GIS functions
     test_haversine()
     test_geodata_validators()
+    test_draw_line()
 
     # geocoding functions
     test_disambiguate()
