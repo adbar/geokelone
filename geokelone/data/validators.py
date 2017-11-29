@@ -159,6 +159,7 @@ def validate_mapdata(dicentry):
         lon = float(dicentry[1])
     except ValueError:
         logger.warning('malformed coordinates: %s %s', dicentry[1], dicentry[2])
+        return False
     # return validate_latlon(dicentry['lat'], dicentry['lon'])
     return validate_latlon(lat, lon)
 
