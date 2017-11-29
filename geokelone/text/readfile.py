@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Read input texts in several formats.
+Read input texts in various formats.
 """
 
 # standard
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 # load all tokens
-def readplain(filename, datesbool=False, datestok=False):
+def readplain(filename, datesbool=False, datestok=None):
     """
     Read raw text from file and tokenize in a crude way.
     """
@@ -27,16 +27,18 @@ def readplain(filename, datesbool=False, datestok=False):
             logger.warning('text format not valid')
             return None
 
-        # very basic tokenizer
-        splitted = re.split(r'([^\w-]+)', text, flags=re.UNICODE) # [ .,;:]
-        # build frequency dict
-        #tokens = defaultdict(int)
-        #for elem in splitted:
-        #    tokens[elem] += 1
+        # very basic regex-tokenizer
+        splitted = list()
+        for item in re.split(r'([^\w-]+)', text, flags=re.UNICODE):
+            if not re.match(r'^$|\s+', item):
+                splitted.append(item.strip())
+
+        # print ('types:', numtokens)
+        logger.info('%s tokens found', len(splitted))
         return splitted
 
 
-def readtok(filename, datesbool=False, datestok=False):
+def readtok(filename, datesbool=False, datestok=None):
     """
     Read tokenized text from file (one token per line).
     """
@@ -51,26 +53,29 @@ def readtok(filename, datesbool=False, datestok=False):
             if validators.validate_tok(line) is False:
                 logger.warning('line not valid: %s', line)
                 continue
+
             # consider dates
-            if datesbool is True:
-                columns = re.split('\t', line)
-                if columns[0] not in datestok:
-                    datestok[columns[0]] = set()
-                datestok[columns[0]].add(columns[1])
+            #if datesbool is True:
+            #    columns = re.split('\t', line)
+            #    if columns[0] not in datestok:
+            #        datestok[columns[0]] = set()
+            #    datestok[columns[0]].add(columns[1])
             # take only first columns
-            if re.search('\t', line):
-                token = re.split('\t', line)[0]
-            else:
-                token = line.strip()
+
+            # discard further info
+            #if re.search(r'[ \t\n\r\f\v]', line):
+            #    token = re.split(r'[ \t\n\r\f\v]', line)[0]
+            #else:
+            #    token = line.strip()
+            token = line.strip()
             splitted.append(token)
+
         # build frequency dict
-        #tokens = defaultdict(int)
-        #for elem in splitted:
-        #    tokens[elem] += 1
+        logger.info('%s tokens read', len(splitted))
         return splitted
 
 
-def readtagged(filename, datesbool=False, datestok=False):
+def readtagged(filename, datesbool=False, datestok=None):
     """
     Read tokenized and tagged text from file (one token per line, tab-separated values).
     """
@@ -90,22 +95,24 @@ def readtagged(filename, datesbool=False, datestok=False):
             columns = re.split('\t', line.strip())
 
             # consider dates
-            if datesbool is True:
-                if columns[0] not in datestok:
-                    datestok[columns[0]] = set()
-                datestok[columns[0]].add(columns[1])
+            #if datesbool is True:
+            #    if columns[0] not in datestok:
+            #        datestok[columns[0]] = set()
+            #    datestok[columns[0]].add(columns[1])
 
             # take only lemmatized NEs
             if columns[1] == 'NE':
                 splitted.append(columns[2])
 
-        # build frequency dict
-        #tokens = defaultdict(int)
-        #for elem in splitted:
-        #    tokens[elem] += 1
+        # print ('types:', numtokens)
+        logger.info('%s tokens read', len(splitted))
         return splitted
 
 
-# numtokens = len(tokens)
-# print ('types:', numtokens)
-# print ('tokens:', len(splitted))
+# def frequency_dict(splitted):
+    # build frequency dict
+    # tokens = defaultdict(int)
+    # for elem in splitted:
+        # tokens[elem] += 1
+    # print ('types:', numtokens)
+    # return tokens

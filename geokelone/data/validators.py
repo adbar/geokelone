@@ -34,7 +34,7 @@ def validate_tok(line):
     """
     Validate tokenized input format.
     """
-    if re.match(r'[^\s\t]{1,200}$', line):
+    if re.match(r'[^ \t\n\r\f\v]{1,200}$', line):
         return True
     return False
 

@@ -24,7 +24,9 @@ def test_expand():
 
 
 def test_read():
-    assert len(text.readfile.readplain(path.join(TEST_DIR, 'data/fontane-stechlin.txt'))) == 71
+    assert text.readfile.readplain(path.join(TEST_DIR, 'data/dummy-file.txt')) == ['Token', 'T15', 'Other-info']
+    assert len(text.readfile.readplain(path.join(TEST_DIR, 'data/fontane-stechlin.txt'))) == 42
+    assert text.readfile.readtok(path.join(TEST_DIR, 'data/dummy-file.txt')) == []
     assert len(text.readfile.readtok(path.join(TEST_DIR, 'data/fontane-stechlin.tok'))) == 44
     assert len(text.readfile.readtagged(path.join(TEST_DIR, 'data/fontane-stechlin.tagged'))) == 4
 
@@ -34,7 +36,7 @@ def custom_csv():
     customized = data.load.load_csv(registry)
     # test alternatives
     assert 'Atest' in customized and 'Btest' in customized
-    return (customized)
+    return customized
 
 
 def custom_tsv():
@@ -42,7 +44,7 @@ def custom_tsv():
     customized = data.load.load_tsv(registry)
     # test alternatives
     assert 'Sankt Petersburg' in customized # and 'St. Petersburg' in customized
-    return (customized)
+    return customized
 
 
 def test_validate_entry():
@@ -66,14 +68,14 @@ def test_data_validators():
     assert data.validators.validate_mapdata({'place': 'test', 'lat': '20.5'}) is False
     # load gazetteers
     assert data.validators.validate_geonames_registry('2849119	48.13333	8.85	P	DE	0	0') is False
-    assert data.validators.validate_geonames_registry(['2849119','48.13333','8.85']) is False
-    assert data.validators.validate_geonames_registry(['AAA','48.13333','8.85','P','DE','0']) is False
-    assert data.validators.validate_geonames_registry(['2849119','G13','D10','P','DE','0']) is False
-    assert data.validators.validate_geonames_registry(['2849119','48.13333','8.85','P','DE','-10']) is False
-    assert data.validators.validate_geonames_codes(['Reichenbach am Heuberg','2849119']) is True
-    assert data.validators.validate_geonames_codes(['Reichenbach','12','++']) is False
-    assert data.validators.validate_geonames_codes(['RR','2849119']) is False
-    assert data.validators.validate_geonames_codes(['Reichenbach am Heuberg','V12']) is False
+    assert data.validators.validate_geonames_registry(['2849119', '48.13333', '8.85']) is False
+    assert data.validators.validate_geonames_registry(['AAA', '48.13333', '8.85', 'P', 'DE', '0']) is False
+    assert data.validators.validate_geonames_registry(['2849119', 'G13', 'D10', 'P', 'DE', '0']) is False
+    assert data.validators.validate_geonames_registry(['2849119', '48.13333', '8.85', 'P', 'DE', '-10']) is False
+    assert data.validators.validate_geonames_codes(['Reichenbach am Heuberg', '2849119']) is True
+    assert data.validators.validate_geonames_codes(['Reichenbach', '12', '++']) is False
+    assert data.validators.validate_geonames_codes(['RR', '2849119']) is False
+    assert data.validators.validate_geonames_codes(['Reichenbach am Heuberg', 'V12']) is False
 
 
 def test_text_validators():
@@ -200,8 +202,8 @@ def test_geofind():
 def test_disambiguate():
     ## type
     assert geo.geocoding.disambiguate(None, 1, dict()) is None
-    assert geo.geocoding.disambiguate('Test', 1, dict()) is 'Test'
-    assert geo.geocoding.disambiguate(['Test'], 1, dict()) is 'Test'
+    assert geo.geocoding.disambiguate('Test', 1, dict()) == 'Test'
+    assert geo.geocoding.disambiguate(['Test'], 1, dict()) == 'Test'
 
     ## pop count
     test_metainfo = {\
