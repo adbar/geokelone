@@ -144,12 +144,14 @@ def validate_mapdata(dicentry):
     """
     if len(dicentry) < 8:
         logger.warning('malformed result line: %s', dicentry)
+        return False
     # toponym
     #if 'place' not in dicentry:
     #    logger.warning('empty key in dict: %s', dicentry)
     #    return False
     if not re.search(r'\w', dicentry[5]):
         logger.warning('malformed entry name: %s', dicentry[6])
+        return False
     # coordinates
     #if 'lat' not in dicentry or 'lon' not in dicentry:
     #    logger.warning('empty coordinates: %s', dicentry)
