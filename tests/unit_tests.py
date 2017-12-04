@@ -137,7 +137,7 @@ def test_geonames_store():
     assert infotuple[0] in data.geonames.metainfo
 
     # duplicate entry
-    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
+    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
 
 
 def test_tagged():

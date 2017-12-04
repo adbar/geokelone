@@ -78,18 +78,18 @@ def filterline(line):
     columns = re.split('\t', line)
     alternatives = set()
 
-    ## filters
-    if len(columns) < 10: # could be higher
+    ## basic filters
+    if len(columns) != 19:
         logger.debug('malformed: %s', line)
         return None
     if len(columns[0]) < 1 or len(columns[1]) < 1:
         logger.debug('malformed: %s', line)
         return None
+
     ## TODO: extend filtering
     # column 7 = P only?
     # STM = Stream, FRST = Forest
     # HLLS normalize
-    # https://github.com/ruipds/Toponym-Matching/blob/master/datasetcreator.py
     if columns[7] in refused_types:
         logger.debug('not a suitable type: %s', columns[7])
         return None
@@ -97,6 +97,23 @@ def filterline(line):
     # name
     if validators.validate_entry(columns[1]) is False:
         logger.debug('no suitable name for entry: %s', columns[1])
+        return None
+
+    # coordinates
+    if validators.validate_latlon(columns[4], columns[5]) is False:
+        logger.debug('no suitable coordinates: %s %s', columns[4], columns[5])
+        return None
+
+    # country code
+    if len(columns[8]) != 2:
+        logger.debug('no suitable country code: %s', columns[8])
+        return None
+
+    # population
+    try:
+        int(columns[14])
+    except ValueError:
+        logger.debug('no suitable population value: %s', columns[14])
         return None
 
     # check if exists in db
@@ -108,6 +125,7 @@ def filterline(line):
             return None
         #else:
         #    alternatives = ...
+
     # examine alternatives
     if ',' in columns[3]:
         for alternative in re.split(',', columns[3]):
@@ -205,7 +223,7 @@ def writefile(dictname, filename):
     """
     logger.info('writing register to file %s', filename)
     i = 0
-    with open(filename, 'w', encoding='utf-8') as outfh:
+    with open(filename, 'a', encoding='utf-8') as outfh:
         for key in sorted(dictname):
             if len(key) > 1:
                 outfh.write(key)
