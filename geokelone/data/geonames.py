@@ -33,6 +33,18 @@ logger = logging.getLogger(__name__)
 codesdict = dict()
 metainfo = dict()
 
+# banks, buildings, hotels, railway stations, road stops, towers, energy (power plats, wind turbines), mountain huts, post offices, golf courses
+refused_types = ('BANK', 'BLDG', 'GRAZ', 'HTL', 'HUT', 'MLWND', 'PLDR', 'PO', 'PS', 'RECG', 'RSTN', 'RSTP', 'SWT', 'TOWR', 'VIN')
+
+# further filtering: farms, forests
+# 'FRM', 'FRST', 
+# BDG, MUS, 
+# 
+# TODO: 
+# compact dict structure
+# https://github.com/RaRe-Technologies/sqlitedict ?
+# 
+
 
 def generate_urls(countrycodes):
     """
@@ -64,6 +76,7 @@ def filterline(line):
     """
     # global codesdict, metainfo
     columns = re.split('\t', line)
+    alternatives = set()
 
     ## filters
     if len(columns) < 10: # could be higher
@@ -72,7 +85,12 @@ def filterline(line):
     if len(columns[0]) < 1 or len(columns[1]) < 1:
         logger.debug('malformed: %s', line)
         return None
-    if columns[7] in ('BANK', 'BLDG', 'HTL', 'PLDR', 'PS', 'SWT', 'TOWR'):
+    ## TODO: extend filtering
+    # column 7 = P only?
+    # STM = Stream, FRST = Forest
+    # HLLS normalize
+    # https://github.com/ruipds/Toponym-Matching/blob/master/datasetcreator.py
+    if columns[7] in refused_types:
         logger.debug('not a suitable type: %s', columns[7])
         return None
 
@@ -82,11 +100,15 @@ def filterline(line):
         return None
 
     # check if exists in db
+    # TODO: latest entry in geonames?
     if columns[0] in metainfo:
-        logger.warning('code already seen: %s', line)
-        return None
+        # check population
+        if metainfo[columns[0]][-1] < columns[14]:
+            logger.warning('code already seen: %s', line)
+            return None
+        #else:
+        #    alternatives = ...
     # examine alternatives
-    alternatives = set()
     if ',' in columns[3]:
         for alternative in re.split(',', columns[3]):
             # store
@@ -98,7 +120,7 @@ def filterline(line):
 
     # store selected information
     # metainfo[columns[0]] = (columns[4], columns[5], columns[6], columns[8], columns[14])
-    ## name, alternatenames, latitude, longitude, code, country, population
+    ## name, alternatenames, latitude, longitude, type, code, country, population
     # main
     return alternatives, columns[1], (columns[0], columns[4], columns[5], columns[6], columns[8], columns[14])
 
@@ -132,11 +154,12 @@ def fetchdata(countrycodes):
     """
     Retrieve data from geonames for the countries given.
     """
-    i = 1
+    i = 0
     urls, filenames = generate_urls(countrycodes)
     for url in urls:
         # start
         j = 0
+        k = 0
         logger.info('download %s url: %s', i, url)
         request = requests.get(url)
 
@@ -149,12 +172,14 @@ def fetchdata(countrycodes):
                 with myzip.open(filenames[i]) as myfile:
                     for line in myfile:
                         # filter
-                        alternatives, code, infotuple = filterline(line.decode())
-                        # store
-                        store_codesdata(code, alternatives)
-                        store_metainfo(infotuple)
+                        results = filterline(line.decode())
+                        if results is not None:
+                            alternatives, code, infotuple = results[0], results[1], results[2]
+                            # store
+                            store_codesdata(code, alternatives)
+                            store_metainfo(infotuple)
                         j += 1
-            logger.info('%s lines seen', j)
+            logger.info('%s lines seen, %s filtered lines', j, k)
         i += 1
     return codesdict, metainfo
 

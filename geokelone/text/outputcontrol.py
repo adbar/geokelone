@@ -79,3 +79,7 @@ def writelines(linesfile, lines):
                 # g -= 1
 
         outputfh.write(']}')
+
+
+## TODO: WKT export https://en.wikipedia.org/wiki/Well-known_text
+## TODO: https://docs.python.org/3/library/csv.html

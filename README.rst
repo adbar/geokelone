@@ -89,15 +89,13 @@ Data helpers are included to derive geographic data from existing sources such a
 .. code-block:: python
 
     >>> from geokelone import data
-    >>> codesdict = dict()
-    >>> metainfo = dict()
     # decide countries for which Geonames information is downloaded
     >>> countries = ['da', 'fi'] # 2-letter country code
     # go fetch the data
-    >>> data.fetchdata(countries, codesdict, metainfo)
+    >>> codesdict, metainfo = data.geonames.fetchdata(countries)
     # write files for further use
-    >>> data.writefile(codesdict, 'geonames-codes.dict')
-    >>> data.writefile(metainfo, 'geonames-meta.dict')
+    >>> data.geonames.writefile(codesdict, 'geonames-codes.dict')
+    >>> data.geonames.writefile(metainfo, 'geonames-meta.dict')
 
 
 Extraction, disambiguation and mapping

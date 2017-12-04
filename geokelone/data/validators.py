@@ -168,3 +168,6 @@ def validate_mapdata(dicentry):
 
 ## TODO:
 # def validate_results_file():
+
+## TODO:
+# def validate_WKT():
