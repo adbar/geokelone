@@ -187,6 +187,11 @@ def test_geonames():
     assert len(results) == 1 and '2849119' in results
 
 
+def test_wikipedia():
+    assert data.wikipedia.find_coordinates('Wien', language='en') == (None, None)
+    assert data.wikipedia.find_coordinates('Wien', language='de') == ('48.20833023', '16.37306384')
+
+
 def test_haversine():
     assert geo.geocoding.haversine(53.4, 1.2, 61, 10.53) == '1012.13'
     assert geo.geocoding.haversine(-53.466666, 1, 61, -3.33333) == '12725.89'

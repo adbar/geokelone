@@ -10,6 +10,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 import re
 import ssl
+import urllib3
 
 from time import sleep
 
@@ -17,6 +18,8 @@ from time import sleep
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
+
+from . import validators
 
 
 
@@ -29,6 +32,9 @@ from requests.packages.urllib3.poolmanager import PoolManager
 
 # logging
 logger = logging.getLogger(__name__)
+
+# requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 # download pool manager
@@ -105,7 +111,8 @@ def find_coordinates(name, language='en'):
             logger.warning('Unexpected response for query %s', query_url)
             # outputfh.write(line + '\t' + '' + '\t' + '' + '\n')
         else:
-            return latitude, longitude
+            if validators.validate_latlon(latitude, longitude) is True:
+                return latitude, longitude
             # sleep(0.25)
             # outputfh.write(line + '\t' + latitude + '\t' + longitude + '\n')
     # catchall

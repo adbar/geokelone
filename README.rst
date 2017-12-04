@@ -156,15 +156,18 @@ The module includes helpers to navigate categories, for example the `World Herit
 
 .. code-block:: python
 
-    >>> from geokelone import wikipedia
+    >>> from geokelone.data import wikipedia
     # chained operations for a list of categories
     >>> wikipedia.process_todolist('mytodolist.txt', outputfile='solved.tsv', categories=True)
     # discover entries in a category
     >>> category_members = wikipedia.navigate_category('XYZ')
     # process them one by one
     >>> for member in category_members:
-    >>>     lat, lon = find_coordinates(member, language='de')
+    >>>     lat, lon = wikipedia.find_coordinates(member)
     >>>     print(member, lat, lon)
+    # change language code for search (default is 'en')
+    >>> wikipedia.find_coordinates('Wien', language='de')
+    ('48.20833023', '16.37306384')
 
 
 Special parameters
