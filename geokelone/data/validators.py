@@ -85,7 +85,7 @@ def validate_entry(name):
         logger.debug('entry too short: %s', name)
         return False
     # too many spaces
-    elif name.count(' ') > 3:
+    elif name.count(' ') >= 3:
         logger.debug('too many spaces: %s', name)
         return False
     # refuse non-word characters (and out of Unicode charset)

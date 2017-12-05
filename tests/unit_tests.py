@@ -59,22 +59,22 @@ def test_validate_entry():
 
 def test_data_validators():
     # custom files
-    assert data.validators.validate_csv_registry('Petersburg;Sankt-Petersburg,Sankt Petersburg,-2,-2.2') is True
-    assert data.validators.validate_csv_registry('Petersburg,St. Petersburg,-2,2,3') is False
-    assert data.validators.validate_tsv_registry('Preußens?	-33.3	33.3') is True
-    assert data.validators.validate_tsv_registry('AAA	NNN	NNN	NNN') is False
+    assert data.validators.validate_csv_registry(['Petersburg;Sankt-Petersburg', 'Sankt Petersburg', '-2', '-2.2']) is True
+    assert data.validators.validate_csv_registry(['Petersburg', 'St. Petersburg', '-2', '2', '3']) is False
+    assert data.validators.validate_tsv_registry(['Preußens?','-33.3','33.3']) is True
+    assert data.validators.validate_tsv_registry(['AAA','NNN','NNN','NNN']) is False
 
     # entries in gazetteers
     # assert data.validators.validate_mapdata({'place': 'test', 'lat': '30', 'lon': 30}) is True
     # assert data.validators.validate_mapdata({'place': None, 'lat': '30', 'lon': 30}) is False
     # assert data.validators.validate_mapdata({'place': 'test', 'lat': '300', 'lon': 300}) is False
     # assert data.validators.validate_mapdata({'place': 'test', 'lat': '20.5'}) is False
-    assert data.validators.validate_mapdata([47.003333, 11.5075, 'X', 'YY', 0, 'Brenner', 'NULL', 2]) is True
-    assert data.validators.validate_mapdata(['AAA', 11.5075, 'X', 'YY', 0, 'Brenner', 'NULL', 2]) is False
-    assert data.validators.validate_mapdata([47.003333, 11.5075, 'X']) is False
+    assert data.validators.validate_mapdata(['47.003333', '11.5075', 'X', 'YY', '0', 'Brenner', 'NULL', 2]) is True
+    assert data.validators.validate_mapdata(['AAA', '11.5075', 'X', 'YY', '0', 'Brenner', 'NULL', 2]) is False
+    assert data.validators.validate_mapdata(['47.003333', '11.5075', 'X']) is False
 
     # load gazetteers
-    assert data.validators.validate_geonames_registry('2849119	48.13333	8.85	P	DE	0	0') is False
+    assert data.validators.validate_geonames_registry(['2849119', '48.13333', '8.85', 'P', 'DE', '0' ,'0']) is False
     assert data.validators.validate_geonames_registry(['2849119', '48.13333', '8.85']) is False
     assert data.validators.validate_geonames_registry(['AAA', '48.13333', '8.85', 'P', 'DE', '0']) is False
     assert data.validators.validate_geonames_registry(['2849119', 'G13', 'D10', 'P', 'DE', '0']) is False
