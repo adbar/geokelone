@@ -9,13 +9,14 @@ import sys
 from os import path
 
 # from geokelone import *
-from geokelone import data, geo, text
+from geokelone import data, geo, text, settings
 
 
 TEST_DIR = path.abspath(path.dirname(__file__))
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
+settings.FILTER_LEVEL = 'MINIMUM'
 
 
 def test_expand():
@@ -318,6 +319,7 @@ def test_draw_line():
 if __name__ == '__main__':
     # print('testing', TEST_DIR)
     # print (os.path.join(sys.path[0], '..'))
+    # print(settings.FILTER_LEVEL)
 
     # registry functions
     test_expand()
