@@ -67,12 +67,12 @@ def store_variants(expanded, columns, level):
                 logger.warning('key discarded: %s %s', variant, level)
             elif dic[variant]['level'] == level:
                 logger.warning('duplicate entry: %s %s', variant, level)
-                dic[variant]['values'] = [lat, lon, canonical]
+                dic[variant]['values'] = (lat, lon, canonical)
             else:
-                dic[variant]['values'] = [lat, lon, canonical]
+                dic[variant]['values'] = (lat, lon, canonical)
         else:
             dic[variant] = dict()
-            dic[variant]['values'] = [lat, lon, canonical]
+            dic[variant]['values'] = (lat, lon, canonical)
             dic[variant]['level'] = level
     # finish
     logger.debug('%s', dic)
@@ -91,27 +91,29 @@ def load_tsv(filename, level=0):
     # read
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
-            if validators.validate_tsv_registry(line) is False:
-                continue
             line = line.strip()
             columns = re.split('\t', line)
             # sanity check
-            if len(columns) == 3 and columns[1] is not None and columns[2] is not None:
-                expansions = list()
-                # strip
-                for item in columns:
-                    item = item.strip()
-                # historical names
-                if re.search(r';', columns[0]):
-                    variants = re.split(r';', columns[0])
-                    for item in variants:
-                        expansions.extend(expand(item))
-                else:
-                    expansions.extend(expand(columns[0]))
-                # canonical form?
-                canonical = expansions[0]
-                # process variants
-                dic.update(store_variants(expansions, columns, level))
+            if validators.validate_tsv_registry(columns) is False:
+                continue
+            # process
+            expansions = list()
+            # strip
+            for item in columns:
+                item = item.strip()
+            # historical names
+            if re.search(r';', columns[0]):
+                variants = re.split(r';', columns[0])
+                # add to list, name checked later
+                for item in variants:
+                    expansions.extend(expand(item))
+            else:
+                # add to list, name checked later
+                expansions.extend(expand(columns[0]))
+            # canonical form?
+            canonical = expansions[0]
+            # process variants
+            dic.update(store_variants(expansions, columns, level))
 
     logger.info('%s entries found in registry %s', len(dic), filename)
     return dic
@@ -128,31 +130,32 @@ def load_csv(filename, level=0):
         return dic
     with open(filename, 'r', encoding='utf-8') as inputfh:
         for line in inputfh:
-            if validators.validate_csv_registry(line) is False:
-                continue
             line = line.strip()
             columns = re.split(',', line)
-            if len(columns) == 4 and columns[2] is not None and columns[3] is not None:
-                expansions = list()
-                # strip
-                for item in columns:
-                    item = item.strip()
-                # historical names
-                if re.search(r';', columns[0]):
-                    variants = re.split(r';', columns[0])
-                    for item in variants:
-                        expansions.extend(expand(item))
-                else:
-                    expansions.extend(expand(columns[0]))
-                # current names
-                if re.search(r';', columns[1]):
-                    variants = re.split(r';', columns[1])
-                    for item in variants:
-                        expansions.extend(expand(item))
-                else:
-                    expansions.extend(expand(columns[1]))
-                # process variants
-                dic.update(store_variants(expansions, columns, level))
+            # sanity check
+            if validators.validate_csv_registry(columns) is False:
+                continue
+            # process
+            expansions = list()
+            # strip
+            for item in columns:
+                item = item.strip()
+            # historical names
+            if re.search(r';', columns[0]):
+                variants = re.split(r';', columns[0])
+                for item in variants:
+                    expansions.extend(expand(item))
+            else:
+                expansions.extend(expand(columns[0]))
+            # current names
+            if re.search(r';', columns[1]):
+                variants = re.split(r';', columns[1])
+                for item in variants:
+                    expansions.extend(expand(item))
+            else:
+                expansions.extend(expand(columns[1]))
+            # process variants
+            dic.update(store_variants(expansions, columns, level))
 
     logger.info('%s entries found in registry %s', len(dic), filename)
     return dic

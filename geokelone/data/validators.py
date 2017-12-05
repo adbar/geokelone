@@ -48,26 +48,35 @@ def validate_tagged(line):
     return False
 
 
-def validate_csv_registry(line):
+def validate_csv_registry(columns):
     """
     Validate CSV registry data.
     """
     # four columns expected
-    if re.match(r'[^,]+?,[^,]+?,[^,]+?,[^,]+$', line):
-        return True
-    logger.warning('registry line not conform: %s', line)
-    return False
+    if len(columns) != 4:
+        logger.warning('registry line not conform: %s', columns)
+        return False
+    # coordinates
+    if validate_latlon(columns[2], columns[3]) is False:
+        logger.warning('coordinates not conform: %s', columns[2], columns[3])
+        return False
+    
+    return True
 
 
-def validate_tsv_registry(line):
+def validate_tsv_registry(columns):
     """
     Validate TSV registry data.
     """
     # three columns expected
-    if re.match(r'[^\t]+?\t[^\t]+?\t[^\t]+$', line):
-        return True
-    logger.warning('registry line not conform: %s', line)
-    return False
+    if len(columns) != 3:
+        logger.warning('registry line not conform: %s', columns)
+        return False
+    # coordinates
+    if validate_latlon(columns[1], columns[2]) is False:
+        logger.warning('coordinates not conform: %s', columns[1], columns[2])
+        return False
+    return True
 
 
 def validate_entry(name):

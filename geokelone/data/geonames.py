@@ -46,6 +46,8 @@ refused_types = ('BANK', 'BLDG', 'GRAZ', 'HTL', 'HUT', 'MLWND', 'PLDR', 'PO', 'P
 # compact dict structure
 # https://github.com/RaRe-Technologies/sqlitedict ?
 # https://docs.python.org/3/library/csv.html ?
+# https://docs.python.org/3/library/shelve.html
+# https://docs.python.org/3/library/sqlite3.html
 
 
 def generate_urls(countrycodes):
