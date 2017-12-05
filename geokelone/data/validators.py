@@ -58,7 +58,7 @@ def validate_csv_registry(columns):
         return False
     # coordinates
     if validate_latlon(columns[2], columns[3]) is False:
-        logger.warning('coordinates not conform: %s', columns[2], columns[3])
+        logger.warning('coordinates not conform: %s %s', columns[2], columns[3])
         return False
     
     return True
@@ -74,7 +74,7 @@ def validate_tsv_registry(columns):
         return False
     # coordinates
     if validate_latlon(columns[1], columns[2]) is False:
-        logger.warning('coordinates not conform: %s', columns[1], columns[2])
+        logger.warning('coordinates not conform: %s %s', columns[1], columns[2])
         return False
     return True
 
@@ -136,15 +136,19 @@ def validate_latlon(lat, lon):
     """
     Validate coordinates (latitude and longitude).
     """
-    # latitude
-    if float(lat) > 90 or float(lat) < -90:
-        logger.warning('latitude out of bounds: %s', lat)
+    try:
+        # latitude
+        if float(lat) > 90 or float(lat) < -90:
+            logger.warning('latitude out of bounds: %s', lat)
+            return False
+        # longitude
+        if float(lon) > 180 or float(lon) < -180:
+            logger.warning('longitude out of bounds: %s', lon)
+            return False
+        return True
+    except ValueError:
+        logger.warning('problem with coordinates: %s %s', lat, lon)
         return False
-    # longitude
-    if float(lon) > 180 or float(lon) < -180:
-        logger.warning('longitude out of bounds: %s', lon)
-        return False
-    return True
 
 
 def validate_mapdata(dicentry):

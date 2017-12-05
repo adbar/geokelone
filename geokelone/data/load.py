@@ -212,7 +212,13 @@ def geonames_codes(filename, metainfo): # './geonames-codes.dict'
                 if validators.validate_geonames_codes(columns) is False:
                     continue
                 # add codes
-                for item in columns[1:]:
+                if ' ' in columns[1]:
+                    ids = ' '.split(columns[1])
+                else:
+                    ids = list()
+                    ids.append(columns[1])
+                # load
+                for item in ids:
                     # depends from filter level
                     if item in metainfo:
                         if columns[0] not in codesdict:

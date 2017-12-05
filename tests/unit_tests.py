@@ -126,12 +126,13 @@ def test_geonames_filter():
 
 def test_geonames_store():
     # init
-    alternatives, code, infotuple = data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25')
+    alternatives, canonical, infotuple = data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25')
 
     # store code
-    assert code not in data.geonames.codesdict
-    data.geonames.store_codesdata(code, alternatives)
-    assert code in data.geonames.codesdict
+    assert canonical not in data.geonames.codesdict
+    data.geonames.store_codesdata(infotuple[0], canonical, alternatives)
+    assert canonical in data.geonames.codesdict
+    assert list(data.geonames.codesdict[canonical])[0] == infotuple[0]
 
     # store info
     assert infotuple[0] not in data.geonames.metainfo

@@ -153,16 +153,21 @@ def filterline(line):
     return alternatives, columns[1], (columns[0], columns[4], columns[5], columns[6], columns[8], columns[14])
 
 
-def store_codesdata(code, alternatives):
+def store_codesdata(nameid, canonical, alternatives):
     """
     Store codes data in register.
     """
     global codesdict
-    # control
-    if code not in codesdict:
-        codesdict[code] = set()
-    # add
-    codesdict[code].update(alternatives)
+    logger.debug('storing: %s %s %s', nameid, canonical, alternatives)
+    # canonical
+    if canonical not in codesdict:
+        codesdict[canonical] = set()
+    codesdict[canonical].add(nameid)
+    # alternatives
+    for alt in alternatives:
+        if alt not in codesdict:
+            codesdict[alt] = set()
+        codesdict[alt].add(nameid)
 
 
 def store_metainfo(infotuple):
@@ -204,10 +209,13 @@ def fetchdata(countrycodes):
                         # filter
                         results = filterline(line.decode())
                         if results is not None:
-                            alternatives, code, infotuple = results[0], results[1], results[2]
+                            alternatives, canonical, infotuple = results[0], results[1], results[2]
+                            ## TODO: check if right country
+                            # 
                             # store
-                            store_codesdata(code, alternatives)
+                            store_codesdata(infotuple[0], canonical, alternatives)
                             store_metainfo(infotuple)
+                            k += 1
                         j += 1
             logger.info('%s lines seen, %s filtered lines', j, k)
         i += 1
@@ -239,8 +247,12 @@ def writefile(dictname, filename):
         for key in sorted(dictname):
             if len(key) > 1:
                 outfh.write(key)
-                for item in dictname[key]:
-                    outfh.write('\t' + str(item))
+                tempdata = list(dictname[key])
+                if len(tempdata) > 1:
+                    for item in tempdata:
+                        outfh.write('\t' + str(item))
+                else:
+                    outfh.write('\t' + str(tempdata[0]))
                 outfh.write('\n')
                 i += 1
-    logger.info(i, '%s lines written')
+    logger.info('%s lines written', i)

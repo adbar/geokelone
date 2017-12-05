@@ -90,7 +90,7 @@ Data helpers are included to derive geographic data from existing sources such a
 
     >>> from geokelone import data
     # decide countries for which Geonames information is downloaded
-    >>> countries = ['da', 'fi'] # 2-letter country code
+    >>> countries = ['dk', 'fi'] # 2-letter tld-style country code
     # go fetch the data
     >>> codesdict, metainfo = data.geonames.fetchdata(countries)
     # write files for further use
