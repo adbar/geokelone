@@ -20,6 +20,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
 
 from . import validators
+from .. import settings
 
 
 
@@ -112,7 +113,8 @@ def find_coordinates(name, language='en'):
             # outputfh.write(line + '\t' + '' + '\t' + '' + '\n')
         else:
             if validators.validate_latlon(latitude, longitude) is True:
-                return latitude, longitude
+                 # round
+                return round(float(latitude), settings.ROUNDING), round(float(longitude), settings.ROUNDING)
             # sleep(0.25)
             # outputfh.write(line + '\t' + latitude + '\t' + longitude + '\n')
     # catchall

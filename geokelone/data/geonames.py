@@ -12,6 +12,7 @@ import sys
 from io import BytesIO
 from zipfile import ZipFile
 
+import numpy as np
 import requests
 
 from .. import settings
@@ -170,8 +171,10 @@ def store_metainfo(infotuple):
     # control
     if infotuple[0] in metainfo:
         logger.warning('item already in register: %s', infotuple[0])
+    # round
+    lat, lon = round(float(infotuple[1]), settings.ROUNDING), round(float(infotuple[2]), settings.ROUNDING)
     # store
-    metainfo[infotuple[0]] = (infotuple[1], infotuple[2], infotuple[3], infotuple[4], infotuple[5])
+    metainfo[infotuple[0]] = (lat, lon, infotuple[3], infotuple[4], infotuple[5])
 
 
 # download data

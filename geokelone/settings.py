@@ -39,7 +39,7 @@ DISAMBIGUATION_SETTING = { \
 }
 STANDARD_SETTING = 'Wittenberg'
 
-
+ROUNDING = 3
 
 
 ## coordinate frame suitable for Central Europe

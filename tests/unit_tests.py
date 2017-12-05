@@ -17,6 +17,7 @@ TEST_DIR = path.abspath(path.dirname(__file__))
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 settings.FILTER_LEVEL = 'MINIMUM'
+settings.ROUNDING = 3
 
 
 def test_expand():
@@ -190,7 +191,7 @@ def test_geonames():
 
 def test_wikipedia():
     assert data.wikipedia.find_coordinates('Wien', language='en') == (None, None)
-    assert data.wikipedia.find_coordinates('Wien', language='de') == ('48.20833023', '16.37306384')
+    assert data.wikipedia.find_coordinates('Wien', language='de') == (48.208, 16.373)
 
 
 def test_haversine():
