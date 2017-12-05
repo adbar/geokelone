@@ -240,7 +240,7 @@ def writefile(dictname, filename):
             if len(key) > 1:
                 outfh.write(key)
                 for item in dictname[key]:
-                    outfh.write('\t' + item)
+                    outfh.write('\t' + str(item))
                 outfh.write('\n')
                 i += 1
     logger.info(i, '%s lines written')

@@ -169,7 +169,7 @@ The module includes helpers to navigate categories, for example the `World Herit
     >>>     print(member, lat, lon)
     # change language code for search (default is 'en')
     >>> wikipedia.find_coordinates('Wien', language='de')
-    ('48.20833023', '16.37306384')
+    (48.208, 16.373)
 
 
 Special parameters
