@@ -173,14 +173,14 @@ def geonames_meta(filename): # './geonames-meta.dict'
                 if validators.validate_geonames_registry(columns) is False:
                     continue
                 # no empty places at filter levels 1 & 2
-                if settings.FILTER_LEVEL == 1 or settings.FILTER_LEVEL == 2:
+                if settings.FILTER_LEVEL == 'MAXIMUM' or settings.FILTER_LEVEL == 'MEDIUM':
                     if columns[5] == '0':
                         continue
                 # filter: skip elements
-                if settings.FILTER_LEVEL == 1:
+                if settings.FILTER_LEVEL == 'MAXIMUM':
                     if columns[3] != 'A':
                         continue
-                elif settings.FILTER_LEVEL == 2:
+                elif settings.FILTER_LEVEL == 'MEDIUM':
                     if columns[3] != 'A' and columns[3] != 'P':
                         continue
                 # process

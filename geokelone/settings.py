@@ -7,7 +7,7 @@ Fixed settings for extraction and projection of toponyms (as is: European places
 
 
 MINLENGTH = 4
-FILTER_LEVEL = 3 # was 3
+FILTER_LEVEL = 'MAXIMUM' # can be 'MINIMUM' or 'MEDIUM'
 CONTEXT_THRESHOLD = 20
 
 LANGUAGE = 'DE' # 2-letter language code

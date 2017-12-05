@@ -14,7 +14,7 @@ from .. import settings
 logger = logging.getLogger(__name__)
 
 
-COLUMN_NAMES = ('id', 'latitude', 'longitude', 'type', 'country', 'population', 'place', 'frequency', 'occurrences')
+TSV_COLUMN_NAMES = ('id', 'latitude', 'longitude', 'type', 'country', 'population', 'place', 'frequency', 'occurrences')
 
 
 def writefile(outputfile, results, datestok):
@@ -22,7 +22,7 @@ def writefile(outputfile, results, datestok):
     Control and write results to a file.
     """
     with open(outputfile, 'w', encoding='utf-8') as outputfh:
-        outputfh.write('\t'.join(COLUMN_NAMES))
+        outputfh.write('\t'.join(TSV_COLUMN_NAMES))
         if settings.DATEBOOL is True:
             outputfh.write('\t' + 'dates' + '\n')
         else:

@@ -112,7 +112,9 @@ Extraction, disambiguation and mapping
     # search for place names and store a list of resolved toponyms with metadata
     >>> results = geo.geocoding.search(splitted, codesdict, metainfo)
     # write the results to a file
-    >>> text.outputcontrol.writefile('test.out', results, dict())
+    >>> text.outputcontrol.writefile('results.tsv', results, dict())
+    # load results from a file
+    >>> results = data.load.results_tsv('results.tsv')
     # draw a map
     >>> geo.mapping.draw_map('testmap.png', results)
 
@@ -174,6 +176,8 @@ Special parameters
 ~~~~~~~~~~~~~~~~~~
 
 A series of parameters can be set to affect both search and visualization, see ``settings.py`` file.
+
+Allowed values for the filter level are ``MAXIMUM`` (conservative setting, recommended), ``MEDIUM`` and ``MINIMUM`` (better recall comes at a price).
 
 
 TODO

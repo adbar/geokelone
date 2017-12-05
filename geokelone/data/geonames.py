@@ -14,7 +14,7 @@ from zipfile import ZipFile
 
 import requests
 
-# from .. import settings
+from .. import settings
 from . import validators
 
 
@@ -35,15 +35,16 @@ metainfo = dict()
 
 # banks, buildings, hotels, railway stations, road stops, towers, energy (power plats, wind turbines), mountain huts, post offices, golf courses
 refused_types = ('BANK', 'BLDG', 'GRAZ', 'HTL', 'HUT', 'MLWND', 'PLDR', 'PO', 'PS', 'RECG', 'RSTN', 'RSTP', 'SWT', 'TOWR', 'VIN')
-
+# may be refined with http://www.geonames.org/export/codes.html
 # further filtering: farms, forests
 # 'FRM', 'FRST', 
 # BDG, MUS, 
-# 
+
+
 # TODO: 
 # compact dict structure
 # https://github.com/RaRe-Technologies/sqlitedict ?
-# 
+# https://docs.python.org/3/library/csv.html ?
 
 
 def generate_urls(countrycodes):
@@ -78,11 +79,8 @@ def filterline(line):
     columns = re.split('\t', line)
     alternatives = set()
 
-    ## basic filters
+    # basic filters
     if len(columns) != 19:
-        logger.debug('malformed: %s', line)
-        return None
-    if len(columns[0]) < 1 or len(columns[1]) < 1:
         logger.debug('malformed: %s', line)
         return None
 
@@ -90,12 +88,21 @@ def filterline(line):
     # column 7 = P only?
     # STM = Stream, FRST = Forest
     # HLLS normalize
-    if columns[7] in refused_types:
-        logger.debug('not a suitable type: %s', columns[7])
-        return None
+    if settings.FILTER_LEVEL == 'MAXIMUM':
+        # admin, stream/lake, park, city/village, mountain, forest
+        if columns[6] not in ('A', 'H', 'L', 'P', 'T', 'V'):
+            logger.debug('not a suitable for filter level %s: %s', settings.FILTER_LEVEL, columns[6])
+            return None
+    else:
+        if columns[7] in refused_types:
+            logger.debug('not a suitable type: %s', columns[7])
+            return None
 
     # name
-    if validators.validate_entry(columns[1]) is False:
+    if len(columns[0]) < 1 or len(columns[1]) < 1:
+        logger.debug('malformed: %s', line)
+        return None
+    elif validators.validate_entry(columns[1]) is False:
         logger.debug('no suitable name for entry: %s', columns[1])
         return None
 

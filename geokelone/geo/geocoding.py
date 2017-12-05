@@ -17,9 +17,9 @@ from .. import settings
 # logging
 logger = logging.getLogger(__name__)
 
-if settings.FILTER_LEVEL == 1:
+if settings.FILTER_LEVEL == 'MAXIMUM':
     MAX_CANDIDATES = 5
-elif settings.FILTER_LEVEL == 2 or settings.FILTER_LEVEL == 3:
+elif settings.FILTER_LEVEL == 'MEDIUM' or settings.FILTER_LEVEL == 'MINIMUM':
     MAX_CANDIDATES = 10
 
 vicinity = settings.DISAMBIGUATION_SETTING[settings.STANDARD_SETTING]['vicinity']
