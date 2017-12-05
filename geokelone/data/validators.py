@@ -166,8 +166,31 @@ def validate_mapdata(dicentry):
     return validate_latlon(lat, lon)
 
 
-## TODO:
-# def validate_results_file():
+def validate_result(columns):
+    """
+    Validate result from geoparsing.
+    """
+    # columns
+    if len(columns) != 9:
+        logger.debug('malformed entry: %s', columns)
+        return False
+    # numeric id
+    if not columns[0].isdigit():
+        logger.debug('malformed id: %s', columns[0])
+        return False
+    # name
+    if validate_entry(columns[6]) is False:
+        logger.debug('malformed place name: %s', columns[6])
+        return False
+    # coordinates
+    if validate_latlon(columns[1], columns[2]) is False:
+        logger.debug('malformed coordinates: %s %s', columns[1], columns[2])
+        return False
+    # TODO: type?
+
+    # catchall
+    return True
+
 
 ## TODO:
 # def validate_WKT():

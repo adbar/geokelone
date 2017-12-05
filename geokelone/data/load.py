@@ -79,7 +79,6 @@ def store_variants(expanded, columns, level):
     return dic
 
 
-
 def load_tsv(filename, level=0):
     """
     Open a TSV file and load its content into memory. Requires a level.
@@ -223,5 +222,22 @@ def geonames_codes(filename, metainfo): # './geonames-codes.dict'
     return codesdict
 
 
-## TODO:
-# def load_results():
+def results_tsv(filename):
+    """
+    Open a TSV file containing geoparsing results and load its content into memory.
+    """
+    # init
+    results = dict()
+    # read
+    with open(filename, 'r', encoding='utf-8') as inputfh:
+        for line in inputfh:
+            line = line.strip()
+            columns = re.split('\t', line)
+            # validate
+            if validators.validate_result(columns) is False:
+                continue
+            # store
+            results[columns[0]] = columns[1:]
+
+    logger.info('%s entries found in results file %s', len(results), filename)
+    return results

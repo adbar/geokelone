@@ -289,6 +289,15 @@ def test_rounds():
     assert geo.geocoding.disambiguating_rounds('AAA', test_codesdict, test_metainfo) is None
 
 
+def test_results():
+    # setup
+    inputfile = path.join(TEST_DIR, 'data/dummy-results.tsv')
+    results = data.load.results_tsv(inputfile)
+    # validation
+    print(results)
+    assert len(results) == 7 and '10173868' in results
+    
+
 def test_draw_line():
     geo.geocoding.pair = list()
     geo.geocoding.lines = list()
@@ -319,12 +328,14 @@ if __name__ == '__main__':
     test_tok()
     test_tagged()
     test_text_validators()
+    test_results()
 
     # geonames functions
     test_geonames_download()
     test_geonames_filter()
     test_geonames_store()
     test_geonames()
+    test_wikipedia()
 
     # GIS functions
     test_haversine()
