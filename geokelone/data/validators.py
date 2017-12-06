@@ -54,7 +54,7 @@ def validate_csv_registry(columns):
     """
     # four columns expected
     if len(columns) != 4:
-        logger.warning('registry line not conform: %s', columns)
+        logger.warning('csv registry line not conform: %s', columns)
         return False
     # coordinates
     if validate_latlon(columns[2], columns[3]) is False:
@@ -70,7 +70,7 @@ def validate_tsv_registry(columns):
     """
     # three columns expected
     if len(columns) != 3:
-        logger.warning('registry line not conform: %s', columns)
+        logger.warning('tsv registry line not conform: %s', columns)
         return False
     # coordinates
     if validate_latlon(columns[1], columns[2]) is False:

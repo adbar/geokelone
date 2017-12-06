@@ -6,7 +6,7 @@ Geocoding and disambiguation functions needed to extract and resolve place names
 
 import logging
 import re
-# import sys
+import sys
 
 from heapq import nlargest
 from math import radians, cos, sin, asin, sqrt
@@ -17,10 +17,6 @@ from .. import settings
 # logging
 logger = logging.getLogger(__name__)
 
-if settings.FILTER_LEVEL == 'MAXIMUM':
-    MAX_CANDIDATES = 5
-elif settings.FILTER_LEVEL == 'MEDIUM' or settings.FILTER_LEVEL == 'MINIMUM':
-    MAX_CANDIDATES = 10
 
 vicinity = settings.DISAMBIGUATION_SETTING[settings.STANDARD_SETTING]['vicinity']
 reference = settings.DISAMBIGUATION_SETTING[settings.STANDARD_SETTING]['reference']
@@ -161,7 +157,7 @@ def geofind(name, codesdict, metainfo, custom_lists):
     # single winner
     if not isinstance(codesdict[name], list) or len(codesdict[name]) == 1:
         winning_id = codesdict[name][0]
-        logger.info('winner: %s', codesdict[name])
+        logger.debug('winner: %s', codesdict[name])
     # hopefully find the right one
     else:
         winning_id = disambiguating_rounds(name, codesdict, metainfo)
@@ -300,6 +296,15 @@ def search(searchlist, codesdict, metainfo, custom_lists=None):
     """
     Geocoding: search if valid place name and assign coordinates.
     """
+    # safety check
+    global MAX_CANDIDATES
+    if settings.FILTER_LEVEL == 'MAXIMUM':
+        MAX_CANDIDATES = 5
+    elif settings.FILTER_LEVEL == 'MEDIUM' or settings.FILTER_LEVEL == 'MINIMUM':
+        MAX_CANDIDATES = 10
+    else:
+        logger.error('filter level not correctly set: %s', settings.FILTER_LEVEL)
+        sys.exit(1)
     # init
     global pair_counter
     global results
