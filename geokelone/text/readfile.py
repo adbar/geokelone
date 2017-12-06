@@ -100,9 +100,13 @@ def readtagged(filename, datesbool=False, datestok=None):
             #        datestok[columns[0]] = set()
             #    datestok[columns[0]].add(columns[1])
 
-            # take only lemmatized NEs
-            if columns[1] == 'NE':
-                splitted.append(columns[2])
+            # take only NEs (common tags)
+            if columns[1] in ('I-LOC', 'NE', 'NPROP', 'PROPN'):
+                # take column 3 (lemmata) is there is one
+                if len(columns) == 3:
+                    splitted.append(columns[2])
+                else:
+                    splitted.append(columns[0])
 
         # print ('types:', numtokens)
         logger.info('%s tokens read', len(splitted))

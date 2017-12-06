@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 
 
-def draw_map(filename, results):
+def draw_map(filename, results, withlabels=True):
     """
     Place points/lines on a map and save it in a file.
     """
@@ -66,6 +66,9 @@ def draw_map(filename, results):
     for item in results:
         if validators.validate_mapdata(results[item]) is True:
             # unused: country, ptype, something, somethingelse
+            if len(results[item]) != 8:
+                print(results[item])
+                continue
             lat, lon, _, _, _, pname, _, occurrences = results[item]
             lat = float(lat)
             lon = float(lon)
@@ -78,32 +81,33 @@ def draw_map(filename, results):
         ax.plot(lon, lat, marker='o', color='green', markersize=2, alpha=0.5, transform=ccrs.Geodetic())
 
         # text
-        geodetic_transform = ccrs.Geodetic()._as_mpl_transform(ax)
-        xchoice = random.choice(['left', 'center', 'right']) # random.choice(['left', 'center', 'right'])
-        if xchoice == 'left':
-            xval = -30
-        elif xchoice == 'center':
-            xval = random.choice([-5, 5])
-        elif xchoice == 'right':
-            xval = 30
-        ychoice = random.choice(['bottom', 'center', 'top']) # random.choice(['bottom', 'center', 'top'])
-        if ychoice == 'bottom':
-            yval = -30
-        elif ychoice == 'center':
-            yval = random.choice([-5, 5])
-        elif ychoice == 'top':
-            yval = 30
-        #xval = random.randint(-20, 20)
-        #yval = random.randint(-20, 20)
-        logger.debug('%s %s %s %s', xchoice, xval, ychoice, yval)
+        if withlabels is True:
+            geodetic_transform = ccrs.Geodetic()._as_mpl_transform(ax)
+            xchoice = random.choice(['left', 'center', 'right']) # random.choice(['left', 'center', 'right'])
+            if xchoice == 'left':
+                xval = -30
+            elif xchoice == 'center':
+                xval = random.choice([-5, 5])
+            elif xchoice == 'right':
+                xval = 30
+            ychoice = random.choice(['bottom', 'center', 'top']) # random.choice(['bottom', 'center', 'top'])
+            if ychoice == 'bottom':
+                yval = -30
+            elif ychoice == 'center':
+                yval = random.choice([-5, 5])
+            elif ychoice == 'top':
+                yval = 30
+            #xval = random.randint(-20, 20)
+            #yval = random.randint(-20, 20)
+            logger.debug('%s %s %s %s', xchoice, xval, ychoice, yval)
 
-        text_transform = offset_copy(geodetic_transform, x=xval, y=yval, units='dots')
-        ax.text(lon, lat, pname, verticalalignment=ychoice, horizontalalignment=xchoice, transform=text_transform, fontsize=5, wrap=True,) #  zorder=i
+            text_transform = offset_copy(geodetic_transform, x=xval, y=yval, units='dots')
+            ax.text(lon, lat, pname, verticalalignment=ychoice, horizontalalignment=xchoice, transform=text_transform, fontsize=5, wrap=True,) #  zorder=i
 
-        # texts.append(ax.text(lon, lat, pname, fontsize=5, transform=text_transform,)) #  wrap=True
-        # text_transform = offset_copy(geodetic_transform, units='dots', x=-10) # x=-25
-        # ax.text(lon, lat, pname, verticalalignment='center', horizontalalignment='right', transform=text_transform, fontsize=5)
-        # bbox=dict(facecolor='sandybrown', alpha=0.5, boxstyle='round')
+            # texts.append(ax.text(lon, lat, pname, fontsize=5, transform=text_transform,)) #  wrap=True
+            # text_transform = offset_copy(geodetic_transform, units='dots', x=-10) # x=-25
+            # ax.text(lon, lat, pname, verticalalignment='center', horizontalalignment='right', transform=text_transform, fontsize=5)
+            # bbox=dict(facecolor='sandybrown', alpha=0.5, boxstyle='round')
 
         i += 1
 

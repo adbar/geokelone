@@ -41,9 +41,9 @@ def validate_tok(line):
 
 def validate_tagged(line):
     """
-    Validate tokenized and tagged input format.
+    Validate tokenized and tagged input format: two or three columns.
     """
-    if re.match(r'[^\t]+?\t[A-Z$,().]+?\t.+$', line):
+    if re.match(r'[^\t]+?\t[A-Z$,().-]+', line): # ?\t.+$
         return True
     return False
 
@@ -188,9 +188,9 @@ def validate_result(columns):
         logger.debug('malformed entry: %s', columns)
         return False
     # numeric id
-    if not columns[0].isdigit():
-        logger.debug('malformed id: %s', columns[0])
-        return False
+    #if not columns[0].isdigit():
+    #    logger.debug('malformed id: %s', columns[0])
+    #    return False
     # name
     if validate_entry(columns[6]) is False:
         logger.debug('malformed place name: %s', columns[6])

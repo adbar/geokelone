@@ -268,6 +268,7 @@ def store_result(winning_id, name, metainfo):
     if settings.LINESBOOL is True:
         draw_line(results[winning_id][0], results[winning_id][1])
 
+    logger.debug('stored item %s with info %s', winning_id, results[winning_id])
     return
 
 
@@ -282,7 +283,7 @@ def selected_lists(name, dic):
     if name in dic:
         templist = [dic[name]['values'][0], dic[name]['values'][1], dic[name]['level'], 'NULL', 'NULL', dic[name]['values'][2]]
         canonname = dic[name]['values'][2]
-        tempdic = {canonname: [dic[name]['values'][0], dic[name]['values'][1], dic[name]['level'], 'NULL', 'NULL', canonname]}
+        tempdic = {canonname: [dic[name]['values'][0], dic[name]['values'][1], dic[name]['level'], 'NULL', 'NULL']} # canonname
         store_result(canonname, name, tempdic)
 
         # lines flag
