@@ -19,9 +19,7 @@ geokelone: work in progress
 
 ``Geokelone`` is an effort to integrate spatial and textual data processing tools into a modular software package which features preprocessing, geocoding, disambiguation and visualization.
 
-Only Python3 (especially 3.4 onwards) is supported, although the scripts may work for Python 2.7.
-
-Current source for more information: Barbaresi, A. (2017). `Towards a toolbox to map historical text collections <https://hal.archives-ouvertes.fr/hal-01654526/document>`_, *Proceedings of 11th Workshop on Geographic Information Retrieval*, ACM, Heidelberg.
+Current reference: Barbaresi, A. (2017). `Towards a toolbox to map historical text collections <https://hal.archives-ouvertes.fr/hal-01654526/document>`_, *Proceedings of 11th Workshop on Geographic Information Retrieval*, ACM, Heidelberg.
 
 
 .. contents:: **Contents**
@@ -55,6 +53,8 @@ Other packages
 Python packages
 ~~~~~~~~~~~~~~~
 
+Only Python3 (especially 3.4 onwards) is supported, although the scripts may work for Python 2.7.
+
 Two options, from system repositories or through ``pip``:
 
 - *python3-dev python3-shapely python3-gdal python3-matplotlib python3-pyproj python3-shapely*
@@ -73,7 +73,7 @@ Finally, *cartopy* can be installed:
 Install this package
 ~~~~~~~~~~~~~~~~~~~~
 
-Direct installation of the latest version over pip is possible:
+Direct installation of the latest version over pip is possible (see `build status <https://travis-ci.org/adbar/geokelone>`_):
 
 -  ``pip3 install git+https://github.com/adbar/geokelone.git``
 
@@ -119,24 +119,33 @@ Extraction, disambiguation and mapping
     >>> geo.mapping.draw_map('testmap.png', results)
 
 
-Why disambiguate?
-~~~~~~~~~~~~~~~~~
+Special parameters
+~~~~~~~~~~~~~~~~~~
 
 Did you know there was a Jerusalem in Bavaria and a Leipzig in Ukraine?
+
+A series of parameters can be set to affect both search and visualization, see ``settings.py`` file.
+
+Allowed values for the filter level are ``MAXIMUM`` (conservative setting, recommended), ``MEDIUM`` and ``MINIMUM`` (better recall comes at a price).
+
+
+
+Gazetteers extension
+--------------------
 
 
 Why curate special registers or gazetteers?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Even with a touch of filtering, the token "Berlin" in Geonames is a place north of Germany with 0 inhabitants, see map below:
+Even with a touch of filtering, the token "Berlin" in Geonames resolves to a place north of Germany with a population of 0, see map below:
 
 .. image:: tests/example-wrong.png
     :align: center
     :alt: example
 
 
-Extension of gazetteers
-~~~~~~~~~~~~~~~~~~~~~~~
+Custom registers
+~~~~~~~~~~~~~~~~
 
 The helper function in ``data.load.load_tsv()`` allow for additional registers to match particular needs, with particular levels (0 to 3), for example:
 
@@ -151,8 +160,8 @@ The helper function in ``data.load.load_tsv()`` allow for additional registers t
     >>> results = geo.geocoding.search(splitted, codesdict, metainfo, customized)
 
 
-Using Wikipedia to build custom lists
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using information from Wikipedia/Wikidata
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The module includes helpers to navigate categories, for example the `World Heritage Sites in England <https://en.wikipedia.org/wiki/Category:World_Heritage_Sites_in_England>`_ or the `Cultural Landscapes of Japan <https://en.wikipedia.org/wiki/Category:Cultural_Landscapes_of_Japan>`_ and to fetch coordinates for a given list by querying Wikipedia.
 
@@ -172,14 +181,6 @@ The module includes helpers to navigate categories, for example the `World Herit
     (48.208, 16.373)
 
 
-Special parameters
-~~~~~~~~~~~~~~~~~~
-
-A series of parameters can be set to affect both search and visualization, see ``settings.py`` file.
-
-Allowed values for the filter level are ``MAXIMUM`` (conservative setting, recommended), ``MEDIUM`` and ``MINIMUM`` (better recall comes at a price).
-
-
 TODO
 ----
 
@@ -193,7 +194,7 @@ TODO
 Integration
 -----------
 
-For a language-independent solution in the Python world, I would suggest `polyglot <https://github.com/aboSamoor/polyglot>`_.
+For a language-independent solution in the Python world, see `polyglot <https://github.com/aboSamoor/polyglot>`_.
 
 
 References
