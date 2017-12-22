@@ -25,6 +25,13 @@ def test_expand():
     assert data.load.expand('(Außer|Über)au') == ['Außerau', 'Überau']
 
 
+def test_store_variants():
+    assert data.load.store_variants(['Tests'], [None, None, None], 1) is not None
+    #print(data.load.store_variants(['Tests'], [None, None, None], 1))
+    #assert data.load.store_variants(['Tests'], [None, None, None], 1) is {}
+    #assert data.load.store_variants(['Tests'], [None, None, None], 2) is None
+
+
 def test_read():
     assert text.readfile.readplain(path.join(TEST_DIR, 'data/dummy-file.txt')) == ['Token', 'T15', 'Other-info']
     assert len(text.readfile.readplain(path.join(TEST_DIR, 'data/fontane-stechlin.txt'))) == 42
@@ -35,6 +42,9 @@ def test_read():
 
 def custom_csv():
     registry = path.join(TEST_DIR, 'data/dummy-registry.csv')
+    # level
+    assert data.load.load_tsv(registry, level='NN') == dict()
+    # store
     customized = data.load.load_csv(registry)
     # test alternatives
     assert 'Atest' in customized and 'Btest' in customized
@@ -43,6 +53,9 @@ def custom_csv():
 
 def custom_tsv():
     registry = path.join(TEST_DIR, 'data/dummy-registry.tsv')
+    # level
+    assert data.load.load_tsv(registry, level='NN') == dict()
+    # store
     customized = data.load.load_tsv(registry)
     # test alternatives
     assert 'Sankt Petersburg' in customized # and 'St. Petersburg' in customized
@@ -61,7 +74,9 @@ def test_data_validators():
     # custom files
     assert data.validators.validate_csv_registry(['Petersburg;Sankt-Petersburg', 'Sankt Petersburg', '-2', '-2.2']) is True
     assert data.validators.validate_csv_registry(['Petersburg', 'St. Petersburg', '-2', '2', '3']) is False
+    assert data.validators.validate_csv_registry(['Petersburg', 'St. Petersburg', '-222', '2E']) is False
     assert data.validators.validate_tsv_registry(['Preußens?','-33.3','33.3']) is True
+    assert data.validators.validate_tsv_registry(['Preußens?','1111','2222']) is False
     assert data.validators.validate_tsv_registry(['AAA','NNN','NNN','NNN']) is False
 
     # entries in gazetteers
@@ -71,6 +86,7 @@ def test_data_validators():
     # assert data.validators.validate_mapdata({'place': 'test', 'lat': '20.5'}) is False
     assert data.validators.validate_mapdata(['47.003333', '11.5075', 'X', 'YY', '0', 'Brenner', 'NULL', 2]) is True
     assert data.validators.validate_mapdata(['AAA', '11.5075', 'X', 'YY', '0', 'Brenner', 'NULL', 2]) is False
+    assert data.validators.validate_mapdata(['47.003333', '11.5075', 'X', 'YY', '0', '000', 'NULL', 2]) is False
     assert data.validators.validate_mapdata(['47.003333', '11.5075', 'X']) is False
 
     # load gazetteers
@@ -83,6 +99,10 @@ def test_data_validators():
     assert data.validators.validate_geonames_codes(['Reichenbach', '12', '++']) is False
     assert data.validators.validate_geonames_codes(['RR', '2849119']) is False
     assert data.validators.validate_geonames_codes(['Reichenbach am Heuberg', 'V12']) is False
+
+    # result
+    ## TODO:
+    # assert data.validators.validate_result()
 
 
 def test_text_validators():
@@ -112,12 +132,26 @@ def test_geonames_filter():
     # malformed
     assert data.geonames.filterline('\n') is None
     assert data.geonames.filterline('	1	2.3') is None
+    assert data.geonames.filterline('																			') is None
     assert data.geonames.filterline('		2.3	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA') is None
     assert data.geonames.filterline('6466296	AAA BBB GGG AAA BBBB	Amba		51	4	P	PPL	BE		VLG	VAN	11	11002	0		7	XX	YY')  is None
     # wrong type
     assert data.geonames.filterline('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  is None
     # OK
     assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not None
+    result = data.geonames.filterline('2801074	Breitfeld	Breitfeld	Breitfeld	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25')
+    assert result is not None and result[0] == {'Breitfeld'}
+    # filtering levels
+    settings.FILTER_LEVEL = 'MAXIMUM'
+    assert data.geonames.filterline('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  is None
+    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not None
+    settings.FILTER_LEVEL = 'MINIMUM'
+    # coordinates
+    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		1150.26417	4446.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
+    # country
+    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BEL		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
+    # population
+    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	BE		432	Europe/Brussels	2017-03-25') is None
     # alternatives
     result = data.geonames.filterline('2867714	Munich	Munich	Monachium,Monaco di Baviera,München	48.13743	11.57549	P	PPLA	DE		02	091	09162	09162000	1260391		524	Europe/Berlin	2014-01-26')
     print(result)
@@ -126,21 +160,24 @@ def test_geonames_filter():
 
 def test_geonames_store():
     # init
-    alternatives, canonical, infotuple = data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25')
+    alternatives, canonical, infotuple = data.geonames.filterline('2801074	Breitfeld	Breitfeld	Breitfeld,Breitfelds	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25')
 
     # store code
     assert canonical not in data.geonames.codesdict
     data.geonames.store_codesdata(infotuple[0], canonical, alternatives)
     assert canonical in data.geonames.codesdict
+    for alt in alternatives:
+        assert alt in data.geonames.codesdict
     assert list(data.geonames.codesdict[canonical])[0] == infotuple[0]
 
     # store info
     assert infotuple[0] not in data.geonames.metainfo
     data.geonames.store_metainfo(infotuple)
-    assert infotuple[0] in data.geonames.metainfo
+    assert infotuple[0] in data.geonames.metainfo and '2801074' in data.geonames.metainfo
+    data.geonames.store_metainfo(infotuple)
 
     # duplicate entry
-    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
+    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld	Breitfeld,Breitfelds	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
 
 
 def test_tagged():
@@ -170,6 +207,7 @@ def test_tok():
 
 
 def test_geonames():
+    # TODO: filter level
     # setup
     inputfile = path.join(TEST_DIR, 'data/dummy-geonames-meta.dict')
     metainfo = data.load.geonames_meta(inputfile)
@@ -325,6 +363,7 @@ if __name__ == '__main__':
 
     # registry functions
     test_expand()
+    test_store_variants()
     test_validate_entry()
 
     # input/output functions

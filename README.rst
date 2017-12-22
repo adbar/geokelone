@@ -84,7 +84,7 @@ Usage
 Bootstrapped geographic databases
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Data helpers are included to derive geographic data from existing sources such as Geonames, Wikipedia or Wikidata, see for example Geonames with country codes:
+Data helpers are included to derive geographic data from existing sources such as Geonames, Wikipedia or Wikidata (all under CC BY licenses), see for example Geonames with country codes:
 
 .. code-block:: python
 

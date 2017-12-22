@@ -130,7 +130,7 @@ def filterline(line):
     # TODO: latest entry in geonames?
     if columns[0] in metainfo:
         # check population
-        if metainfo[columns[0]][-1] < columns[14]:
+        if metainfo[columns[0]][-1] <= columns[14]:
             logger.warning('code already seen: %s', line)
             return None
         #else:

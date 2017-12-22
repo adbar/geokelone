@@ -8,5 +8,8 @@ omit =
 [report]
 exclude_lines =
     if __name__ == .__main__.:
-    except ImportError:
     continue
+    except KeyError:
+    except ImportError:
+    except IOError:
+    except UnicodeEncodeError:
