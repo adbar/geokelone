@@ -86,7 +86,7 @@ def test_data_validators():
     # assert data.validators.validate_mapdata({'place': 'test', 'lat': '20.5'}) is False
     assert data.validators.validate_mapdata(['47.003333', '11.5075', 'X', 'YY', '0', 'Brenner', 'NULL', 2]) is True
     assert data.validators.validate_mapdata(['AAA', '11.5075', 'X', 'YY', '0', 'Brenner', 'NULL', 2]) is False
-    assert data.validators.validate_mapdata(['47.003333', '11.5075', 'X', 'YY', '0', '000', 'NULL', 2]) is False
+    assert data.validators.validate_mapdata(['47.003333', '11.5075', 'X', 'YY', '0', '###', 'NULL', 2]) is False
     assert data.validators.validate_mapdata(['47.003333', '11.5075', 'X']) is False
 
     # load gazetteers
