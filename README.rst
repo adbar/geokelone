@@ -26,8 +26,137 @@ Current reference: Barbaresi, A. (2017). `Towards a toolbox to map historical te
     :backlinks: none
 
 
-Installation on Linux
+Usage of the toolchain
+----------------------
+
+
+Bootstrapped geographic databases
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Data helpers are included to derive geographic data from existing sources such as Geonames, Wikipedia or Wikidata (all under CC BY licenses), see for example Geonames with country codes:
+
+.. code-block:: python
+
+    >>> from geokelone import data
+    # decide countries for which Geonames information is downloaded
+    >>> countries = ['dk', 'fi'] # 2-letter tld-style country code
+    # go fetch the data
+    >>> codesdict, metainfo = data.geonames.fetchdata(countries)
+    # write files for further use
+    >>> data.geonames.writefile(codesdict, 'geonames-codes.dict')
+    >>> data.geonames.writefile(metainfo, 'geonames-meta.dict')
+
+
+Extraction, disambiguation and mapping
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This tutorial uses a file provided in the ``tests`` folder and the information gathered above to go from a tagged sentence to a map:
+
+.. code-block:: python
+
+    >>> from geokelone import data, geo, text
+    # read from a tagged text (one token per line)
+    >>> splitted = text.readfile.readtagged('tests/data/fontane-stechlin.tagged')
+    # load default gazetteer info (Geonames, see above)
+    >>> metainfo = data.load.geonames_meta('geonames-meta.dict')
+    >>> codesdict = data.load.geonames_codes('geonames-codes.dict', metainfo)
+    # search for place names and store a list of resolved toponyms with metadata
+    >>> results = geo.geocoding.search(splitted, codesdict, metainfo)
+    # write the results to a file
+    >>> text.outputcontrol.writefile('results.tsv', results, dict())
+    # load results from a file
+    >>> results = data.load.results_tsv('results.tsv')
+    # draw a map
+    >>> geo.mapping.draw_map('testmap.png', results)
+
+
+Step-by-step tutorial
 ---------------------
+
+Mapping
+~~~~~~~
+
+Requires a file containing results of a placename extraction. The minimal requirements are a toponym and coordinates, see the example file in the ``tests`` folder:
+
+.. code-block:: python
+    >>> from geokelone import data, geo
+    >>> results = data.load.results_tsv('tests/data/dummy-results.tsv')
+    # draw a map
+    >>> geo.mapping.draw_map('testmap1.png', results)
+
+The map window can be configured using the ``settings.py`` file.
+
+
+Extension and adaptation
+------------------------
+
+
+Special parameters
+~~~~~~~~~~~~~~~~~~
+
+Did you know there was a Jerusalem in Bavaria and a Leipzig in Ukraine?
+
+A series of parameters can be set to affect both search and visualization, see ``settings.py`` file.
+
+Allowed values for the filter level are ``MAXIMUM`` (conservative setting, recommended), ``MEDIUM`` and ``MINIMUM`` (better recall comes at a price).
+
+
+Why curate special registers or gazetteers?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Even with a touch of filtering, the token "Berlin" in Geonames resolves to a place north of Germany with a population of 0, see map below:
+
+.. image:: tests/example-wrong.png
+    :align: center
+    :alt: example
+
+
+Custom registers
+~~~~~~~~~~~~~~~~
+
+The helper function in ``data.load.load_tsv()`` allow for additional registers to match particular needs, with particular levels (0 to 3), for example:
+
+.. code-block:: python
+
+    >>> from geokelone import data
+    # read from a TSV-file with three columns: name, latitude, longitude
+    >>> customized = data.load.load_tsv('file-X.tsv')
+    # read from a CSV-file with optional level option (additional metadata)
+    # four columns expected: name, canonical name, latitude, longitude
+    >>> customized = data.load.load_csv('file-Y.csv', level=1)
+    >>> results = geo.geocoding.search(splitted, codesdict, metainfo, customized)
+
+
+Using information from Wikipedia/Wikidata
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The module includes helpers to navigate categories, for example the `World Heritage Sites in England <https://en.wikipedia.org/wiki/Category:World_Heritage_Sites_in_England>`_ or the `Cultural Landscapes of Japan <https://en.wikipedia.org/wiki/Category:Cultural_Landscapes_of_Japan>`_ and to fetch coordinates for a given list by querying Wikipedia.
+
+.. code-block:: python
+
+    >>> from geokelone.data import wikipedia
+    # chained operations for a list of categories
+    >>> wikipedia.process_todolist('mytodolist.txt', outputfile='solved.tsv', categories=True)
+    # discover entries in a category
+    >>> category_members = wikipedia.navigate_category('XYZ')
+    # process them one by one
+    >>> for member in category_members:
+    >>>     lat, lon = wikipedia.find_coordinates(member)
+    >>>     print(member, lat, lon)
+    # change language code for search (default is 'en')
+    >>> wikipedia.find_coordinates('Wien', language='de')
+    (48.208, 16.373)
+
+Integration
+~~~~~~~~~~~
+
+For language-independent solutions in the Python world, see `spacy <https://spacy.io/>`_ or `polyglot <https://github.com/aboSamoor/polyglot>`_.
+
+
+Installation
+------------
+
+The instructions below have been tested on Linux with several system settings (see ``.travis.yml`` file).
 
 Proj library
 ~~~~~~~~~~~~
@@ -78,109 +207,6 @@ Direct installation of the latest version over pip is possible (see `build statu
 -  ``pip3 install git+https://github.com/adbar/geokelone.git``
 
 
-Usage
------
-
-Bootstrapped geographic databases
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Data helpers are included to derive geographic data from existing sources such as Geonames, Wikipedia or Wikidata (all under CC BY licenses), see for example Geonames with country codes:
-
-.. code-block:: python
-
-    >>> from geokelone import data
-    # decide countries for which Geonames information is downloaded
-    >>> countries = ['dk', 'fi'] # 2-letter tld-style country code
-    # go fetch the data
-    >>> codesdict, metainfo = data.geonames.fetchdata(countries)
-    # write files for further use
-    >>> data.geonames.writefile(codesdict, 'geonames-codes.dict')
-    >>> data.geonames.writefile(metainfo, 'geonames-meta.dict')
-
-
-Extraction, disambiguation and mapping
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-    >>> from geokelone import data, geo, text
-    # read from a tagged text (one token per line)
-    >>> splitted = text.readfile.readtagged('tests/data/fontane-stechlin.tagged')
-    # load default gazetteer info (Geonames, see above)
-    >>> metainfo = data.load.geonames_meta('geonames-meta.dict')
-    >>> codesdict = data.load.geonames_codes('geonames-codes.dict', metainfo)
-    # search for place names and store a list of resolved toponyms with metadata
-    >>> results = geo.geocoding.search(splitted, codesdict, metainfo)
-    # write the results to a file
-    >>> text.outputcontrol.writefile('results.tsv', results, dict())
-    # load results from a file
-    >>> results = data.load.results_tsv('results.tsv')
-    # draw a map
-    >>> geo.mapping.draw_map('testmap.png', results)
-
-
-Special parameters
-~~~~~~~~~~~~~~~~~~
-
-Did you know there was a Jerusalem in Bavaria and a Leipzig in Ukraine?
-
-A series of parameters can be set to affect both search and visualization, see ``settings.py`` file.
-
-Allowed values for the filter level are ``MAXIMUM`` (conservative setting, recommended), ``MEDIUM`` and ``MINIMUM`` (better recall comes at a price).
-
-
-
-Gazetteers extension
---------------------
-
-
-Why curate special registers or gazetteers?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Even with a touch of filtering, the token "Berlin" in Geonames resolves to a place north of Germany with a population of 0, see map below:
-
-.. image:: tests/example-wrong.png
-    :align: center
-    :alt: example
-
-
-Custom registers
-~~~~~~~~~~~~~~~~
-
-The helper function in ``data.load.load_tsv()`` allow for additional registers to match particular needs, with particular levels (0 to 3), for example:
-
-.. code-block:: python
-
-    >>> from geokelone import data
-    # read from a TSV-file with three columns: name, latitude, longitude
-    >>> customized = data.load.load_tsv('file-X.tsv')
-    # read from a CSV-file with optional level option (additional metadata)
-    # four columns expected: name, canonical name, latitude, longitude
-    >>> customized = data.load.load_csv('file-Y.csv', level=1)
-    >>> results = geo.geocoding.search(splitted, codesdict, metainfo, customized)
-
-
-Using information from Wikipedia/Wikidata
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The module includes helpers to navigate categories, for example the `World Heritage Sites in England <https://en.wikipedia.org/wiki/Category:World_Heritage_Sites_in_England>`_ or the `Cultural Landscapes of Japan <https://en.wikipedia.org/wiki/Category:Cultural_Landscapes_of_Japan>`_ and to fetch coordinates for a given list by querying Wikipedia.
-
-.. code-block:: python
-
-    >>> from geokelone.data import wikipedia
-    # chained operations for a list of categories
-    >>> wikipedia.process_todolist('mytodolist.txt', outputfile='solved.tsv', categories=True)
-    # discover entries in a category
-    >>> category_members = wikipedia.navigate_category('XYZ')
-    # process them one by one
-    >>> for member in category_members:
-    >>>     lat, lon = wikipedia.find_coordinates(member)
-    >>>     print(member, lat, lon)
-    # change language code for search (default is 'en')
-    >>> wikipedia.find_coordinates('Wien', language='de')
-    (48.208, 16.373)
-
-
 TODO
 ----
 
@@ -191,22 +217,18 @@ TODO
 - documentation
 
 
-Integration
------------
-
-For a language-independent solution in the Python world, see `polyglot <https://github.com/aboSamoor/polyglot>`_.
-
-
 References
 ----------
 
 Uses of the code base so far:
 
-- Barbaresi, A. (2016). `Visualisierung von Ortsnamen im Deutschen Textarchiv <https://halshs.archives-ouvertes.fr/halshs-01287931/document>`_. In DHd 2016, pages 264-267. Digital Humanities im deutschprachigen Raum eV.
-- Barbaresi, A. and Biber, H. (2016). `Extraction and Visualization of Toponyms in Diachronic Text Corpora <https://hal.archives-ouvertes.fr/hal-01348696/document>`_. In Digital Humanities 2016, pages 732-734.
-- Barbaresi, A. (2017). `Toponyms as Entry Points into a Digital Edition: Mapping Die Fackel (1899-1936) <https://hal.archives-ouvertes.fr/hal-01591628/document>`_. In Digital Humanities 2017, pages 159-161.
+- Barbaresi, A. (2018). A constellation and a rhizome: two studies on toponyms in literary texts. In *Visual Linguistics*, Bubenhofer N. & Kupietz M. (Eds.), Heidelberg University Publishing, to appear.
+- Barbaresi, A. (2018). Placenames analysis in historical texts: tools, risks and side effects. In *Proceedings of the Second Workshop on Corpus-Based Research in the Humanities (CRH-2)*, Dept. of Geoinformation, TU Vienna, pages 25-34.
 - Barbaresi, A. (2017). `Towards a toolbox to map historical text collections <https://hal.archives-ouvertes.fr/hal-01654526/document>`_, *Proceedings of 11th Workshop on Geographic Information Retrieval*, ACM, Heidelberg.
-- Barbaresi A. (2018). A constellation and a rhizome: two studies on toponyms in literary texts. In *Visual Linguistics*, Bubenhofer N. & Kupietz M. (Eds.), Heldelberg University Publishing, to appear.
+- Barbaresi, A. (2017). `Toponyms as Entry Points into a Digital Edition: Mapping Die Fackel (1899-1936) <https://hal.archives-ouvertes.fr/hal-01591628/document>`_. In Digital Humanities 2017, pages 159-161.
+- Barbaresi, A. and Biber, H. (2016). `Extraction and Visualization of Toponyms in Diachronic Text Corpora <https://hal.archives-ouvertes.fr/hal-01348696/document>`_. In Digital Humanities 2016, pages 732-734.
+- Barbaresi, A. (2016). `Visualisierung von Ortsnamen im Deutschen Textarchiv <https://halshs.archives-ouvertes.fr/halshs-01287931/document>`_. In DHd 2016, pages 264-267. Digital Humanities im deutschprachigen Raum eV.
+
 
 
 Additional info
