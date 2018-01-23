@@ -35,7 +35,7 @@ before_install:
   - sudo apt-get install python3-shapely python3-gdal python3-pyproj
   # - pip install -U cairocffi GDAL matplotlib pyproj shapely
   # - pip install cartopy
-  - pip install -U codecov tox
+  - pip install -U Cython codecov tox
 
 install:
   - pwd
