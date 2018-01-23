@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from matplotlib.transforms import offset_copy
 # import numpy as np
 
-# from adjustText import adjust_text # https://github.com/Phlya/adjustText/
+from adjustText import adjust_text # https://github.com/Phlya/adjustText/
 
 # custom
 from .. import settings
@@ -45,8 +45,8 @@ def draw_map(filename, results, withlabels=True):
     """
     Place points/lines on a map and save it in a file.
     """
+
     fig = plt.figure()
-    # texts = list()
 
     ax = fig.add_subplot(1, 1, 1, projection=ccrs.Mollweide(central_longitude=0, globe=None))
 
@@ -104,16 +104,65 @@ def draw_map(filename, results, withlabels=True):
             text_transform = offset_copy(geodetic_transform, x=xval, y=yval, units='dots')
             ax.text(lon, lat, pname, verticalalignment=ychoice, horizontalalignment=xchoice, transform=text_transform, fontsize=5, wrap=True,) #  zorder=i
 
-            # texts.append(ax.text(lon, lat, pname, fontsize=5, transform=text_transform,)) #  wrap=True
             # text_transform = offset_copy(geodetic_transform, units='dots', x=-10) # x=-25
             # ax.text(lon, lat, pname, verticalalignment='center', horizontalalignment='right', transform=text_transform, fontsize=5)
             # bbox=dict(facecolor='sandybrown', alpha=0.5, boxstyle='round')
-
         i += 1
 
     # ax.coastlines(resolution='50m', color='black', linewidth=0.5)
 
+    plt.savefig(filename, dpi=300)
+
+
+
+def draw_adjusted_map(filename, results):
+
+    fig = plt.figure()
+
+    ax = fig.add_subplot(1, 1, 1, projection=ccrs.Mollweide(central_longitude=0, globe=None))
+
+    if settings.FIXED_FRAME is True:
+        ax.set_extent([settings.WESTMOST, settings.EASTMOST, settings.SOUTHMOST, settings.NORTHMOST])
+    else:
+        logger.error('flexible framing not implemented yet')
+
+    texts = list()
+    i = 1
+
+    for item in results:
+        if validators.validate_mapdata(results[item]) is True:
+            # unused: country, ptype, something, somethingelse
+            if len(results[item]) != 8:
+                print(results[item])
+                continue
+            lat, lon, _, _, _, pname, _, occurrences = results[item]
+            lat = float(lat)
+            lon = float(lon)
+            logger.info('projecting: %s %s %s', pname, lat, lon)
+        else:
+            logger.warning('problem with entry: %s', item)
+            continue
+
+        # point
+        ax.plot(lon, lat, marker='o', color='green', markersize=2, alpha=0.5, transform=ccrs.Geodetic())
+
+        texts.append(ax.text(lon, lat, pname, fontsize=5, wrap=True)) #  wrap=True # , transform=text_transform,
+
+        geodetic_transform = ccrs.Geodetic()._as_mpl_transform(ax)
+
+        # text_transform = offset_copy(geodetic_transform, units='dots', x=-10)
+
+        # ax.text(lon, lat, pname, verticalalignment=ychoice, horizontalalignment=xchoice, transform=text_transform, fontsize=5, wrap=True,) #  zorder=i
+        i += 1
+
+
     # adjust_text(texts, force_points=0.2, force_text=0.2, expand_points=(1,1), expand_text=(1,1), arrowprops=dict(arrowstyle="-", color='black', lw=0.5, alpha=0.5))
+    adjust_text(texts)
     # logger.debug(adjust_text(texts))
 
+    ax.coastlines(resolution='50m', color='black', linewidth=0.5)
+
     plt.savefig(filename, dpi=300)
+
+
+
