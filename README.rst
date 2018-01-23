@@ -26,7 +26,7 @@ Current reference: Barbaresi, A. (2017). `Towards a toolbox to map historical te
     :backlinks: none
 
 
-Usage of the toolchain
+Usage as a toolchain
 ----------------------
 
 
@@ -70,8 +70,8 @@ This tutorial uses a file provided in the ``tests`` folder and the information g
     >>> geo.mapping.draw_map('testmap.png', results)
 
 
-Step-by-step tutorial
----------------------
+Usage of single components
+--------------------------
 
 Mapping
 ~~~~~~~
@@ -79,9 +79,9 @@ Mapping
 Requires a file containing results of a placename extraction. The minimal requirements are a toponym and coordinates, see the example file in the ``tests`` folder:
 
 .. code-block:: python
+
     >>> from geokelone import data, geo
     >>> results = data.load.results_tsv('tests/data/dummy-results.tsv')
-    # draw a map
     >>> geo.mapping.draw_map('testmap1.png', results)
 
 The map window can be configured using the ``settings.py`` file.
@@ -207,8 +207,16 @@ Direct installation of the latest version over pip is possible (see `build statu
 -  ``pip3 install git+https://github.com/adbar/geokelone.git``
 
 
+
+Additional info
+---------------
+
+Why *geokelone*? `Because <https://en.wikipedia.org/wiki/Geochelone>`_.
+
+**Work in progress**, see legacy page for more information: `<https://github.com/adbar/toponyms>`_
+
 TODO
-----
+~~~~
 
 - provide map configuration
 - integrate named entity recognition tool from Python repositories
@@ -218,22 +226,13 @@ TODO
 
 
 References
-----------
+~~~~~~~~~~
 
 Uses of the code base so far:
 
 - Barbaresi, A. (2018). A constellation and a rhizome: two studies on toponyms in literary texts. In *Visual Linguistics*, Bubenhofer N. & Kupietz M. (Eds.), Heidelberg University Publishing, to appear.
 - Barbaresi, A. (2018). Placenames analysis in historical texts: tools, risks and side effects. In *Proceedings of the Second Workshop on Corpus-Based Research in the Humanities (CRH-2)*, Dept. of Geoinformation, TU Vienna, pages 25-34.
 - Barbaresi, A. (2017). `Towards a toolbox to map historical text collections <https://hal.archives-ouvertes.fr/hal-01654526/document>`_, *Proceedings of 11th Workshop on Geographic Information Retrieval*, ACM, Heidelberg.
-- Barbaresi, A. (2017). `Toponyms as Entry Points into a Digital Edition: Mapping Die Fackel (1899-1936) <https://hal.archives-ouvertes.fr/hal-01591628/document>`_. In Digital Humanities 2017, pages 159-161.
-- Barbaresi, A. and Biber, H. (2016). `Extraction and Visualization of Toponyms in Diachronic Text Corpora <https://hal.archives-ouvertes.fr/hal-01348696/document>`_. In Digital Humanities 2016, pages 732-734.
-- Barbaresi, A. (2016). `Visualisierung von Ortsnamen im Deutschen Textarchiv <https://halshs.archives-ouvertes.fr/halshs-01287931/document>`_. In DHd 2016, pages 264-267. Digital Humanities im deutschprachigen Raum eV.
-
-
-
-Additional info
----------------
-
-Why *geokelone*? `Because <https://en.wikipedia.org/wiki/Geochelone>`_.
-
-**Work in progress**, see legacy page for more information: `<https://github.com/adbar/toponyms>`_
+- Barbaresi, A. (2017). `Toponyms as Entry Points into a Digital Edition: Mapping Die Fackel (1899-1936) <https://hal.archives-ouvertes.fr/hal-01591628/document>`_. In Digital Humanities 2017: Book of Abstracts, pages 159-161.
+- Barbaresi, A. and Biber, H. (2016). `Extraction and Visualization of Toponyms in Diachronic Text Corpora <https://hal.archives-ouvertes.fr/hal-01348696/document>`_. In Digital Humanities 2016: Book of Abstracts, pages 732-734.
+- Barbaresi, A. (2016). `Visualisierung von Ortsnamen im Deutschen Textarchiv <https://halshs.archives-ouvertes.fr/halshs-01287931/document>`_. In Proceedings of DHd 2016. Digital Humanities im deutschprachigen Raum eV. pages 264-267.
