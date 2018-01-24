@@ -158,6 +158,11 @@ Installation
 
 The instructions below have been tested on Linux with several system settings (see ``.travis.yml`` file).
 
+The cartographic components may need to be installed separately, for detailed instructions please refer to the Cartopy `documentation <http://scitools.org.uk/cartopy/docs/latest/installing.html#installing>`_.
+
+Unofficial Windows binaries for Python packages are `available here <https://www.lfd.uci.edu/~gohlke/pythonlibs/>`_.
+
+
 Proj library
 ~~~~~~~~~~~~
 
@@ -197,7 +202,6 @@ Finally, *cartopy* can be installed:
 - ``pip3 install cartopy``
 - or on newer systems: ``apt-get install python3-cartopy`` cf `<https://packages.ubuntu.com/source/zesty/python-cartopy>`_
 - or see here: `<http://scitools.org.uk/cartopy/docs/latest/installing.html#installing>`_
-
 
 Install this package
 ~~~~~~~~~~~~~~~~~~~~
