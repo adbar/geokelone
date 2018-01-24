@@ -127,6 +127,7 @@ def draw_adjusted_map(filename, results):
         logger.error('flexible framing not implemented yet')
 
     texts = list()
+    # geodetic_transform = ccrs.Geodetic()._as_mpl_transform(ax)
     i = 1
 
     for item in results:
@@ -146,23 +147,16 @@ def draw_adjusted_map(filename, results):
         # point
         ax.plot(lon, lat, marker='o', color='green', markersize=2, alpha=0.5, transform=ccrs.Geodetic())
 
-        texts.append(ax.text(lon, lat, pname, fontsize=5, wrap=True)) #  wrap=True # , transform=text_transform,
+        # text_transform = offset_copy(geodetic_transform, units='dots', x=10) #
+        # ax.text(lon, lat, pname, fontsize=5, transform=text_transform) # works
+        texts.append(ax.text(lon, lat, pname, size=5)) # doesn't work
 
-        geodetic_transform = ccrs.Geodetic()._as_mpl_transform(ax)
-
-        # text_transform = offset_copy(geodetic_transform, units='dots', x=-10)
-
-        # ax.text(lon, lat, pname, verticalalignment=ychoice, horizontalalignment=xchoice, transform=text_transform, fontsize=5, wrap=True,) #  zorder=i
         i += 1
 
+    print(texts)
+    adjust_text(texts, force_points=0.2, force_text=0.2, expand_points=(1,1), expand_text=(1,1), arrowprops=dict(arrowstyle="-", color='black', lw=0.5, alpha=0.5))
+    # adjust_text(texts) # logger.debug(adjust_text(texts))
 
-    # adjust_text(texts, force_points=0.2, force_text=0.2, expand_points=(1,1), expand_text=(1,1), arrowprops=dict(arrowstyle="-", color='black', lw=0.5, alpha=0.5))
-    adjust_text(texts)
-    # logger.debug(adjust_text(texts))
-
-    ax.coastlines(resolution='50m', color='black', linewidth=0.5)
+    # ax.coastlines(resolution='50m', color='black', linewidth=0.5)
 
     plt.savefig(filename, dpi=300)
-
-
-
