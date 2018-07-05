@@ -28,6 +28,10 @@ DATEBOOL = False
 LOCALE = 'de_DE.UTF-8'
 
 DISAMBIGUATION_SETTING = { \
+    'Berlin': { \
+        'vicinity': set(['AT', 'BE', 'CH', 'CZ', 'DK', 'FR', 'LU', 'NL', 'PL']), \
+        'reference': (float(52.51861111), float(13.40833333)),
+        }, \
     'Vienna': { \
         'vicinity': set(['AT', 'BA', 'BG', 'CH', 'CZ', 'DE', 'HR', 'HU', 'IT', 'PL', 'RS', 'RU', 'SI', 'SK', 'UA']), \
         'reference': (float(48.2082), float(16.37169)), \
@@ -48,3 +52,5 @@ EASTMOST = 25
 WESTMOST = 2.5 # for Europe: -10
 NORTHMOST = 62.5 # for Europe: 65
 SOUTHMOST = 42.5 # for Europe: 35
+
+FEATURE_SCALE = '110m'

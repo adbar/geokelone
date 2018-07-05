@@ -50,7 +50,7 @@ def store_variants(expanded, columns, level):
     # init
     dic = dict()
     canonical = expanded[0]
-    lat, lon = columns[-1], columns[-2]
+    lat, lon = columns[-2], columns[-1]
     # logger.debug('%s %s %s %s', canonical, expanded, columns, level)
     # loop
     for variant in expanded:

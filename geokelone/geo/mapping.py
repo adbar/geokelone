@@ -41,47 +41,75 @@ logger = logging.getLogger(__name__)
 
 
 
-def draw_map(filename, results, withlabels=True):
+
+
+def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_SCALE, relative_markersize=False):
     """
     Place points/lines on a map and save it in a file.
     """
 
     fig = plt.figure()
-
     ax = fig.add_subplot(1, 1, 1, projection=ccrs.Mollweide(central_longitude=0, globe=None))
+    map_boundaries = [settings.WESTMOST, settings.EASTMOST, settings.SOUTHMOST, settings.NORTHMOST]
 
     if settings.FIXED_FRAME is True:
-        ax.set_extent([settings.WESTMOST, settings.EASTMOST, settings.SOUTHMOST, settings.NORTHMOST])
+        ax.set_extent(map_boundaries)
     else:
         logger.error('flexible framing not implemented yet')
 
     # ax.gridlines()
-    ax.add_feature(cfeature.OCEAN)
-    ax.add_feature(cfeature.LAND)
-    # ax.add_feature(cfeature.BORDERS)
-    ax.add_feature(cfeature.COASTLINE)
+    ocean_feature = cfeature.NaturalEarthFeature('physical', 'ocean', feature_scale, edgecolor='face', facecolor=cfeature.COLORS['water'])
+    land_feature = cfeature.NaturalEarthFeature('physical', 'land', feature_scale, edgecolor='face', facecolor=cfeature.COLORS['land']) # land_alt1
+    #coastline_feature = cfeature.NaturalEarthFeature('physical', 'coastline', feature_scale, edgecolor='black', facecolor=None)
+    ax.add_feature(ocean_feature)
+    ax.add_feature(land_feature, alpha=1)
+    #ax.add_feature(coastline_feature, alpha=0.1)
+
+    #ax.add_feature(cfeature.OCEAN)
+    #ax.add_feature(cfeature.LAND)
+    ## ax.add_feature(cfeature.BORDERS)
+    #ax.add_feature(cfeature.COASTLINE)
 
     i = 1
 
+    # proportional
+    # maxval = 0
+    # if relative_markersize is True:
+    occs = list()
     for item in results:
-        if validators.validate_mapdata(results[item]) is True:
+        _, _, _, _, _, _, _, occurrences = results[item]
+        occs.append(occurrences)
+    maxval = max(occs)
+            
+
+    for item in results:
+        if validators.validate_mapdata(results[item], map_boundaries) is True:
             # unused: country, ptype, something, somethingelse
             if len(results[item]) != 8:
-                print(results[item])
+                logger.error('bad format for result: %', results[item])
                 continue
             lat, lon, _, _, _, pname, _, occurrences = results[item]
             lat = float(lat)
             lon = float(lon)
             logger.info('projecting: %s %s %s', pname, lat, lon)
         else:
-            logger.warning('problem with entry: %s', item)
+            # logger.warning('problem with entry: %s', item)
             continue
 
         # point
-        ax.plot(lon, lat, marker='o', color='green', markersize=2, alpha=0.5, transform=ccrs.Geodetic())
+        # proportional size
+        prcfreq = (occurrences/maxval)*100
+        normfreq = prcfreq/10
+        if relative_markersize is False:
+            msize = 2
+        else:
+            msize = normfreq
+        # draw
+        ax.plot(lon, lat, marker='o', color='green', markersize=msize, alpha=0.5, transform=ccrs.Geodetic())
+        # markersize=2
 
         # text
-        if withlabels is True:
+        if withlabels is True and prcfreq > 20:
             geodetic_transform = ccrs.Geodetic()._as_mpl_transform(ax)
             xchoice = random.choice(['left', 'center', 'right']) # random.choice(['left', 'center', 'right'])
             if xchoice == 'left':
@@ -102,7 +130,7 @@ def draw_map(filename, results, withlabels=True):
             logger.debug('%s %s %s %s', xchoice, xval, ychoice, yval)
 
             text_transform = offset_copy(geodetic_transform, x=xval, y=yval, units='dots')
-            ax.text(lon, lat, pname, verticalalignment=ychoice, horizontalalignment=xchoice, transform=text_transform, fontsize=5, wrap=True,) #  zorder=i
+            ax.text(lon, lat, pname, verticalalignment=ychoice, horizontalalignment=xchoice, transform=text_transform, fontsize=4, wrap=True,) #  zorder=i
 
             # text_transform = offset_copy(geodetic_transform, units='dots', x=-10) # x=-25
             # ax.text(lon, lat, pname, verticalalignment='center', horizontalalignment='right', transform=text_transform, fontsize=5)

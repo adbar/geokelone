@@ -64,7 +64,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'adjustText',
-        'cartopy == 0.15.1',
+        'cartopy == 0.16.0',
         'cairocffi',
         'exrex',
         'matplotlib >= 2.1.0',

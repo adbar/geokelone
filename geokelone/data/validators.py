@@ -151,7 +151,7 @@ def validate_latlon(lat, lon):
         return False
 
 
-def validate_mapdata(dicentry):
+def validate_mapdata(dicentry, map_boundaries):
     """
     Validate metadata imported from registries.
     """
@@ -176,7 +176,14 @@ def validate_mapdata(dicentry):
         logger.warning('malformed coordinates: %s %s', dicentry[1], dicentry[2])
         return False
     # return validate_latlon(dicentry['lat'], dicentry['lon'])
-    return validate_latlon(lat, lon)
+    if validate_latlon(lat, lon) is False:
+        logger.warning('problem with coordinates: %s %s', dicentry[1], dicentry[2])
+        return False
+    if not map_boundaries[0] < lon < map_boundaries[1] or not map_boundaries[2] < lat < map_boundaries[3]:
+        logger.warning('off map, discarding entry: %s %s %s', dicentry[0], dicentry[1], dicentry[2])
+        return False
+    return True
+    
 
 
 def validate_result(columns):

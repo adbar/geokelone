@@ -24,7 +24,6 @@ reference = settings.DISAMBIGUATION_SETTING[settings.STANDARD_SETTING]['referenc
 i = 0
 results = dict()
 common_names = set() # use wikt-to-dict
-stoplist = set()
 lines = list()
 lastcountry = ''
 pair = list()
@@ -132,20 +131,21 @@ def disambiguate(candidates, step, metainfo):
             return best_ones[0]
 
 
-def geofind(name, codesdict, metainfo, custom_lists):
+def geofind(name, codesdict, metainfo, custom_lists, stoplist):
     """
     Find the token(s) in the gazzetteer(s)
     """
+    # condition to examine
+    if len(name) <= settings.MINLENGTH or not name[0].isupper() or name in stoplist:
+        return False
+
     # selected lists first
     if custom_lists is not None:
         stop_search = selected_lists(name, custom_lists)
         if stop_search is True:
             # return "found"
+            # store_result() # already performed above
             return True
-
-    # condition to examine
-    if len(name) <= settings.MINLENGTH or not name[0].isupper() or name in stoplist:
-        return False
 
     # check
     if name not in codesdict:
@@ -292,7 +292,7 @@ def selected_lists(name, dic):
     return False
 
 
-def search(searchlist, codesdict, metainfo, custom_lists=None):
+def search(searchlist, codesdict, metainfo, custom_lists=dict(), stoplist=dict()):
     """
     Geocoding: search if valid place name and assign coordinates.
     """
@@ -351,15 +351,15 @@ def search(searchlist, codesdict, metainfo, custom_lists=None):
         ## analyze sliding window first, then token if necessary
         # longest chain first
         if slide3.count(' ') == 2:
-            stop_search = geofind(slide3, codesdict, metainfo, custom_lists)
+            stop_search = geofind(slide3, codesdict, metainfo, custom_lists, stoplist)
         # longest chain first
         if stop_search is False and slide2.count(' ') == 1:
-            stop_search = geofind(slide2, codesdict, metainfo, custom_lists)
+            stop_search = geofind(slide2, codesdict, metainfo, custom_lists, stoplist)
         # just one token, if nothing has been found
         if stop_search is False:
              # dict check before
             if token not in common_names and token.lower() not in common_names:
-                stop_search = geofind(token, codesdict, metainfo, custom_lists)
+                stop_search = geofind(token, codesdict, metainfo, custom_lists, stoplist)
             # TODO: frequency threshold? (tokens[token]/numtokens) < threshold
 
         # final check whether to keep the multi-word scan running
