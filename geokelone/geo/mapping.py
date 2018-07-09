@@ -27,8 +27,9 @@ logger = logging.getLogger(__name__)
 
 
 ## TODO:
-# points types
-# ..
+# points types -- colors
+# settings vs. args
+# 
 # http://scitools.org.uk/cartopy/docs/latest/matplotlib/feature_interface.html
 # http://scitools.org.uk/cartopy/docs/latest/matplotlib/intro.html?highlight=ccrs%20geodetic
 # http://scitools.org.uk/cartopy/docs/latest/gallery.html
@@ -43,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 
 
-def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_SCALE, relative_markersize=False, adjusted_text=False):
+def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_SCALE, relative_markersize=False, adjusted_text=False, simple_map=False):
     """
     Place points/lines on a map and save it in a file.
     """
@@ -58,17 +59,20 @@ def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_
         logger.error('flexible framing not implemented yet')
 
     # ax.gridlines()
-    ocean_feature = cfeature.NaturalEarthFeature('physical', 'ocean', feature_scale, edgecolor='face', facecolor=cfeature.COLORS['water'])
-    land_feature = cfeature.NaturalEarthFeature('physical', 'land', feature_scale, edgecolor='face', facecolor=cfeature.COLORS['land']) # land_alt1
-    #coastline_feature = cfeature.NaturalEarthFeature('physical', 'coastline', feature_scale, edgecolor='black', facecolor=None)
-    ax.add_feature(ocean_feature)
-    ax.add_feature(land_feature, alpha=1)
-    #ax.add_feature(coastline_feature, alpha=0.1)
 
-    #ax.add_feature(cfeature.OCEAN)
-    #ax.add_feature(cfeature.LAND)
-    ## ax.add_feature(cfeature.BORDERS)
-    #ax.add_feature(cfeature.COASTLINE)
+    if simple_map is False:
+        ocean_feature = cfeature.NaturalEarthFeature('physical', 'ocean', feature_scale, edgecolor='face', facecolor=cfeature.COLORS['water'])
+        land_feature = cfeature.NaturalEarthFeature('physical', 'land', feature_scale, edgecolor='face', facecolor=cfeature.COLORS['land']) # land_alt1
+        #coastline_feature = cfeature.NaturalEarthFeature('physical', 'coastline', feature_scale, edgecolor='black', facecolor=None)
+        ax.add_feature(ocean_feature)
+        ax.add_feature(land_feature, alpha=1)
+        #ax.add_feature(coastline_feature, alpha=0.1)
+    # simpler contours
+    else:
+        ax.add_feature(cfeature.OCEAN)
+        ax.add_feature(cfeature.LAND)
+        ## ax.add_feature(cfeature.BORDERS)
+        ax.add_feature(cfeature.COASTLINE)
 
     i = 1
     texts = list()
@@ -110,12 +114,12 @@ def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_
         # markersize=2
 
         # text
-        if withlabels is True and prcfreq > 13:
+        if withlabels is True and prcfreq > 5: # was 13
             geodetic_transform = ccrs.Geodetic()._as_mpl_transform(ax)
 
             # text adjustment is experimental
             if adjusted_text is True:
-                texts.append(ax.text(lon, lat, pname, fontsize=4, wrap=True,)) # transform=text_transform, wrap=True,
+                texts.append(ax.text(lon, lat, pname, fontsize=4, transform=ccrs.Geodetic())) # transform=text_transform, wrap=True
             # normal case
             else:
                 xchoice = random.choice(['left', 'center', 'right']) # random.choice(['left', 'center', 'right'])
@@ -149,7 +153,8 @@ def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_
     # proceed at the end
     if adjusted_text is True:
         print(texts)
-        adjust_text(texts, force_points=0.2, force_text=0.2, expand_points=(1,1), expand_text=(1,1), arrowprops=dict(arrowstyle="-", color='black', lw=0.5, alpha=0.5), save_steps=True, save_prefix='step', save_format='png',)
+        # adjust_text(texts, force_points=0.2, force_text=0.2, expand_points=(1,1), expand_text=(1,1), arrowprops=dict(arrowstyle="-", color='black', lw=0.5, alpha=0.5), save_steps=True, save_prefix='step', save_format='png',)
+        adjust_text(texts,) # save_steps=True, save_prefix='step', save_format='png',
 
     # finish
     plt.savefig(filename, dpi=300)
