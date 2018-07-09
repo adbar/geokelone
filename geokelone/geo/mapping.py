@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 
 
-def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_SCALE, relative_markersize=False):
+def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_SCALE, relative_markersize=False, adjusted_text=False):
     """
     Place points/lines on a map and save it in a file.
     """
@@ -71,6 +71,7 @@ def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_
     #ax.add_feature(cfeature.COASTLINE)
 
     i = 1
+    texts = list()
 
     # proportional
     # maxval = 0
@@ -99,7 +100,7 @@ def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_
         # point
         # proportional size
         prcfreq = (occurrences/maxval)*100
-        normfreq = prcfreq/10
+        normfreq = prcfreq/4 # was 10
         if relative_markersize is False:
             msize = 2
         else:
@@ -109,82 +110,46 @@ def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_
         # markersize=2
 
         # text
-        if withlabels is True and prcfreq > 20:
+        if withlabels is True and prcfreq > 13:
             geodetic_transform = ccrs.Geodetic()._as_mpl_transform(ax)
-            xchoice = random.choice(['left', 'center', 'right']) # random.choice(['left', 'center', 'right'])
-            if xchoice == 'left':
-                xval = -30
-            elif xchoice == 'center':
-                xval = random.choice([-5, 5])
-            elif xchoice == 'right':
-                xval = 30
-            ychoice = random.choice(['bottom', 'center', 'top']) # random.choice(['bottom', 'center', 'top'])
-            if ychoice == 'bottom':
-                yval = -30
-            elif ychoice == 'center':
-                yval = random.choice([-5, 5])
-            elif ychoice == 'top':
-                yval = 30
-            #xval = random.randint(-20, 20)
-            #yval = random.randint(-20, 20)
-            logger.debug('%s %s %s %s', xchoice, xval, ychoice, yval)
 
-            text_transform = offset_copy(geodetic_transform, x=xval, y=yval, units='dots')
-            ax.text(lon, lat, pname, verticalalignment=ychoice, horizontalalignment=xchoice, transform=text_transform, fontsize=4, wrap=True,) #  zorder=i
+            # text adjustment is experimental
+            if adjusted_text is True:
+                texts.append(ax.text(lon, lat, pname, fontsize=4, wrap=True,)) # transform=text_transform, wrap=True,
+            # normal case
+            else:
+                xchoice = random.choice(['left', 'center', 'right']) # random.choice(['left', 'center', 'right'])
+                if xchoice == 'left':
+                    xval = -30
+                elif xchoice == 'center':
+                    xval = random.choice([-5, 5])
+                elif xchoice == 'right':
+                    xval = 30
+                ychoice = random.choice(['bottom', 'center', 'top']) # random.choice(['bottom', 'center', 'top'])
+                if ychoice == 'bottom':
+                    yval = -30
+                elif ychoice == 'center':
+                    yval = random.choice([-5, 5])
+                elif ychoice == 'top':
+                    yval = 30
+                #xval = random.randint(-20, 20)
+                #yval = random.randint(-20, 20)
+                logger.debug('%s %s %s %s', xchoice, xval, ychoice, yval)
+                text_transform = offset_copy(geodetic_transform, x=xval, y=yval, units='dots')
+                ax.text(lon, lat, pname, verticalalignment=ychoice, horizontalalignment=xchoice, transform=text_transform, fontsize=4, wrap=True,) #  zorder=i
 
             # text_transform = offset_copy(geodetic_transform, units='dots', x=-10) # x=-25
             # ax.text(lon, lat, pname, verticalalignment='center', horizontalalignment='right', transform=text_transform, fontsize=5)
             # bbox=dict(facecolor='sandybrown', alpha=0.5, boxstyle='round')
+
         i += 1
 
     # ax.coastlines(resolution='50m', color='black', linewidth=0.5)
 
-    plt.savefig(filename, dpi=300)
+    # proceed at the end
+    if adjusted_text is True:
+        print(texts)
+        adjust_text(texts, force_points=0.2, force_text=0.2, expand_points=(1,1), expand_text=(1,1), arrowprops=dict(arrowstyle="-", color='black', lw=0.5, alpha=0.5), save_steps=True, save_prefix='step', save_format='png',)
 
-
-
-def draw_adjusted_map(filename, results):
-
-    fig = plt.figure()
-
-    ax = fig.add_subplot(1, 1, 1, projection=ccrs.Mollweide(central_longitude=0, globe=None))
-
-    if settings.FIXED_FRAME is True:
-        ax.set_extent([settings.WESTMOST, settings.EASTMOST, settings.SOUTHMOST, settings.NORTHMOST])
-    else:
-        logger.error('flexible framing not implemented yet')
-
-    texts = list()
-    # geodetic_transform = ccrs.Geodetic()._as_mpl_transform(ax)
-    i = 1
-
-    for item in results:
-        if validators.validate_mapdata(results[item]) is True:
-            # unused: country, ptype, something, somethingelse
-            if len(results[item]) != 8:
-                print(results[item])
-                continue
-            lat, lon, _, _, _, pname, _, occurrences = results[item]
-            lat = float(lat)
-            lon = float(lon)
-            logger.info('projecting: %s %s %s', pname, lat, lon)
-        else:
-            logger.warning('problem with entry: %s', item)
-            continue
-
-        # point
-        ax.plot(lon, lat, marker='o', color='green', markersize=2, alpha=0.5, transform=ccrs.Geodetic())
-
-        # text_transform = offset_copy(geodetic_transform, units='dots', x=10) #
-        # ax.text(lon, lat, pname, fontsize=5, transform=text_transform) # works
-        texts.append(ax.text(lon, lat, pname, size=5)) # doesn't work
-
-        i += 1
-
-    print(texts)
-    adjust_text(texts, force_points=0.2, force_text=0.2, expand_points=(1,1), expand_text=(1,1), arrowprops=dict(arrowstyle="-", color='black', lw=0.5, alpha=0.5))
-    # adjust_text(texts) # logger.debug(adjust_text(texts))
-
-    # ax.coastlines(resolution='50m', color='black', linewidth=0.5)
-
+    # finish
     plt.savefig(filename, dpi=300)
