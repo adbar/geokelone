@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 ## TODO:
 # points types -- colors
 # settings vs. args
-# 
+# LogNorm size https://matplotlib.org/api/_as_gen/matplotlib.colors.LogNorm.html#matplotlib.colors.LogNorm
 # http://scitools.org.uk/cartopy/docs/latest/matplotlib/feature_interface.html
 # http://scitools.org.uk/cartopy/docs/latest/matplotlib/intro.html?highlight=ccrs%20geodetic
 # http://scitools.org.uk/cartopy/docs/latest/gallery.html
@@ -41,10 +41,10 @@ logger = logging.getLogger(__name__)
 # projection=ccrs.LambertConformal(central_longitude=central_longitude, standard_parallels=standard_parallels))
 
 
+POINT_COLORS = {0: 'brown', 1: 'yellow', 2: 'orange', 3: 'olive', 4: 'blue',}
 
 
-
-def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_SCALE, relative_markersize=False, adjusted_text=False, simple_map=False):
+def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_SCALE, relative_markersize=False, adjusted_text=False, simple_map=False, colored=False):
     """
     Place points/lines on a map and save it in a file.
     """
@@ -93,7 +93,7 @@ def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_
             if len(results[item]) != 8:
                 logger.error('bad format for result: %', results[item])
                 continue
-            lat, lon, _, _, _, pname, _, occurrences = results[item]
+            lat, lon, ptype, _, _, pname, _, occurrences = results[item]
             lat = float(lat)
             lon = float(lon)
             logger.info('projecting: %s %s %s', pname, lat, lon)
@@ -109,8 +109,19 @@ def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_
             msize = 2
         else:
             msize = normfreq
+
+        # colors
+        ## default
+        if colored is False:
+            pcolor = 'green'
+        else:
+            if ptype in POINT_COLORS:
+                pcolor = POINT_COLORS[ptype]
+            else:
+                pcolor = 'green'
+
         # draw
-        ax.plot(lon, lat, marker='o', color='green', markersize=msize, alpha=0.5, transform=ccrs.Geodetic())
+        ax.plot(lon, lat, marker='o', color=pcolor, markersize=msize, alpha=0.5, transform=ccrs.Geodetic())
         # markersize=2
 
         # text
