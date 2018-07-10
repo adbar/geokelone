@@ -234,9 +234,9 @@ References
 
 Uses of the code base so far:
 
-- Barbaresi, A. (2018). A constellation and a rhizome: two studies on toponyms in literary texts. In *Visual Linguistics*, Bubenhofer N. & Kupietz M. (Eds.), Heidelberg University Publishing, to appear.
-- Barbaresi, A. (2018). Placenames analysis in historical texts: tools, risks and side effects. In *Proceedings of the Second Workshop on Corpus-Based Research in the Humanities (CRH-2)*, Dept. of Geoinformation, TU Vienna, pages 25-34.
+- Barbaresi, A. (2018). `A constellation and a rhizome: two studies on toponyms in literary texts <https://hal.archives-ouvertes.fr/hal-01775127/document>`_. In *Visual Linguistics*, Bubenhofer N. & Kupietz M. (Eds.), Heidelberg University Publishing, pp. 167-184.
+- Barbaresi, A. (2018). `Toponyms as Entry Points into a Digital Edition: Mapping Die Fackel <https://hal.archives-ouvertes.fr/hal-01775122/document>`_. *Open Information Science*, 2(1), De Gruyter, pp.23-33.
+- Barbaresi, A. (2018). `Placenames analysis in historical texts: tools, risks and side effects <https://hal.archives-ouvertes.fr/hal-01775119/document>`_. In *Proceedings of the Second Workshop on Corpus-Based Research in the Humanities (CRH-2)*, Dept. of Geoinformation, TU Vienna, pp. 25-34.
 - Barbaresi, A. (2017). `Towards a toolbox to map historical text collections <https://hal.archives-ouvertes.fr/hal-01654526/document>`_, *Proceedings of 11th Workshop on Geographic Information Retrieval*, ACM, Heidelberg.
-- Barbaresi, A. (2017). `Toponyms as Entry Points into a Digital Edition: Mapping Die Fackel (1899-1936) <https://hal.archives-ouvertes.fr/hal-01591628/document>`_. In Digital Humanities 2017: Book of Abstracts, pages 159-161.
-- Barbaresi, A. and Biber, H. (2016). `Extraction and Visualization of Toponyms in Diachronic Text Corpora <https://hal.archives-ouvertes.fr/hal-01348696/document>`_. In Digital Humanities 2016: Book of Abstracts, pages 732-734.
-- Barbaresi, A. (2016). `Visualisierung von Ortsnamen im Deutschen Textarchiv <https://halshs.archives-ouvertes.fr/halshs-01287931/document>`_. In Proceedings of DHd 2016. Digital Humanities im deutschprachigen Raum eV. pages 264-267.
+- Barbaresi, A. and Biber, H. (2016). `Extraction and Visualization of Toponyms in Diachronic Text Corpora <https://hal.archives-ouvertes.fr/hal-01348696/document>`_. In *Digital Humanities 2016: Book of Abstracts*, pp. 732-734.
+- Barbaresi, A. (2016). `Visualisierung von Ortsnamen im Deutschen Textarchiv <https://halshs.archives-ouvertes.fr/halshs-01287931/document>`_. In *Proceedings of DHd 2016*, Digital Humanities im deutschprachigen Raum e.V. pp. 264-267.
