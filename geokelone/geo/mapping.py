@@ -5,35 +5,34 @@ Rudimentary mapping functions.
 
 
 # standard
+import heapq
 import logging
 import random
 
 # additional
+from adjustText import adjust_text # https://github.com/Phlya/adjustText/
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import matplotlib.pyplot as plt
 from matplotlib.transforms import offset_copy
 # import numpy as np
 
-from adjustText import adjust_text # https://github.com/Phlya/adjustText/
-
 # custom
 from .. import settings
 from ..data import validators
-
 
 # logging
 logger = logging.getLogger(__name__)
 
 
 ## TODO:
-# points types -- colors
 # settings vs. args
-# LogNorm size https://matplotlib.org/api/_as_gen/matplotlib.colors.LogNorm.html#matplotlib.colors.LogNorm
-# http://scitools.org.uk/cartopy/docs/latest/matplotlib/feature_interface.html
-# http://scitools.org.uk/cartopy/docs/latest/matplotlib/intro.html?highlight=ccrs%20geodetic
-# http://scitools.org.uk/cartopy/docs/latest/gallery.html
+# LogNorm size
+# lines: http://scitools.org.uk/cartopy/docs/latest/matplotlib/intro.html?highlight=ccrs%20geodetic
 
+
+
+POINT_COLORS = {0: 'brown', 1: 'yellow', 2: 'orange', 3: 'olive', 4: 'blue',}
 
 # not all projections need this
 # standard_parallels = (45, 63)
@@ -41,10 +40,15 @@ logger = logging.getLogger(__name__)
 # projection=ccrs.LambertConformal(central_longitude=central_longitude, standard_parallels=standard_parallels))
 
 
-POINT_COLORS = {0: 'brown', 1: 'yellow', 2: 'orange', 3: 'olive', 4: 'blue',}
+def normalize(x, minval, maxval, a=1, b=12):
+    """
+    Normalize value
+    """
+    normval = ((b-a)*(x-minval)) / (maxval-minval) + a
+    return normval
 
 
-def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_SCALE, relative_markersize=False, adjusted_text=False, simple_map=False, colored=False):
+def draw_map(filename, results, withlabels=True, limitlabels=30, feature_scale=settings.FEATURE_SCALE, relative_markersize=False, adjusted_text=False, simple_map=False, colored=False):
     """
     Place points/lines on a map and save it in a file.
     """
@@ -77,16 +81,18 @@ def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_
     i = 1
     texts = list()
 
-    # proportional
+    ## proportional
     # maxval = 0
     # if relative_markersize is True:
     occs = list()
     for item in results:
-        _, _, _, _, _, _, _, occurrences = results[item]
-        occs.append(occurrences)
+        occs.append(results[item][-1])
     maxval = max(occs)
-            
+    minval = min(occs)
+    # limit text to top-n elements
+    topn = heapq.nlargest(limitlabels, occs)[-1]
 
+    # loop through results and draw points on the map
     for item in results:
         if validators.validate_mapdata(results[item], map_boundaries) is True:
             # unused: country, ptype, something, somethingelse
@@ -103,12 +109,12 @@ def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_
 
         # point
         # proportional size
-        prcfreq = (occurrences/maxval)*100
-        normfreq = prcfreq/4 # was 10
         if relative_markersize is False:
             msize = 2
         else:
-            msize = normfreq
+            msize = normalize(occurrences, minval, maxval)
+            # prcfreq = (occurrences/maxval)*100
+            # msize = prcfreq/4 # was 10
 
         # colors
         ## default
@@ -120,35 +126,32 @@ def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_
             else:
                 pcolor = 'green'
 
-        # draw
+        # draw point
         ax.plot(lon, lat, marker='o', color=pcolor, markersize=msize, alpha=0.5, transform=ccrs.Geodetic())
-        # markersize=2
 
         # text
-        if withlabels is True and prcfreq > 5: # was 13
+        if withlabels is True and occurrences >= topn: # prcfreq > 5: # was 13
             geodetic_transform = ccrs.Geodetic()._as_mpl_transform(ax)
 
             # text adjustment is experimental
             if adjusted_text is True:
-                texts.append(ax.text(lon, lat, pname, fontsize=4, transform=ccrs.Geodetic())) # transform=text_transform, wrap=True
+                texts.append(ax.text(lon, lat, pname, fontsize=4, horizontalalignment='center', verticalalignment='center', transform=ccrs.Geodetic())) # transform=text_transform, wrap=True
             # normal case
             else:
                 xchoice = random.choice(['left', 'center', 'right']) # random.choice(['left', 'center', 'right'])
                 if xchoice == 'left':
-                    xval = -30
+                    xval = -30 #xval = random.randint(-20, 20)
                 elif xchoice == 'center':
                     xval = random.choice([-5, 5])
                 elif xchoice == 'right':
                     xval = 30
                 ychoice = random.choice(['bottom', 'center', 'top']) # random.choice(['bottom', 'center', 'top'])
                 if ychoice == 'bottom':
-                    yval = -30
+                    yval = -30 #yval = random.randint(-20, 20)
                 elif ychoice == 'center':
                     yval = random.choice([-5, 5])
                 elif ychoice == 'top':
                     yval = 30
-                #xval = random.randint(-20, 20)
-                #yval = random.randint(-20, 20)
                 logger.debug('%s %s %s %s', xchoice, xval, ychoice, yval)
                 text_transform = offset_copy(geodetic_transform, x=xval, y=yval, units='dots')
                 ax.text(lon, lat, pname, verticalalignment=ychoice, horizontalalignment=xchoice, transform=text_transform, fontsize=4, wrap=True,) #  zorder=i
@@ -163,7 +166,7 @@ def draw_map(filename, results, withlabels=True, feature_scale=settings.FEATURE_
 
     # proceed at the end
     if adjusted_text is True:
-        print(texts)
+        logger.info('text labels displayed: %s', len(texts))
         # adjust_text(texts, force_points=0.2, force_text=0.2, expand_points=(1,1), expand_text=(1,1), arrowprops=dict(arrowstyle="-", color='black', lw=0.5, alpha=0.5), save_steps=True, save_prefix='step', save_format='png',)
         adjust_text(texts,) # save_steps=True, save_prefix='step', save_format='png',
 

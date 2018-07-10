@@ -65,9 +65,9 @@ def store_variants(expanded, columns, level):
         if variant in dic:
             if dic[variant]['level'] > level:
                 logger.warning('key discarded: %s %s', variant, level)
-            elif dic[variant]['level'] == level:
-                logger.warning('duplicate entry: %s %s', variant, level)
-                dic[variant]['values'] = (lat, lon, canonical)
+            #elif dic[variant]['level'] == level:
+            #    logger.warning('duplicate entry: %s %s', variant, level)
+            #    dic[variant]['values'] = (lat, lon, canonical)
             else:
                 dic[variant]['values'] = (lat, lon, canonical)
         else:

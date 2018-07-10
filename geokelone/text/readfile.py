@@ -46,6 +46,8 @@ def readtok(filename, datesbool=False, datestok=None):
         i = 0
         splitted = list()
         for line in inputfh:
+            if len(line.strip()) < 1:
+                continue
             i += 1
             if i % 10000000 == 0:
                 logger.info('tokens seen: %s', i)
@@ -83,6 +85,8 @@ def readtagged(filename, datesbool=False, datestok=None):
         i = 0
         splitted = list()
         for line in inputfh:
+            if len(line.strip()) < 1:
+                continue
             i += 1
             if i % 10000000 == 0:
                 logger.info('tokens seen: %s', i)
