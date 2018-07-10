@@ -151,7 +151,7 @@ def validate_latlon(lat, lon):
         return False
 
 
-def validate_mapdata(dicentry, map_boundaries):
+def validate_mapdata(dicentry, map_boundaries=[settings.WESTMOST, settings.EASTMOST, settings.SOUTHMOST, settings.NORTHMOST]):
     """
     Validate metadata imported from registries.
     """

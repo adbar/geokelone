@@ -131,7 +131,7 @@ def disambiguate(candidates, step, metainfo):
             return best_ones[0]
 
 
-def geofind(name, codesdict, metainfo, custom_lists, stoplist):
+def geofind(name, codesdict, metainfo, custom_lists=None, stoplist=None):
     """
     Find the token(s) in the gazzetteer(s)
     """
