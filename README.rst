@@ -194,6 +194,8 @@ Two options, from system repositories or through ``pip``:
 - *python3-dev python3-shapely python3-gdal python3-matplotlib python3-pyproj python3-shapely*
 - or simply ``pip3 install cairocffi GDAL matplotlib pyproj shapely``
 
+For installation on Debian/Ubuntu simply follow the instructions (*before_install:*) in the ``travis.yml`` file
+
 Cartopy install notes
 ~~~~~~~~~~~~~~~~~~~~~
 
