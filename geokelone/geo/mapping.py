@@ -42,10 +42,59 @@ POINT_COLORS = {0: 'brown', 1: 'yellow', 2: 'orange', 3: 'olive', 4: 'blue',}
 
 def normalize(x, minval, maxval, a=1, b=12):
     """
-    Normalize value
+    Normalize value.
     """
     normval = ((b-a)*(x-minval)) / (maxval-minval) + a
     return normval
+
+
+#def quality_control():
+#    """
+#    Check if the result can be displayed on the map.
+#    """
+
+
+def examine(results, limitlabels):
+    """
+    Examine results to determine visualization settings
+    """
+    occs = list()
+    for item in results:
+        try:
+            lastcol = int(results[item][-1])
+            occs.append(lastcol)
+        except ValueError:
+            logger.warning('wrong value for occurrences: %s', results[item][-1])
+    maxval = max(occs)
+    minval = min(occs)
+    # limit text to top-n elements
+    topn = heapq.nlargest(limitlabels, occs)[-1]
+    return minval, maxval, topn
+
+
+def random_placement():
+    """
+    Examine results to determine visualization settings
+    """
+    # X
+    xchoice = random.choice(['left', 'center', 'right']) # random.choice(['left', 'center', 'right'])
+    if xchoice == 'left':
+        xval = -30 #xval = random.randint(-20, 20)
+    elif xchoice == 'center':
+        xval = random.choice([-5, 5])
+    elif xchoice == 'right':
+        xval = 30
+    # Y
+    ychoice = random.choice(['bottom', 'center', 'top']) # random.choice(['bottom', 'center', 'top'])
+    if ychoice == 'bottom':
+        yval = -30 #yval = random.randint(-20, 20)
+    elif ychoice == 'center':
+        yval = random.choice([-5, 5])
+    elif ychoice == 'top':
+        yval = 30
+    # sum up
+    logger.debug('%s %s %s %s', xchoice, xval, ychoice, yval)
+    return xval, yval
 
 
 def draw_map(filename, results, withlabels=True, limitlabels=30, feature_scale=settings.FEATURE_SCALE, relative_markersize=False, adjusted_text=False, simple_map=False, colored=False):
@@ -82,23 +131,12 @@ def draw_map(filename, results, withlabels=True, limitlabels=30, feature_scale=s
     texts = list()
 
     ## proportional
-    # maxval = 0
-    # if relative_markersize is True:
-    occs = list()
-    for item in results:
-        occs.append(results[item][-1])
-    maxval = max(occs)
-    minval = min(occs)
-    # limit text to top-n elements
-    topn = heapq.nlargest(limitlabels, occs)[-1]
+    minval, maxval, topn = examine(results, limitlabels)
 
     # loop through results and draw points on the map
     for item in results:
         if validators.validate_mapdata(results[item], map_boundaries) is True:
             # unused: country, ptype, something, somethingelse
-            if len(results[item]) != 8:
-                logger.error('bad format for result: %', results[item])
-                continue
             lat, lon, ptype, _, _, pname, _, occurrences = results[item]
             lat = float(lat)
             lon = float(lon)
@@ -138,21 +176,7 @@ def draw_map(filename, results, withlabels=True, limitlabels=30, feature_scale=s
                 texts.append(ax.text(lon, lat, pname, fontsize=4, horizontalalignment='center', verticalalignment='center', transform=ccrs.Geodetic())) # transform=text_transform, wrap=True
             # normal case
             else:
-                xchoice = random.choice(['left', 'center', 'right']) # random.choice(['left', 'center', 'right'])
-                if xchoice == 'left':
-                    xval = -30 #xval = random.randint(-20, 20)
-                elif xchoice == 'center':
-                    xval = random.choice([-5, 5])
-                elif xchoice == 'right':
-                    xval = 30
-                ychoice = random.choice(['bottom', 'center', 'top']) # random.choice(['bottom', 'center', 'top'])
-                if ychoice == 'bottom':
-                    yval = -30 #yval = random.randint(-20, 20)
-                elif ychoice == 'center':
-                    yval = random.choice([-5, 5])
-                elif ychoice == 'top':
-                    yval = 30
-                logger.debug('%s %s %s %s', xchoice, xval, ychoice, yval)
+                xval, yval = random_placement()
                 text_transform = offset_copy(geodetic_transform, x=xval, y=yval, units='dots')
                 ax.text(lon, lat, pname, verticalalignment=ychoice, horizontalalignment=xchoice, transform=text_transform, fontsize=4, wrap=True,) #  zorder=i
 

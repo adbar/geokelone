@@ -356,8 +356,22 @@ def test_results():
     inputfile = path.join(TEST_DIR, 'data/dummy-results.tsv')
     results = data.load.results_tsv(inputfile)
     # validation
-    print(results)
     assert len(results) == 7 and '10173868' in results
+    # statistics
+    assert geo.mapping.examine(results, 10) == (1, 9, 1)
+
+
+def test_mapping():
+    # point size normalization
+    assert geo.mapping.normalize(5, 1, 10, 1, 10) == 5
+    assert geo.mapping.normalize(1, 1, 5, 1, 100) == 1
+    assert geo.mapping.normalize(100, 0, 200, 1, 10) == 5.5
+    # random placement
+    xval, yval = geo.mapping.random_placement()
+    assert -30 <= xval <= 30
+    assert -30 <= yval <= 30
+
+
     
 
 def test_draw_line():
@@ -404,6 +418,7 @@ if __name__ == '__main__':
     # GIS functions
     test_haversine()
     test_geodata_validators()
+    test_mapping()
     test_draw_line()
 
     # geocoding functions
