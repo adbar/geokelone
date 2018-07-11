@@ -9,15 +9,16 @@ import sys
 from os import path
 
 # from geokelone import *
-from geokelone import data, geo, text, settings
+from geokelone import data, geo, text #, settings
+import geokelone.settings
 
 
 TEST_DIR = path.abspath(path.dirname(__file__))
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-settings.FILTER_LEVEL = 'MINIMUM'
-settings.ROUNDING = 3
+geokelone.settings.FILTER_LEVEL = 'MINIMUM'
+geokelone.settings.ROUNDING = 3
 
 
 def test_expand():
@@ -43,7 +44,7 @@ def test_read():
 def custom_csv():
     registry = path.join(TEST_DIR, 'data/dummy-registry.csv')
     # level
-    assert data.load.load_tsv(registry, level='NN') == dict()
+    assert data.load.load_tsv(registry, level='NN') == {}
     # store
     customized = data.load.load_csv(registry)
     # test alternatives
@@ -80,15 +81,15 @@ def test_data_validators():
     assert data.validators.validate_tsv_registry(['AAA','NNN','NNN','NNN']) is False
 
     # entries in gazetteers
-    # assert data.validators.validate_mapdata({'place': 'test', 'lat': '30', 'lon': 30}) is True
-    # assert data.validators.validate_mapdata({'place': None, 'lat': '30', 'lon': 30}) is False
-    # assert data.validators.validate_mapdata({'place': 'test', 'lat': '300', 'lon': 300}) is False
-    # assert data.validators.validate_mapdata({'place': 'test', 'lat': '20.5'}) is False
     map_boundaries = [settings.WESTMOST, settings.EASTMOST, settings.SOUTHMOST, settings.NORTHMOST]
+    assert data.validators.validate_mapdata(['-190', '11.5075', 'X', 'YY', '0', 'A', 'NULL', 2], map_boundaries) is False
     assert data.validators.validate_mapdata(['47.003333', '11.5075', 'X', 'YY', '0', 'Brenner', 'NULL', 2], map_boundaries) is True
     assert data.validators.validate_mapdata(['AAA', '11.5075', 'X', 'YY', '0', 'Brenner', 'NULL', 2], map_boundaries) is False
     assert data.validators.validate_mapdata(['47.003333', '11.5075', 'X', 'YY', '0', '###', 'NULL', 2], map_boundaries) is False
     assert data.validators.validate_mapdata(['47.003333', '11.5075', 'X'], map_boundaries) is False
+    map_boundaries = [-20, 20, -20, 20]
+    assert data.validators.validate_mapdata(['47.003333', '11.5075', 'X', 'YY', '0', 'Brenner', 'NULL', 2], map_boundaries) is False
+    assert data.validators.validate_mapdata(['0', '0', 'X', 'YY', '0', 'ABC', 'NULL', 2], map_boundaries) is True
 
     # load gazetteers
     assert data.validators.validate_geonames_registry(['2849119', '48.13333', '8.85', 'P', 'DE', '0' ,'0']) is False
@@ -102,8 +103,10 @@ def test_data_validators():
     assert data.validators.validate_geonames_codes(['Reichenbach am Heuberg', 'V12']) is False
 
     # result
-    ## TODO:
-    # assert data.validators.validate_result()
+    assert data.validators.validate_result(['6536007', '46.938', '11.442', 'X', 'YY', '2087', 'NULL', 2]) is False
+    assert data.validators.validate_result(['6536007', '46.938', '11.442', 'X', 'YY', '2087', 'Brenner', 'NULL', 2]) is True
+    assert data.validators.validate_result(['6536007', '46.938', '11.442', 'X', 'YY', '2087', 'B', 'NULL', 2]) is False
+    assert data.validators.validate_result(['6536007', '46.938', '11.442', 'X', 'YY', '2087', 'B B B B B', 'NULL', 2]) is False
 
 
 def test_text_validators():
@@ -143,10 +146,10 @@ def test_geonames_filter():
     result = data.geonames.filterline('2801074	Breitfeld	Breitfeld	Breitfeld	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25')
     assert result is not None and result[0] == {'Breitfeld'}
     # filtering levels
-    settings.FILTER_LEVEL = 'MAXIMUM'
+    geokelone.settings.FILTER_LEVEL = 'MAXIMUM'
     assert data.geonames.filterline('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  is None
     assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not None
-    settings.FILTER_LEVEL = 'MINIMUM'
+    geokelone.settings.FILTER_LEVEL = 'MINIMUM'
     # coordinates
     assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		1150.26417	4446.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
     # country
@@ -208,16 +211,22 @@ def test_tok():
 
 
 def test_geonames():
-    # TODO: filter level
     # setup
+    geokelone.settings.FILTER_LEVEL = 'MINIMUM'
     inputfile = path.join(TEST_DIR, 'data/dummy-geonames-meta.dict')
     metainfo = data.load.geonames_meta(inputfile)
     inputfile = path.join(TEST_DIR, 'data/dummy-geonames-codes.dict')
     codes = data.load.geonames_codes(inputfile, metainfo)
-    assert len(metainfo) == 3 and len(codes) == 3
+    # control
+    assert len(codes) == 5 and len(metainfo) == 9
+    assert codes['Valwig'] == ['6553731', '2817894']
     # search
     results = geo.geocoding.search(['Aachen', 'Aachen'], codes, metainfo)
     assert len(results) == 1 and '3247449' in results
+    results = geo.geocoding.search(['Mörsfeld'], codes, metainfo)
+    assert len(results) == 1 and '2869159' in results
+    results = geo.geocoding.search(['Valwig'], codes, metainfo)
+    assert len(results) == 1 and '6553731' in results
     ## multi-word
     # 2
     results = geo.geocoding.search(['Öderquarter'], codes, metainfo)
@@ -226,7 +235,18 @@ def test_geonames():
     assert len(results) == 1 and '2858070' in results
     # 3
     results = geo.geocoding.search(['It', 'was', 'in', 'Reichenbach', 'am', 'Heuberg', '.'], codes, metainfo)
-    assert len(results) == 1 and '2849119' in results
+    assert len(results) == 1 and '6555850' in results
+
+    ##filter level
+    geokelone.settings.FILTER_LEVEL = 'MAXIMUM'
+    metainfo = {}
+    codes = {}
+    inputfile = path.join(TEST_DIR, 'data/dummy-geonames-meta.dict')
+    metainfo = data.load.geonames_meta(inputfile)
+    inputfile = path.join(TEST_DIR, 'data/dummy-geonames-codes.dict')
+    codes = data.load.geonames_codes(inputfile, metainfo)
+    # control
+    assert len(codes) == 4 and len(metainfo) == 4
 
 
 def test_wikipedia():

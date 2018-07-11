@@ -34,12 +34,11 @@ logger = logging.getLogger(__name__)
 codesdict = dict()
 metainfo = dict()
 
-# banks, buildings, hotels, railway stations, road stops, towers, energy (power plats, wind turbines), mountain huts, post offices, golf courses
-refused_types = ('BANK', 'BLDG', 'GRAZ', 'HTL', 'HUT', 'MLWND', 'PLDR', 'PO', 'PS', 'RECG', 'RSTN', 'RSTP', 'SWT', 'TOWR', 'VIN')
+# banks, buildings, hotels, railway stations, road stops, towers, energy (power plats, wind turbines), mountain huts, post offices, golf courses, sections of harbors, former inlet, maneuver area, artillery range, 
+refused_types = ('BANK', 'BLDG', 'GRAZ', 'HBRX', 'HTL', 'HUT', 'INLTQ', 'MLWND', 'MVA', 'PLDR', 'PO', 'PS', 'RECG', 'RNGA', 'RSTN', 'RSTP', 'SWT', 'TOWR', 'VIN')
 # may be refined with http://www.geonames.org/export/codes.html
-# further filtering: farms, forests
-# 'FRM', 'FRST', 
-# BDG, MUS, 
+# further filtering: farms, forests, ruined bridges
+# 'FRM', 'FRST', 'BDGQ'
 
 
 # TODO: 
