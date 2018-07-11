@@ -134,37 +134,37 @@ def test_geonames_download():
 
 def test_geonames_filter():
     # malformed
-    assert data.geonames.filterline('\n') is None
-    assert data.geonames.filterline('	1	2.3') is None
-    assert data.geonames.filterline('																			') is None
-    assert data.geonames.filterline('		2.3	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA') is None
-    assert data.geonames.filterline('6466296	AAA BBB GGG AAA BBBB	Amba		51	4	P	PPL	BE		VLG	VAN	11	11002	0		7	XX	YY')  is None
+    assert data.geonames.quality_control('\n') is None
+    assert data.geonames.quality_control('	1	2.3') is None
+    assert data.geonames.quality_control('																			') is None
+    assert data.geonames.quality_control('		2.3	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA') is None
+    assert data.geonames.quality_control('6466296	AAA BBB GGG AAA BBBB	Amba		51	4	P	PPL	BE		VLG	VAN	11	11002	0		7	XX	YY')  is None
     # wrong type
-    assert data.geonames.filterline('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  is None
+    assert data.geonames.quality_control('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  is None
     # OK
-    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not None
-    result = data.geonames.filterline('2801074	Breitfeld	Breitfeld	Breitfeld	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25')
+    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not None
+    result = data.geonames.quality_control('2801074	Breitfeld	Breitfeld	Breitfeld	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25')
     assert result is not None and result[0] == {'Breitfeld'}
     # filtering levels
     geokelone.settings.FILTER_LEVEL = 'MAXIMUM'
-    assert data.geonames.filterline('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  is None
-    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not None
+    assert data.geonames.quality_control('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  is None
+    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not None
     geokelone.settings.FILTER_LEVEL = 'MINIMUM'
     # coordinates
-    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		1150.26417	4446.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
+    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		1150.26417	4446.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
     # country
-    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BEL		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
+    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BEL		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
     # population
-    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	BE		432	Europe/Brussels	2017-03-25') is None
+    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	BE		432	Europe/Brussels	2017-03-25') is None
     # alternatives
-    result = data.geonames.filterline('2867714	Munich	Munich	Monachium,Monaco di Baviera,München	48.13743	11.57549	P	PPLA	DE		02	091	09162	09162000	1260391		524	Europe/Berlin	2014-01-26')
+    result = data.geonames.quality_control('2867714	Munich	Munich	Monachium,Monaco di Baviera,München	48.13743	11.57549	P	PPLA	DE		02	091	09162	09162000	1260391		524	Europe/Berlin	2014-01-26')
     print(result)
     assert result is not None and result[0] == {'Monachium', 'Monaco di Baviera', 'München'}
 
 
 def test_geonames_store():
     # init
-    alternatives, canonical, infotuple = data.geonames.filterline('2801074	Breitfeld	Breitfeld	Breitfeld,Breitfelds	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25')
+    alternatives, canonical, infotuple = data.geonames.quality_control('2801074	Breitfeld	Breitfeld	Breitfeld,Breitfelds	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25')
 
     # store code
     assert canonical not in data.geonames.codesdict
@@ -181,7 +181,7 @@ def test_geonames_store():
     data.geonames.store_metainfo(infotuple)
 
     # duplicate entry
-    assert data.geonames.filterline('2801074	Breitfeld	Breitfeld	Breitfeld,Breitfelds	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
+    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld	Breitfeld,Breitfelds	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
 
 
 def test_tagged():

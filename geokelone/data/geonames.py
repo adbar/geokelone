@@ -72,8 +72,7 @@ def generate_urls(countrycodes):
     return urls, filenames
 
 
-# filter data
-def filterline(line):
+def quality_control(line, ccode=None):
     """
     Only store a geonames entry if it satisfies formal criteria (type, validity, etc.)
     """
@@ -116,6 +115,9 @@ def filterline(line):
     # country code
     if len(columns[8]) != 2:
         logger.debug('no suitable country code: %s', columns[8])
+        return None
+    if ccode is not None and columns[8] != ccode:
+        logger.debug('wrong country code: %s', columns[8])
         return None
 
     # population
@@ -183,7 +185,6 @@ def store_metainfo(infotuple):
     metainfo[infotuple[0]] = (lat, lon, infotuple[3], infotuple[4], infotuple[5])
 
 
-# download data
 def fetchdata(countrycodes):
     """
     Retrieve data from geonames for the countries given.
@@ -206,11 +207,8 @@ def fetchdata(countrycodes):
                 with myzip.open(filenames[i]) as myfile:
                     for line in myfile:
                         # filter
-                        results = filterline(line.decode())
-                        if results is not None:
-                            alternatives, canonical, infotuple = results[0], results[1], results[2]
-                            ## TODO: check if right country
-                            # 
+                        alternatives, canonical, infotuple = quality_control(line.decode(), countrycodes[i])
+                        if canonical is not None:
                             # store
                             store_codesdata(infotuple[0], canonical, alternatives)
                             store_metainfo(infotuple)
@@ -221,21 +219,26 @@ def fetchdata(countrycodes):
     return codesdict, metainfo
 
 
-#def filterfile(filename):
-#    """
-#    File data helper.
-#    """
-#    with open(filename, 'r', encoding='utf-8') as inputfh:
-#        for line in inputfh:
-#            # filter
-#            alternatives, code, infotuple = filterline(line.decode())
-#            # store
-#            store_codesdata(code, alternatives)
-#            store_metainfo(infotuple)
-#    return codesdict, metainfo
+def filterfile(filename):
+    """
+    File data helper.
+    """
+    j = 0
+    k = 0
+    logger.info('open file: %s', filename)
+    with open(filename, 'r', encoding='utf-8') as inputfh:
+        for line in inputfh:
+            alternatives, canonical, infotuple = quality_control(line)
+            if canonical is not None:
+                 # store
+                 store_codesdata(infotuple[0], canonical, alternatives)
+                 store_metainfo(infotuple)
+                 k += 1
+            j += 1
+    logger.info('%s lines seen, %s filtered lines', j, k)
+    return codesdict, metainfo
 
 
-# write info to file
 def writefile(dictname, filename):
     """
     Save geonames information to a file.
