@@ -81,7 +81,7 @@ def test_data_validators():
     assert data.validators.validate_tsv_registry(['AAA','NNN','NNN','NNN']) is False
 
     # entries in gazetteers
-    map_boundaries = [settings.WESTMOST, settings.EASTMOST, settings.SOUTHMOST, settings.NORTHMOST]
+    map_boundaries = [geokelone.settings.WESTMOST, geokelone.settings.EASTMOST, geokelone.settings.SOUTHMOST, geokelone.settings.NORTHMOST]
     assert data.validators.validate_mapdata(['-190', '11.5075', 'X', 'YY', '0', 'A', 'NULL', 2], map_boundaries) is False
     assert data.validators.validate_mapdata(['47.003333', '11.5075', 'X', 'YY', '0', 'Brenner', 'NULL', 2], map_boundaries) is True
     assert data.validators.validate_mapdata(['AAA', '11.5075', 'X', 'YY', '0', 'Brenner', 'NULL', 2], map_boundaries) is False
