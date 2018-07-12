@@ -15,6 +15,8 @@ from zipfile import ZipFile
 import numpy as np
 import requests
 
+# from sqlitedict import SqliteDict
+
 from .. import settings
 from . import validators
 
@@ -33,6 +35,7 @@ logger = logging.getLogger(__name__)
 # vars
 codesdict = dict()
 metainfo = dict()
+# DBPATH = './metainfo.sqlite'
 
 # banks, buildings, hotels, railway stations, road stops, towers, energy (power plats, wind turbines), mountain huts, post offices, golf courses, sections of harbors, former inlet, maneuver area, artillery range, 
 refused_types = ('BANK', 'BLDG', 'GRAZ', 'HBRX', 'HTL', 'HUT', 'INLTQ', 'MLWND', 'MVA', 'PLDR', 'PO', 'PS', 'RECG', 'RNGA', 'RSTN', 'RSTP', 'SWT', 'TOWR', 'VIN')
@@ -129,6 +132,7 @@ def quality_control(line, ccode=None):
 
     # check if exists in db
     # TODO: latest entry in geonames?
+    ##with SqliteDict(DBPATH) as metainfo:
     if columns[0] in metainfo:
         # check population
         if metainfo[columns[0]][-1] <= columns[14]:
@@ -176,6 +180,7 @@ def store_metainfo(infotuple):
     Store metainfo data in register.
     """
     global metainfo
+    #with SqliteDict(DBPATH) as metainfo:
     # control
     if infotuple[0] in metainfo:
         logger.warning('item already in register: %s', infotuple[0])
@@ -183,6 +188,7 @@ def store_metainfo(infotuple):
     lat, lon = round(float(infotuple[1]), settings.ROUNDING), round(float(infotuple[2]), settings.ROUNDING)
     # store
     metainfo[infotuple[0]] = (lat, lon, infotuple[3], infotuple[4], infotuple[5])
+    # metainfo.commit()
 
 
 def fetchdata(countrycodes):
@@ -216,6 +222,7 @@ def fetchdata(countrycodes):
                         j += 1
             logger.info('%s lines seen, %s filtered lines', j, k)
         i += 1
+        # metainfo.commit()
     return codesdict, metainfo
 
 

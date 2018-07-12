@@ -14,6 +14,7 @@ import sys
 
 # external
 import exrex
+# from sqlitedict import SqliteDict
 
 # own
 from .. import settings
@@ -21,6 +22,9 @@ from . import validators
 
 # logging
 logger = logging.getLogger(__name__)
+
+# DB
+# DBPATH = './metainfo.sqlite'
 
 
 def expand(expression):
@@ -163,13 +167,13 @@ def load_csv(filename, level=0):
 
 # geonames
 ### FILE MUST EXIST, use the preprocessing script provided
-def geonames_meta(filename): # './geonames-meta.dict'
+def geonames_meta(filename):
     """
     Load metadata for a place name from Geonames.
     """
     metainfo = dict()
     try:
-        with open(filename, 'r', encoding='utf-8') as inputfh:
+        with open(filename, 'r', encoding='utf-8') as inputfh: #, SqliteDict(DBPATH) as metainfo:
             for line in inputfh:
                 line = line.strip()
                 columns = re.split('\t', line)
@@ -187,6 +191,7 @@ def geonames_meta(filename): # './geonames-meta.dict'
                     if columns[3] != 'A' and columns[3] != 'P':
                         continue
                 # process
+                ##metainfo[columns[0]] = columns[1:]
                 metainfo[columns[0]] = list()
                 for item in columns[1:]:
                     metainfo[columns[0]].append(item)
@@ -194,12 +199,14 @@ def geonames_meta(filename): # './geonames-meta.dict'
         logger.error('geonames data or empty dictionary object required at this stage')
         sys.exit(1)
     logger.info('different names: %s', len(metainfo))
+    # metainfo.commit()
+    # logger.info('changes committed to DB: %s', len(metainfo))
     return metainfo
 
 
 # load codes (while implementing filter)
 ### FILE MUST EXIST, use the preprocessing script provided
-def geonames_codes(filename, metainfo): # './geonames-codes.dict'
+def geonames_codes(filename, metainfo):
     """
     Load codes from Geonames for matching and disambiguation purposes.
     """

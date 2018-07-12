@@ -10,6 +10,7 @@ import sys
 
 from heapq import nlargest
 from math import asin, atan, atan2, cos, radians, sin, sqrt, tan
+# from sqlitedict import SqliteDict
 
 from .. import settings
 
@@ -31,6 +32,8 @@ pair_counter = 0
 
 # logger.info('settings: %s', settings.MINLENGTH)
 
+# DB
+# DBPATH = './metainfo.sqlite'
 
 
 def haversine(point1, point2):
@@ -61,6 +64,7 @@ def vincenty(point1, point2, max_iter=200):
     """
     Calculate the distance between two points on the Earth, Vincenty's solution to the inverse geodetic problem is more accurate that the great circle distance using Haversine formula.
     """
+    # T. Vincenty, Direct and inverse solutions of geodesics on the ellipsoid with application of nested equations, Survey Review 23(176), 88–93 (1975).
     # short-circuit coincident points
     if point1[0] == point2[0] and point1[1] == point2[1]:
         return 0.0
@@ -172,10 +176,14 @@ def disambiguate(candidates, step, metainfo):
         # distance: lat1, lon1, lat2, lon2
         # use more precise calculation
         if settings.FILTER_LEVEL == 'MAXIMUM':
-            distances[candidate] = vincenty((REFERENCE[0], REFERENCE[1]), (float(metainfo[candidate][0]), float(metainfo[candidate][1])))
+            dist = vincenty((REFERENCE[0], REFERENCE[1]), (float(metainfo[candidate][0]), float(metainfo[candidate][1])))
+            # fails to converge for nearly antipodal points
+            if dist is None:
+                dist = haversine((REFERENCE[0], REFERENCE[1]), (float(metainfo[candidate][0]), float(metainfo[candidate][1])))
         # use faster approximation
         else:
-            distances[candidate] = haversine((REFERENCE[0], REFERENCE[1]), (float(metainfo[candidate][0]), float(metainfo[candidate][1])))
+            dist = haversine((REFERENCE[0], REFERENCE[1]), (float(metainfo[candidate][0]), float(metainfo[candidate][1])))
+        distances[candidate] = dist
         # population
         if int(metainfo[candidate][4]) > 1000:
             scores[candidate] += 1
@@ -364,7 +372,7 @@ def selected_lists(name, dic):
     return False
 
 
-def search(searchlist, codesdict, metainfo, custom_lists=dict(), stoplist=dict()):
+def search(searchlist, codesdict, metainfo, custom_lists=dict(), stoplist=dict()): # dbpath=DBPATH
     """
     Geocoding: search if valid place name and assign coordinates.
     """
@@ -380,6 +388,7 @@ def search(searchlist, codesdict, metainfo, custom_lists=dict(), stoplist=dict()
     # init
     global pair_counter
     global results
+    # metainfo = SqliteDict('./metainfo.sqlite')
     results = dict()
     slide2 = ''
     slide3 = ''
@@ -440,6 +449,8 @@ def search(searchlist, codesdict, metainfo, custom_lists=dict(), stoplist=dict()
             slide3 = ''
 
         pair_counter += 1
+    # db
+    # metainfo.close()
     # return something
     return results
 

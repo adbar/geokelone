@@ -175,6 +175,7 @@ def test_geonames_store():
     assert list(data.geonames.codesdict[canonical])[0] == infotuple[0]
 
     # store info
+    
     assert infotuple[0] not in data.geonames.metainfo
     data.geonames.store_metainfo(infotuple)
     assert infotuple[0] in data.geonames.metainfo and '2801074' in data.geonames.metainfo
