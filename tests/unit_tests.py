@@ -254,9 +254,11 @@ def test_wikipedia():
     assert data.wikipedia.find_coordinates('Wien', language='de') == (48.208, 16.373)
 
 
-def test_haversine():
-    assert geo.geocoding.haversine(53.4, 1.2, 61, 10.53) == '1012.13'
-    assert geo.geocoding.haversine(-53.466666, 1, 61, -3.33333) == '12725.89'
+def test_distances():
+    assert geo.geocoding.haversine((53.4, 1.2), (61, 10.53)) == 1012.7688
+    assert geo.geocoding.haversine((-53.466666, 1), (61, -3.33333)) == 12733.90603
+    assert geo.geocoding.vincenty((53.4, 1.2), (61, 10.53)) == 1014.90503
+    assert geo.geocoding.vincenty((-53.466666, 1), (61, -3.33333)) == 12697.86368
 
 
 def test_geofind():
@@ -305,7 +307,7 @@ def test_disambiguate():
     assert geo.geocoding.disambiguate(['1', '2', '3'], 2, test_metainfo) == '2'
 
     ## distance
-    assert geo.geocoding.disambiguate(['1', '2', '3'], 1, {'2': [-46.13, -8.85, 'P', 'ZZ', 1000], '3': [-45.13, -9.85, 'P', 'ZZ', 1000], '1': [47.13, 7.85, 'P', 'ZZ', 1000]}) == '3'
+    assert geo.geocoding.disambiguate(['1', '2', '3'], 1, {'2': [-46.13, -8.85, 'P', 'ZZ', 1000], '3': [-45.13, -9.85, 'P', 'ZZ', 1000], '1': [47.13, 7.85, 'P', 'ZZ', 1000]}) == '1'
 
 
 def test_rounds():
@@ -416,7 +418,7 @@ if __name__ == '__main__':
     test_wikipedia()
 
     # GIS functions
-    test_haversine()
+    test_distances()
     test_geodata_validators()
     test_mapping()
     test_draw_line()

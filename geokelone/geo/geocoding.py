@@ -9,7 +9,7 @@ import re
 import sys
 
 from heapq import nlargest
-from math import radians, cos, sin, asin, sqrt
+from math import asin, atan, atan2, cos, radians, sin, sqrt, tan
 
 from .. import settings
 
@@ -18,8 +18,8 @@ from .. import settings
 logger = logging.getLogger(__name__)
 
 
-vicinity = settings.DISAMBIGUATION_SETTING[settings.STANDARD_SETTING]['vicinity']
-reference = settings.DISAMBIGUATION_SETTING[settings.STANDARD_SETTING]['reference']
+VICINITY = settings.DISAMBIGUATION_SETTING[settings.STANDARD_SETTING]['vicinity']
+REFERENCE = settings.DISAMBIGUATION_SETTING[settings.STANDARD_SETTING]['reference']
 
 i = 0
 results = dict()
@@ -33,24 +33,91 @@ pair_counter = 0
 
 
 
-def haversine(lat1, lon1, lat2, lon2):
-# http://stackoverflow.com/questions/4913349/haversine-formula-in-python-bearing-and-distance-between-two-gps-points#4913653
+def haversine(point1, point2):
     """
-    Calculate the great circle distance between two points on the earth (specified in decimal degrees)
+    Calculate the great circle distance between two points on the Earth (specified in decimal degrees) using spherical geometry with a mean radius.
     """
+    # short-circuit coincident points
+    if point1[0] == point1[1] and point2[0] == point2[1]:
+        return 0.0
+    # http://stackoverflow.com/questions/4913349/haversine-formula-in-python-bearing-and-distance-between-two-gps-points#4913653
+    # https://github.com/mapado/haversine/
     # convert decimal degrees to radians
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    lat1, lon1, lat2, lon2 = map(radians, [point1[0], point1[1], point2[0], point2[1]])
     # haversine formula
     dlon = lon2 - lon1
     dlat = lat2 - lat1
     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
     c = 2 * asin(sqrt(a))
-    km = 6367 * c
-    logger.debug('raw distance in km: %s', km)
-    # sufficient resolution for most calculations, locations in a city may require more
-    returnval = "{0:.2f}".format(km)
+    # Mean Earth radius according to International Union of Geodesy and Geophysics (WGS 84)
+    # Moritz, H. (March 2000). "Geodetic Reference System 1980". Journal of Geodesy. 74 (1): 128–133.
+    returnval = 6371.0088 * c
+    # returnval = "{0:.3f}".format(km)
     logger.debug('estimated distance in km: %s', returnval)
-    return returnval
+    return round(returnval, 5)
+
+
+def vincenty(point1, point2, max_iter=200):
+    """
+    Calculate the distance between two points on the Earth, Vincenty's solution to the inverse geodetic problem is more accurate that the great circle distance using Haversine formula.
+    """
+    # short-circuit coincident points
+    if point1[0] == point2[0] and point1[1] == point2[1]:
+        return 0.0
+    # https://github.com/maurycyp/vincenty
+    # init
+    # WGS 84
+    a = 6378137  # meters
+    f = 1 / 298.257223563
+    b = 6356752.314245  # meters; b = (1 - f)a
+    convergence_threshold = 1e-12
+
+    # process
+    U1 = atan((1 - f) * tan(radians(point1[0])))
+    U2 = atan((1 - f) * tan(radians(point2[0])))
+    L = radians(point2[1] - point1[1])
+    Lambda = L
+    sinU1 = sin(U1)
+    cosU1 = cos(U1)
+    sinU2 = sin(U2)
+    cosU2 = cos(U2)
+
+    # iterate
+    for iteration in range(max_iter):
+        sinLambda = sin(Lambda)
+        cosLambda = cos(Lambda)
+        sinSigma = sqrt((cosU2 * sinLambda) ** 2 + (cosU1 * sinU2 - sinU1 * cosU2 * cosLambda) ** 2)
+        if sinSigma == 0:
+            return 0.0  # coincident points
+        cosSigma = sinU1 * sinU2 + cosU1 * cosU2 * cosLambda
+        sigma = atan2(sinSigma, cosSigma)
+        sinAlpha = cosU1 * cosU2 * sinLambda / sinSigma
+        cosSqAlpha = 1 - sinAlpha ** 2
+        try:
+            cos2SigmaM = cosSigma - 2 * sinU1 * sinU2 / cosSqAlpha
+        except ZeroDivisionError:
+            cos2SigmaM = 0
+        C = f / 16 * cosSqAlpha * (4 + f * (4 - 3 * cosSqAlpha))
+        LambdaPrev = Lambda
+        Lambda = L + (1 - C) * f * sinAlpha * (sigma + C * sinSigma *
+                                               (cos2SigmaM + C * cosSigma *
+                                                (-1 + 2 * cos2SigmaM ** 2)))
+        if abs(Lambda - LambdaPrev) < convergence_threshold:
+            break  # successful convergence
+    else:
+        return None  # failure to converge
+
+    uSq = cosSqAlpha * (a ** 2 - b ** 2) / (b ** 2)
+    A = 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)))
+    B = uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq)))
+    deltaSigma = B * sinSigma * (cos2SigmaM + B / 4 * (cosSigma *
+                 (-1 + 2 * cos2SigmaM ** 2) - B / 6 * cos2SigmaM *
+                 (-3 + 4 * sinSigma ** 2) * (-3 + 4 * cos2SigmaM ** 2)))
+    s = b * A * (sigma - deltaSigma)
+
+    # return
+    s /= 1000  # meters to kilometers
+    return round(s, 5)
 
 
 def disambiguate(candidates, step, metainfo):
@@ -103,12 +170,17 @@ def disambiguate(candidates, step, metainfo):
         # init
         scores[candidate] = 0
         # distance: lat1, lon1, lat2, lon2
-        distances[candidate] = haversine(reference[0], reference[1], float(metainfo[candidate][0]), float(metainfo[candidate][1]))
+        # use more precise calculation
+        if settings.FILTER_LEVEL == 'MAXIMUM':
+            distances[candidate] = vincenty((REFERENCE[0], REFERENCE[1]), (float(metainfo[candidate][0]), float(metainfo[candidate][1])))
+        # use faster approximation
+        else:
+            distances[candidate] = haversine((REFERENCE[0], REFERENCE[1]), (float(metainfo[candidate][0]), float(metainfo[candidate][1])))
         # population
         if int(metainfo[candidate][4]) > 1000:
             scores[candidate] += 1
         # vicinity
-        if metainfo[candidate][3] in vicinity:
+        if metainfo[candidate][3] in VICINITY:
             scores[candidate] += 1
     # best distance
     smallest_distance = min(distances.values())
