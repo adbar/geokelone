@@ -152,6 +152,8 @@ Integration
 
 For language-independent solutions in the Python world, see `spacy <https://spacy.io/>`_ or `polyglot <https://github.com/aboSamoor/polyglot>`_.
 
+API-based geocoding solutions for Python: `geopy <https://github.com/geopy/geopy>`_ and `geocoder <https://github.com/DenisCarriere/geocoder>`_.
+
 
 Installation
 ------------
