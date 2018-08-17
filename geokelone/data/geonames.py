@@ -86,7 +86,7 @@ def quality_control(line, ccode=None):
     # basic filters
     if len(columns) != 19:
         logger.debug('malformed: %s', line)
-        return None
+        return None, None, None
 
     ## TODO: extend filtering
     # column 7 = P only?
@@ -96,39 +96,39 @@ def quality_control(line, ccode=None):
         # admin, stream/lake, park, city/village, mountain, forest
         if columns[6] not in ('A', 'H', 'L', 'P', 'T', 'V'):
             logger.debug('not a suitable for filter level %s: %s', settings.FILTER_LEVEL, columns[6])
-            return None
+            return None, None, None
     else:
         if columns[7] in refused_types:
             logger.debug('not a suitable type: %s', columns[7])
-            return None
+            return None, None, None
 
     # name
     if len(columns[0]) < 1 or len(columns[1]) < 1:
         logger.debug('malformed: %s', line)
-        return None
+        return None, None, None
     elif validators.validate_entry(columns[1]) is False:
         logger.debug('no suitable name for entry: %s', columns[1])
-        return None
+        return None, None, None
 
     # coordinates
     if validators.validate_latlon(columns[4], columns[5]) is False:
         logger.debug('no suitable coordinates: %s %s', columns[4], columns[5])
-        return None
+        return None, None, None
 
     # country code
     if len(columns[8]) != 2:
         logger.debug('no suitable country code: %s', columns[8])
-        return None
+        return None, None, None
     if ccode is not None and columns[8] != ccode:
         logger.debug('wrong country code: %s', columns[8])
-        return None
+        return None, None, None
 
     # population
     try:
         int(columns[14])
     except ValueError:
         logger.debug('no suitable population value: %s', columns[14])
-        return None
+        return None, None, None
 
     # check if exists in db
     # TODO: latest entry in geonames?
@@ -137,7 +137,7 @@ def quality_control(line, ccode=None):
         # check population
         if metainfo[columns[0]][-1] <= columns[14]:
             logger.warning('code already seen: %s', line)
-            return None
+            return None, None, None
         #else:
         #    alternatives = ...
 
@@ -191,6 +191,27 @@ def store_metainfo(infotuple):
     # metainfo.commit()
 
 
+def filter_zipfile(filename, subfilename, countrycode):
+    """
+    Filter information contained in a Geonames ZIP-file.
+    """
+    j = 0
+    k = 0
+    with ZipFile(filename) as myzip:
+        with myzip.open(subfilename) as myfile:
+            for line in myfile:
+                print(line)
+                alternatives, canonical, infotuple = quality_control(line.decode(), countrycode)
+                if canonical is not None:
+                    # store
+                    store_codesdata(infotuple[0], canonical, alternatives)
+                    store_metainfo(infotuple)
+                    k += 1
+                j += 1
+    logger.info('%s lines seen, %s filtered lines', j, k)
+    # return codesdict, metainfo
+
+
 def fetchdata(countrycodes):
     """
     Retrieve data from geonames for the countries given.
@@ -202,42 +223,23 @@ def fetchdata(countrycodes):
         j = 0
         k = 0
         logger.info('download %s url: %s', i, url)
-        result = utils.send_request(url)
+        result = utils.send_request(url, returnbytes=True)
         if result is not None:
-            with ZipFile(BytesIO(request.content)) as myzip:
-                with myzip.open(filenames[i]) as myfile:
-                    for line in myfile:
-                        # filter
-                        alternatives, canonical, infotuple = quality_control(line.decode(), countrycodes[i])
-                        if canonical is not None:
-                            # store
-                            store_codesdata(infotuple[0], canonical, alternatives)
-                            store_metainfo(infotuple)
-                            k += 1
-                        j += 1
-            logger.info('%s lines seen, %s filtered lines', j, k)
+            filter_zipfile(BytesIO(request.content), filenames[i], countrycodes[i])
+            #with ZipFile(BytesIO(request.content)) as myzip:
+            #    with myzip.open(filenames[i]) as myfile:
+            #        for line in myfile:
+            #            # filter
+            #            alternatives, canonical, infotuple = quality_control(line.decode(), countrycodes[i])
+            #            if canonical is not None:
+            #                # store
+            #                store_codesdata(infotuple[0], canonical, alternatives)
+            #                store_metainfo(infotuple)
+            #                k += 1
+            #            j += 1
+            #logger.info('%s lines seen, %s filtered lines', j, k)
         i += 1
-        # metainfo.commit()
-    return codesdict, metainfo
-
-
-def filterfile(filename):
-    """
-    File data helper.
-    """
-    j = 0
-    k = 0
-    logger.info('open file: %s', filename)
-    with open(filename, 'r', encoding='utf-8') as inputfh:
-        for line in inputfh:
-            alternatives, canonical, infotuple = quality_control(line)
-            if canonical is not None:
-                 # store
-                 store_codesdata(infotuple[0], canonical, alternatives)
-                 store_metainfo(infotuple)
-                 k += 1
-            j += 1
-    logger.info('%s lines seen, %s filtered lines', j, k)
+        ## metainfo.commit()
     return codesdict, metainfo
 
 

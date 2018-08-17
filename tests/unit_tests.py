@@ -130,32 +130,34 @@ def test_geonames_download():
     assert data.geonames.generate_urls('fi') == (['http://download.geonames.org/export/dump/FI.zip'], ['FI.txt'])
     assert data.geonames.generate_urls(['fi']) == (['http://download.geonames.org/export/dump/FI.zip'], ['FI.txt'])
     assert data.geonames.generate_urls(['fa', 'fi', 'fr']) == (['http://download.geonames.org/export/dump/FA.zip', 'http://download.geonames.org/export/dump/FI.zip', 'http://download.geonames.org/export/dump/FR.zip'], ['FA.txt', 'FI.txt', 'FR.txt'])
+    data.geonames.filter_zipfile(path.join(TEST_DIR, 'data/VA.zip'), 'VA.txt', 'VA')
+    assert len(data.geonames.metainfo) == 11
 
 
 def test_geonames_filter():
     # malformed
-    assert data.geonames.quality_control('\n') is None
-    assert data.geonames.quality_control('	1	2.3') is None
-    assert data.geonames.quality_control('																			') is None
-    assert data.geonames.quality_control('		2.3	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA') is None
-    assert data.geonames.quality_control('6466296	AAA BBB GGG AAA BBBB	Amba		51	4	P	PPL	BE		VLG	VAN	11	11002	0		7	XX	YY')  is None
+    assert data.geonames.quality_control('\n') == (None, None, None)
+    assert data.geonames.quality_control('	1	2.3') == (None, None, None)
+    assert data.geonames.quality_control('																			') == (None, None, None)
+    assert data.geonames.quality_control('		2.3	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA	AAA') == (None, None, None)
+    assert data.geonames.quality_control('6466296	AAA BBB GGG AAA BBBB	Amba		51	4	P	PPL	BE		VLG	VAN	11	11002	0		7	XX	YY')  == (None, None, None)
     # wrong type
-    assert data.geonames.quality_control('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  is None
+    assert data.geonames.quality_control('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  == (None, None, None)
     # OK
-    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not None
+    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not (None, None, None)
     result = data.geonames.quality_control('2801074	Breitfeld	Breitfeld	Breitfeld	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25')
     assert result is not None and result[0] == {'Breitfeld'}
     # filtering levels
     geokelone.settings.FILTER_LEVEL = 'MAXIMUM'
-    assert data.geonames.quality_control('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  is None
-    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not None
+    assert data.geonames.quality_control('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  == (None, None, None)
+    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not (None, None, None)
     geokelone.settings.FILTER_LEVEL = 'MINIMUM'
     # coordinates
-    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		1150.26417	4446.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
+    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		1150.26417	4446.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') == (None, None, None)
     # country
-    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BEL		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
+    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BEL		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') == (None, None, None)
     # population
-    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	BE		432	Europe/Brussels	2017-03-25') is None
+    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	BE		432	Europe/Brussels	2017-03-25') == (None, None, None)
     # alternatives
     result = data.geonames.quality_control('2867714	Munich	Munich	Monachium,Monaco di Baviera,München	48.13743	11.57549	P	PPLA	DE		02	091	09162	09162000	1260391		524	Europe/Berlin	2014-01-26')
     print(result)
@@ -182,7 +184,7 @@ def test_geonames_store():
     data.geonames.store_metainfo(infotuple)
 
     # duplicate entry
-    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld	Breitfeld,Breitfelds	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is None
+    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld	Breitfeld,Breitfelds	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') == (None, None, None)
 
 
 def test_tagged():

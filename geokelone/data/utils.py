@@ -34,11 +34,14 @@ session = requests.Session()
 session.mount('https://', MyAdapter())
 
 
-def send_request(query_url):
+def send_request(query_url, returnbytes=False):
     """Send a request over the network."""
     logger.debug('sending request %s', query_url)
     request = session.get(query_url, verify=False)
     if request.status_code != requests.codes.ok:
         logger.error('problem with response (%s) for url %s', request.status_code, query_url)
         return None
-    return request.text
+    if returnbytes is True:
+        return request.content
+    else:
+        return request.text
