@@ -1,5 +1,5 @@
-geokelone: work in progress
-==============================================
+``geokelone``
+=============
 
 .. image:: https://img.shields.io/pypi/v/geokelone.svg
     :target: https://pypi.python.org/pypi/geokelone
@@ -17,7 +17,7 @@ geokelone: work in progress
     :target: https://codecov.io/gh/adbar/geokelone
 
 
-``Geokelone`` is an effort to integrate spatial and textual data processing tools into a modular software package which features preprocessing, geocoding, disambiguation and visualization.
+Work towards the integration of spatial and textual data processing tools into a modular software package which features preprocessing, geocoding, disambiguation and visualization.
 
 Current reference: Barbaresi, A. (2017). `Towards a toolbox to map historical text collections <https://hal.archives-ouvertes.fr/hal-01654526/document>`_, *Proceedings of 11th Workshop on Geographic Information Retrieval*, ACM, Heidelberg.
 

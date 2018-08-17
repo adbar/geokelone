@@ -214,7 +214,7 @@ def test_tok():
 
 
 def test_utils():
-    assert data.wikipedia.send_request('http://www.iana.org/404') is None
+    assert data.utils.send_request('http://www.iana.org/404') is None
 
 
 def test_geonames():
