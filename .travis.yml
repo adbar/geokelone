@@ -29,8 +29,8 @@ before_install:
   - sudo apt-get install proj-data # libproj-dev proj-bin
   - sudo apt-get install libgeos-* libgeos-dev libffi-dev libxslt1-dev libgdal-dev
   - sudo apt-get install python3-gdal # python3-shapely python3-pyproj
-  - pip install -U cairocffi matplotlib pyproj shapely cartopy # GDAL
   - pip install -U Cython codecov tox
+  - pip install -U cairocffi matplotlib pyproj shapely cartopy # GDAL
 
 install:
   - pwd
