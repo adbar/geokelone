@@ -18,7 +18,7 @@ import requests
 # from sqlitedict import SqliteDict
 
 from .. import settings
-from . import validators
+from . import utils, validators
 
 
 # Python3 types
@@ -202,13 +202,8 @@ def fetchdata(countrycodes):
         j = 0
         k = 0
         logger.info('download %s url: %s', i, url)
-        request = requests.get(url)
-
-        # log and exit if unsuccessful
-        if request.status_code != requests.codes.ok:
-            logger.error('problem with response (%s) for url %s', request.status_code, url)
-        # normal case
-        else:
+        result = utils.send_request(url)
+        if result is not None:
             with ZipFile(BytesIO(request.content)) as myzip:
                 with myzip.open(filenames[i]) as myfile:
                     for line in myfile:

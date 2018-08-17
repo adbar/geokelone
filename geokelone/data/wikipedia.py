@@ -19,7 +19,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
 
-from . import validators
+from . import utils, validators
 from .. import settings
 
 
@@ -34,35 +34,32 @@ from .. import settings
 # logging
 logger = logging.getLogger(__name__)
 
-# requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-
-# download pool manager
-class MyAdapter(HTTPAdapter):
-    """Customize HTTPS support for requests (may not be necessary anymore)"""
-    def init_poolmanager(self, connections, maxsize, block=False):
-        self.poolmanager = PoolManager(num_pools=connections, maxsize=maxsize, block=block, ssl_version=ssl.PROTOCOL_TLSv1, timeout=10.0)
-
-session = requests.Session()
-session.mount('https://', MyAdapter())
-
-
-def send_request(query_url):
-    """Send a request over the network."""
-    logger.debug('sending request %s', query_url)
-    request = session.get(query_url, verify=False)
-    if request.status_code != requests.codes.ok:
-        logger.error('problem with response (%s) for url %s', request.status_code, query_url)
-        return None
-    return request
+def parse_json_response(jsonresponse):
+    """Extract crucial elements in the API response"""
+    newmembers = list()
+    # extract
+    for match in re.finditer(r'"title":"(.+?)"', jsonresponse):
+        try:
+            title = match.group(1)
+        except AttributeError:
+            logger.warning('Unexpected response for query %s', query_url)
+        else:
+            # filter: parentheses and lists
+            if not re.search(r'\(', title) and not re.match(r'Liste? ', title):
+                newmembers.append(title) #.decode('unicode-escape'))
+                # outputfh.write(line + '\t' + title.decode('unicode-escape') + '\n')
+    if 'cmcontinue' in jsonresponse:
+        continuecode = re.search(r'"cmcontinue":"(.+?)"', jsonresponse).group(1)
+    else:
+        continuecode = None
+    return continuecode, newmembers
 
 
 def navigate_category(name, language='en'):
     """Takes a category name as input and returns all category members"""
     # init
     flag = 1
-    continuecode = ''
     members = list()
     logger.info('processing category %s with language code %s', name, language)
     # loop
@@ -73,26 +70,16 @@ def navigate_category(name, language='en'):
         elif flag == 2:
             query_url = 'https://' + language + '.wikipedia.org/w/api.php?action=query&list=categorymembers&format=json&cmlimit=500&cmtitle=' + name + '&cmcontinue=' + continuecode
         # send request
-        request = send_request(query_url)
-        if request is None:
+        result = utils.send_request(query_url)
+        if result is None:
             return list()
-        # extract
-        jsonresponse = request.text
-        for match in re.finditer(r'"title":"(.+?)"', request.text):
-            try:
-                title = match.group(1)
-            except AttributeError:
-                logger.warning('Unexpected response for query %s', query_url)
-            else:
-                # filter: parentheses and lists
-                if not re.search(r'\(', title) and not re.match(r'Liste? ', title):
-                    members.append(title.decode('unicode-escape'))
-                    # outputfh.write(line + '\t' + title.decode('unicode-escape') + '\n')
-        if 'cmcontinue' in request.text:
+        # parse response
+        continuecode, newmembers = parse_json_response(result)
+        if continuecode is not None:
             flag = 2
-            continuecode = re.search(r'"cmcontinue":"(.+?)"', jsonresponse).group(1)
         else:
             flag = 0
+        members = members + newmembers
         # throttle
         sleep(0.5)
     return members
@@ -103,11 +90,11 @@ def find_coordinates(name, language='en'):
     # init
     query_url = 'https://' + language + '.wikipedia.org/w/api.php?action=query&format=json&prop=coordinates&titles=' + name
     # send request
-    request = send_request(query_url)
-    if request is not None:
+    result = utils.send_request(query_url)
+    if result is not None:
         try:
-            latitude = re.search(r'"lat":-?([0-9\.]+?),', request.text).group(1)
-            longitude = re.search(r'"lon":-?([0-9\.]+?),', request.text).group(1)
+            latitude = re.search(r'"lat":-?([0-9\.]+?),', result).group(1)
+            longitude = re.search(r'"lon":-?([0-9\.]+?),', result).group(1)
         except AttributeError:
             logger.warning('Unexpected response for query %s', query_url)
             # outputfh.write(line + '\t' + '' + '\t' + '' + '\n')

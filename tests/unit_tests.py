@@ -211,6 +211,10 @@ def test_tok():
     assert 'Berlin' in results and 'Petersburg' in results and 'Preußen' in results
 
 
+def test_utils():
+    assert data.wikipedia.send_request('http://www.iana.org/404') is None
+
+
 def test_geonames():
     # setup
     geokelone.settings.FILTER_LEVEL = 'MINIMUM'
@@ -253,6 +257,10 @@ def test_geonames():
 def test_wikipedia():
     assert data.wikipedia.find_coordinates('Wien', language='en') == (None, None)
     assert data.wikipedia.find_coordinates('Wien', language='de') == (48.208, 16.373)
+    jsonresponse = data.utils.send_request('https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&format=json&cmlimit=500&cmtitle=Category:Countries_in_Micronesia')
+    continuecode, newmembers = data.wikipedia.parse_json_response(jsonresponse)
+    assert continuecode is None
+    assert newmembers == ['Federated States of Micronesia', 'Kiribati', 'Marshall Islands', 'Nauru', 'Northern Mariana Islands', 'Palau', 'Category:Kiribati', 'Category:Marshall Islands', 'Category:Federated States of Micronesia', 'Category:Nauru', 'Category:Palau']
 
 
 def test_distances():
