@@ -59,9 +59,7 @@ def store_variants(expanded, columns, level):
     # loop
     for variant in expanded:
         # verbosity
-        ## TODO: change logging level
-        if settings.VERBOSITY == 'VVV':
-            logger.debug('%s', variant) # , dic[variant]
+        logger.debug('seen variant of %s : %s', canonical, variant) # , dic[variant]
         # control and store
         if validators.validate_entry(variant) is False:
             logger.debug('refused: %s', variant)

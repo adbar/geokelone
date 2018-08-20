@@ -22,10 +22,7 @@ from . import utils, validators
 
 
 # Python3 types
-if sys.version_info[0] == 3:
-    STRING_TYPE = str
-else:
-    STRING_TYPE = basestring
+STRING_TYPE = str
 
 # logging
 logger = logging.getLogger(__name__)

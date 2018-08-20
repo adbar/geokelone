@@ -63,7 +63,7 @@ def examine(results, limitlabels):
         try:
             lastcol = int(results[item][-1])
             occs.append(lastcol)
-        except ValueError:
+        except (TypeError, ValueError):
             logger.warning('wrong value for occurrences: %s', results[item][-1])
     maxval = max(occs)
     minval = min(occs)

@@ -143,6 +143,8 @@ def test_geonames_filter():
     assert data.geonames.quality_control('6466296	AAA BBB GGG AAA BBBB	Amba		51	4	P	PPL	BE		VLG	VAN	11	11002	0		7	XX	YY')  == (None, None, None)
     # wrong type
     assert data.geonames.quality_control('6466296	Ambassador	Ambassador		51.2091	4.4226	S	HTL	BE		VLG	VAN	11	11002	0		7	Europe/Brussels	2016-08-02')  == (None, None, None)
+    # wrong country code
+    assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25', ccode='NL')  == (None, None, None)
     # OK
     assert data.geonames.quality_control('2801074	Breitfeld	Breitfeld		50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25') is not (None, None, None)
     result = data.geonames.quality_control('2801074	Breitfeld	Breitfeld	Breitfeld	50.26417	6.15389	P	PPL	BE		WAL	WLG	63	63067	0		432	Europe/Brussels	2017-03-25')
@@ -215,6 +217,7 @@ def test_tok():
 
 def test_utils():
     assert data.utils.send_request('http://www.iana.org/404') is None
+    assert type(data.utils.send_request('http://www.iana.org/', returnbytes=True)) == bytes
 
 
 def test_geonames():
@@ -259,6 +262,12 @@ def test_geonames():
 def test_wikipedia():
     assert data.wikipedia.find_coordinates('Wien', language='en') == (None, None)
     assert data.wikipedia.find_coordinates('Wien', language='de') == (48.208, 16.373)
+    # false response
+    jsonresponse = '{"test": {"field1": "value",}}'
+    continuecode, newmembers = data.wikipedia.parse_json_response(jsonresponse)
+    assert continuecode is None
+    assert newmembers == []
+    # correct response
     jsonresponse = data.utils.send_request('https://en.wikipedia.org/w/api.php?action=query&list=categorymembers&format=json&cmlimit=500&cmtitle=Category:Countries_in_Micronesia')
     continuecode, newmembers = data.wikipedia.parse_json_response(jsonresponse)
     assert continuecode is None
@@ -266,8 +275,10 @@ def test_wikipedia():
 
 
 def test_distances():
+    assert geo.geocoding.haversine((53.4, 1.2), (53.4, 1.2)) == 0.0
     assert geo.geocoding.haversine((53.4, 1.2), (61, 10.53)) == 1012.7688
     assert geo.geocoding.haversine((-53.466666, 1), (61, -3.33333)) == 12733.90603
+    assert geo.geocoding.vincenty((53.4, 1.2), (53.4, 1.2)) == 0.0
     assert geo.geocoding.vincenty((53.4, 1.2), (61, 10.53)) == 1014.90503
     assert geo.geocoding.vincenty((-53.466666, 1), (61, -3.33333)) == 12697.86368
 
