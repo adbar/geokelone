@@ -17,7 +17,7 @@
     :target: https://codecov.io/gh/adbar/geokelone
 
 
-Work towards the integration of spatial and textual data processing tools into a modular software package which features preprocessing, geocoding, disambiguation and visualization.
+Work towards the integration of spatial and textual data processing tools into a modular software package which features preprocessing, geocoding, disambiguation and visualization. Construction of gazzetteers and basic text processing functions are included. The installation works best with recent Linux and Mac systems (see below for more details).
 
 Current reference: Barbaresi, A. (2017). `Towards a toolbox to map historical text collections <https://hal.archives-ouvertes.fr/hal-01654526/document>`_, *Proceedings of 11th Workshop on Geographic Information Retrieval*, ACM, Heidelberg.
 
@@ -158,7 +158,7 @@ API-based geocoding solutions for Python: `geopy <https://github.com/geopy/geopy
 Installation
 ------------
 
-The instructions below have been tested on Linux with several system settings (see ``.travis.yml`` file).
+The instructions below have been tested on Linux with several system settings (see ``.travis.yml`` file). It works best with recent Linux and Mac systems and Python version >= 3.5.
 
 The cartographic components may need to be installed separately, for detailed instructions please refer to the Cartopy `documentation <http://scitools.org.uk/cartopy/docs/latest/installing.html#installing>`_.
 
@@ -177,9 +177,9 @@ The `proj library <https://github.com/OSGeo/proj.4/>`_ is needed. There are seve
 
 - From source:
 
-  a. ``wget http://download.osgeo.org/proj/proj-4.9.3.tar.gz``
-  b. ``tar -xzvf proj-4.9.3.tar.gz``
-  c. ``cd proj-4.9.3 && ./configure --prefix=/usr && make && sudo make install``
+  a. ``wget http://download.osgeo.org/proj/proj-5.2.0.tar.gz``
+  b. ``tar -xzvf proj-5.2.0.tar.gz``
+  c. ``cd proj-5.2.0 && ./configure --prefix=/usr && make && sudo make install``
 
 Other packages
 ~~~~~~~~~~~~~~
@@ -198,9 +198,10 @@ Two options, from system repositories or through ``pip``:
 
 For installation on Debian/Ubuntu simply follow the instructions (*before_install:*) in the ``travis.yml`` file
 
-Note on GDAL:#
-gdal-config --version
-sudo pip3 install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==2.2.3
+*Additional note on GDAL in case problems occur during installation:*
+
+- ``gdal-config --version``
+- ``sudo pip3 install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==2.2.3``
 
 
 Cartopy install notes
@@ -244,6 +245,7 @@ References
 
 Uses of the code base so far:
 
+- Barbaresi, A. (2018). `Borderlands of text mapping: Experiments on Fontane's Brandenburg <https://hal.archives-ouvertes.fr/hal-01951880/document>`_. Proceedings of INF-DH-2018 workshop.
 - Barbaresi, A. (2018). `A constellation and a rhizome: two studies on toponyms in literary texts <https://hal.archives-ouvertes.fr/hal-01775127/document>`_. In *Visual Linguistics*, Bubenhofer N. & Kupietz M. (Eds.), Heidelberg University Publishing, pp. 167-184.
 - Barbaresi, A. (2018). `Toponyms as Entry Points into a Digital Edition: Mapping Die Fackel <https://hal.archives-ouvertes.fr/hal-01775122/document>`_. *Open Information Science*, 2(1), De Gruyter, pp.23-33.
 - Barbaresi, A. (2018). `Placenames analysis in historical texts: tools, risks and side effects <https://hal.archives-ouvertes.fr/hal-01775119/document>`_. In *Proceedings of the Second Workshop on Corpus-Based Research in the Humanities (CRH-2)*, Dept. of Geoinformation, TU Vienna, pp. 25-34.
