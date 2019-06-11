@@ -9,24 +9,23 @@ matrix:
       env: TOXENV=py35
     - python: "3.6"
       env: TOXENV=py36
-    - python: "3.7-dev"
+    - python: "3.7"
       env: TOXENV=py37
     - python: "3.8-dev"
       env: TOXENV=py38
   allow_failures:
-    - python: "3.7-dev"
-      env: TOXENV=py37
     - python: "3.8-dev"
       env: TOXENV=py38
   # fast_finish: true
 
 
 before_install:
-  - wget http://download.osgeo.org/proj/proj-4.9.3.tar.gz
-  - tar -xzvf proj-4.9.3.tar.gz
-  - cd proj-4.9.3 && ./configure --prefix=/usr && make && sudo make install
-  - cd ..
-  - sudo apt-get install proj-data # libproj-dev proj-bin
+#  - wget http://download.osgeo.org/proj/proj-4.9.3.tar.gz
+#  - tar -xzvf proj-4.9.3.tar.gz
+#  - cd proj-4.9.3 && ./configure --prefix=/usr && make && sudo make install
+#  - cd ..
+  - sudo apt-get install libproj-dev proj-data proj-bin
+#  - sudo apt-get install proj-data # libproj-dev proj-bin
   - sudo apt-get install libgeos-* libgeos-dev libffi-dev libxslt1-dev libgdal-dev
   - sudo apt-get install python3-gdal # python3-shapely python3-pyproj
   - pip install -U Cython codecov tox
