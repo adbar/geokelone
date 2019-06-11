@@ -93,8 +93,8 @@ def find_coordinates(name, language='en'):
     result = utils.send_request(query_url)
     if result is not None:
         try:
-            latitude = re.search(r'"lat":-?([0-9\.]+?),', result).group(1)
-            longitude = re.search(r'"lon":-?([0-9\.]+?),', result).group(1)
+            latitude = re.search(r'"lat":(-?[0-9\.]+?),', result).group(1)
+            longitude = re.search(r'"lon":(-?[0-9\.]+?),', result).group(1)
         except AttributeError:
             logger.warning('Unexpected response for query %s', query_url)
             # outputfh.write(line + '\t' + '' + '\t' + '' + '\n')
