@@ -21,9 +21,9 @@ matrix:
 
 
 before_install:
-  - wget http://download.osgeo.org/proj/proj-6.1.0.tar.gz
-  - tar -xzvf proj-6.1.0.tar.gz
-  - cd proj-6.1.0 && ./configure --prefix=/usr && make CFLAGS="-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H" && sudo make install
+  - wget http://download.osgeo.org/proj/proj-5.2.0.tar.gz
+  - tar -xzvf proj-5.2.0.tar.gz
+  - cd proj-5.2.0 && ./configure --prefix=/usr && make && sudo make install
   - cd ..
 #  - sudo apt-get install libproj-dev proj-data proj-bin
   - sudo apt-get install libgeos-* libgeos-dev libffi-dev libxslt1-dev libgdal-dev
