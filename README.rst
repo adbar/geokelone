@@ -184,7 +184,7 @@ The `proj library <https://github.com/OSGeo/proj.4/>`_ is needed. There are seve
 Other packages
 ~~~~~~~~~~~~~~
 
--  ``apt-get install libgeos-* libgeos-dev libffi-dev libgdal-dev libxslt1-dev``
+-  ``apt-get install libgeos-* libffi-dev libgdal-dev libxslt1-dev``
 
 Python packages
 ~~~~~~~~~~~~~~~
@@ -198,11 +198,17 @@ Two options, from system repositories or through ``pip``:
 
 For installation on Debian/Ubuntu simply follow the instructions (*before_install:*) in the ``travis.yml`` file
 
+Note on GDAL:#
+gdal-config --version
+sudo pip3 install --global-option=build_ext --global-option="-I/usr/include/gdal" GDAL==2.2.3
+
+
 Cartopy install notes
 ~~~~~~~~~~~~~~~~~~~~~
 
 Finally, *cartopy* can be installed:
 
+- ``pip3 install Cython`` (if not installed already)
 - ``pip3 install cartopy``
 - or on newer systems: ``apt-get install python3-cartopy`` cf `<https://packages.ubuntu.com/source/zesty/python-cartopy>`_
 - or see here: `<http://scitools.org.uk/cartopy/docs/latest/installing.html#installing>`_
